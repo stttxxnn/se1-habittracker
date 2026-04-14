@@ -1,6 +1,6 @@
 // Meta
-:project-name: Projektthema (X0)
-:project-system-name: Software-Name
+:project-name: Habit Tracker (C1)
+:project-system-name: HabitTracker-System
 // Settings:
 :toc:
 :toc-title: Inhaltsverzeichnis
