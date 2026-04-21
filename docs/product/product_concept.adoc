@@ -19,10 +19,7 @@ _Warum wird dieses Produkt gebaut? Welches Problem existiert heute, und warum is
 Dieser Abschnitt beschreibt den Ausgangszustand und den Handlungsbedarf — ohne bereits eine
 Lösung zu nennen. 3–5 Sätze genügen._
 
-[Hier die Ausgangssituation und den Handlungsbedarf beschreiben. Beispiel:
-„Studierende an der Hochschule haben heute keinen zentralen Überblick über verfügbare
-Lernräume. Die Suche nach freien Plätzen kostet täglich wertvolle Zeit und führt zu Frust.
-Eine einfache, mobil nutzbare Lösung fehlt bisher."]
+Nutzer:innen möchten gesunde und produktive Routinen aufbauen, scheitern im Alltag jedoch häufig an unregelmäßigen Zeitplänen, hoher Belastung und fehlender Kontinuität. Viele bestehende To-do- oder Notiz-Apps helfen zwar beim Organisieren einzelner Aufgaben, unterstützen jedoch die nachhaltige Verhaltensänderung nur unzureichend. Besonders in stressigen oder stark belasteten Phasen entstehen Rückschläge, die schnell zu Frustration und zum Abbruch neuer Gewohnheiten führen. Es fehlt eine geeignete Unterstützung, die den Aufbau von Routinen langfristig begleitet und an die Anforderungen des Studierendenalltags angepasst ist.
 
 == Produktvision
 
@@ -33,24 +30,22 @@ nicht wesentlich verändern._
 === Visions-Statement
 
 ____
-Für [Zielgruppe],
-die [Problem oder Bedarf],
-ist [Produktname]
-ein [Produktkategorie],
-das [zentraler Nutzen].
-Im Gegensatz zu [Alternative]
-bietet unser Produkt [entscheidender Unterschied].
+Für Studierende,
+die positive Routinen aufbauen und langfristig beibehalten wollen,
+ist HabitTracker
+eine App zur Verfolgung und Förderung täglicher Gewohnheiten,
+die beim Planen, Dranbleiben und Reflektieren unterstützt.
+Im Gegensatz zu einfachen To-do-Listen
+bietet unser Produkt eine wissenschaftlich fundierte Begleitung mit Motivation, Fortschrittsanzeige und
+Anpassung an stressige Lebensphasen.
 ____
-
-//Beispiel: Für Studierende der HTWD, die zu wenig Zeit in der Mittagspause zum Essen haben, ist Flying Burger ein  Lieferdient für Burger, der per Drohne liefert. Anders als landgestützte Lieferdienste kann unser Produkt durchs Fenster direkt in den Hörsaal liefern.
 
 NOTE: Das Visions-Statement kann im Team mit der „Elevator Pitch"-Methode oder dem „Future Press Release"-Format erarbeitet werden.
 
 === Zielbild
 
 _Optional: Beschreibe in 2–4 Sätzen, wie die Welt mit diesem Produkt aussieht. Was hat sich für die Nutzer:innen verändert?_
-//[Hier das Zielbild beschreiben]
-
+Mit HabitTracker gelingt es Nutzer:innen, ihre Gewohnheiten langfristig in den Alltag zu integrieren und auch in stressigen Phasen beizubehalten. Fortschritte werden sichtbar gemacht, Rückschläge besser verstanden und als normaler Teil des Prozesses akzeptiert. Dadurch entwickeln Nutzer stabile Routinen, die ihre Produktivität, Gesundheit und ihr Wohlbefinden nachhaltig verbessern.
 
 == Produktpositionierung
 _Wer sind die Zielgruppen, und wie positioniert sich das Produkt im Vergleich zu bestehenden Alternativen?_
@@ -61,14 +56,19 @@ _Wer sind die Zielgruppen, und wie positioniert sich das Produkt im Vergleich zu
 |===
 | Zielgruppe | Beschreibung
 
-| [z. B. Studierende]
-| [Kurzbeschreibung: Wer sind sie? Was ist ihre Motivation?]
+| Studierende
+| Hauptzielgruppe des Produkts. Sie wollen ihre Zeit effizient organisieren und langfristig gesunde sowie
+produktive Gewohnheiten aufbauen. Sie sind häufig durch wechselnde Stundenpläne, Prüfungsphasen und hohe
+Belastung geprägt und benötigen Unterstützung bei Struktur, Motivation und Kontinuität.
 
-| [z. B. Lehrende]
-| [Kurzbeschreibung]
+| Menschen mit unregelmäßigem Alltag
+| Nutzer:innen mit schwankenden Tagesrhythmen, Stressphasen oder wechselnden Verpflichtungen, die
+Schwierigkeiten haben, stabile Routinen beizubehalten und daher flexible Unterstützung beim Gewohnheitsaufbau 
+benötigen.
 
-| [Weitere Zielgruppe]
-| [Kurzbeschreibung]
+| Personen mit persönlichen Entwicklungszielen
+| Nutzer:innen, die gezielt an Bereichen wie Gesundheit, Fitness, Lernen oder Produktivität arbeiten möchten
+und dafür ein strukturiertes System zur Gewohnheitsbildung und Fortschrittsverfolgung benötigen.
 |===
 
 NOTE: Ausführliche Beschreibungen der Nutzenden — Personas, Nutzungskontext,
@@ -80,17 +80,21 @@ typische Aufgaben — sind im link:ux_concept.adoc[UX-Konzept] dokumentiert.
 |===
 | Alternative | Beschreibung | Warum unser Produkt besser passt
 
-| [z. B. E-Mail-Anfrage an Sekretariat]
-| [Wie lösen Nutzer:innen das Problem heute?]
-| [Worin liegt unser Vorteil?]
+| To-Do-Listen-Apps
+| Nutzer:innen verwalten einzelne Aufgaben und Häkchen, ohne Fokus auf langfristige Verhaltensänderung oder Gewohnheitsbildung.
+| HabitTracker unterstützt gezielt die nachhaltige Entwicklung von Routinen durch Streaks, Motivation und verhaltenspsychologische Methoden.
 
-| [z. B. Aushang an schwarzem Brett]
-| [Beschreibung]
-| [Unterschied]
+| Kalender-Apps
+| Gewohnheiten werden als Termine eingetragen und nur zeitlich erinnert, ohne Analyse des Verhaltens oder Fortschritts.
+| HabitTracker verbindet Erinnerungen mit Fortschrittsvisualisierung, Reflexion und langfristigem Habit-Aufbau.
 
-| [Weitere Alternative]
-| [Beschreibung]
-| [Unterschied]
+| Notiz- oder Tagebuch-Apps
+| Ziele und Fortschritte werden unstrukturiert dokumentiert, ohne systematisches Tracking oder Motivation.
+| HabitTracker bietet strukturierte Auswertung, Visualisierung von Trends und aktive Unterstützung beim Dranbleiben.
+
+| Einfache Habit-Tracker-Apps
+| Bestehende Apps zählen meist nur Streaks oder Checkmarks, berücksichtigen aber Stressphasen und Rückschläge kaum.
+| HabitTracker integriert Recovery-Mode, flexible Anpassung und wissenschaftlich fundierte Methoden zur Stabilisierung von Gewohnheiten.
 |===
 
 
@@ -103,25 +107,20 @@ erklärt, warum bestimmte Entscheidungen getroffen wurden.
 |===
 | Stakeholder | Rolle / Interesse | Erwartungen an das Produkt | Einfluss
 
-| [z. B. Hochschulverwaltung]
-| [Betreiber der Infrastruktur; will Raumauslastung optimieren]
-| [Auslastungsberichte, DSGVO-Konformität]
+| Studierende
+| Hauptnutzer:innen des Produkts; möchten produktive, gesunde und stabile Gewohnheiten im Alltag aufbauen und langfristig beibehalten.
+| Einfache Bedienung, motivierende Unterstützung, klare Fortschrittsanzeige, flexible Zielanpassung und Hilfe bei Rückschlägen.
 | Hoch
 
-| [z. B. Studierende]
-| [Hauptnutzer:innen; wollen schnell freie Plätze finden]
-| [Einfache Bedienung, mobiler Zugang]
+| Berufstätige / Personen mit unregelmäßigem Alltag
+| Nutzer:innen mit wechselnden Tagesstrukturen, hoher Arbeitsbelastung oder Stressphasen, die stabile Routinen entwickeln möchten.
+| Flexible Nutzung, geringe Einstiegshürden, zuverlässige Erinnerungen und Anpassung an individuelle Zeitpläne.
 | Mittel
 
-| [z. B. Lehrende]
-| [Nutzen Räume für Lehrveranstaltungen; wollen Konflikte vermeiden]
-| [Sichtbarkeit ihrer Buchungen]
-| Mittel
-
-| [Weiterer Stakeholder]
-| [Beschreibung]
-| [Erwartungen]
-| [Hoch / Mittel / Niedrig]
+| Lehrende / Betreuende
+| Begleiten und bewerten das Projekt im akademischen Kontext.
+| Verständliches Konzept, nachvollziehbare Entscheidungen, saubere Dokumentation und sinnvolle Priorisierung der Funktionen.
+| Niedrig
 |===
 
 == Hauptfunktionen
@@ -134,25 +133,65 @@ Diese Hauptfunktionen sollten als Epics im Product Backlog für die Gruppierung 
 |===
 | Nutzerbedarf | Hauptfunktion | Priorität
 
-| Studierende wollen schnell sehen, welche Räume gerade frei sind.
-| Echtzeit-Übersicht freier Lernräume
+| Nutzer:innen wollen ihre Gewohnheiten individuell definieren und an persönliche Ziele anpassen.
+| Gewohnheitsmanagement mit personalisierbaren Parametern (Häufigkeit, Zeitpunkt, Dauer, Schwierigkeit)
 | Hoch
 
-| Nutzer:innen wollen einen Raum für einen bestimmten Zeitraum reservieren.
-| Raumbuchung mit Zeitfenster
+| Nutzer:innen wollen ihre Gewohnheiten zuverlässig im Alltag ausführen.
+| Zeitpläne mit täglichen, wöchentlichen, monatlichen oder selbstdefinierten Intervallen
 | Hoch
 
-| Nutzer:innen wollen ihre aktiven Buchungen verwalten.
-| Buchungsübersicht & Stornierung
+| Nutzer:innen wollen ihren Fortschritt visuell nachvollziehen.
+| Fortschrittsvisualisierung mit Kalenderansicht, Streak-Tracking und Trendanalysen
+| Hoch
+
+| Nutzer:innen wollen neue Gewohnheiten in bestehende Routinen integrieren.
+| Habit-Stacking zur Verknüpfung von Gewohnheiten für eine bessere Alltagsintegration
 | Mittel
 
-| Verwaltung will die Auslastung der Räume analysieren.
-| Auslastungsberichte für Administratoren
+| Nutzer:innen wollen ihre Gewohnheiten thematisch organisieren.
+| Kategorisierungssystem mit Hauptbereichen und anpassbaren Unterkategorien
+| Mittel
+
+| Nutzer:innen wollen ihre Daten sichern und übertragen können.
+| Import- und Exportfunktionen für persönliche Daten in verschiedenen Formaten
+| Mittel
+
+| Nutzer:innen wollen ihre Erfahrungen reflektieren.
+| Tagebuch-Funktion zur Reflexion von Fortschritten, Rückschlägen und Erkenntnissen
+| Mittel
+
+| Nutzer:innen wollen ihr Gewohnheitstracking in ihren digitalen Alltag integrieren.
+| Integration mit Kalender-Apps, Fitness-Trackern und Produktivitätstools
+| Mittel
+
+| Nutzer:innen wollen langfristig motiviert bleiben.
+| Wissenschaftlich fundiertes Belohnungssystem mit variablen Verstärkungsplänen
+| Mittel
+
+| Nutzer:innen wollen Motivation durch Herausforderungen und spielerische Elemente erhalten.
+| Gamification-System mit Challenges abhängig von Motivation und Leistungsniveau
 | Niedrig
 
-| [Nutzerbedarf]
-| [Hauptfunktion]
-| [Hoch / Mittel / Niedrig]
+| Nutzer:innen wollen ihr Verhalten verstehen und Muster erkennen.
+| Statistiken und Analysen zur Identifikation von Mustern, Hindernissen und optimalen Zeiten
+| Niedrig
+
+| Nutzer:innen wollen in stressigen Phasen ihre Ziele anpassen können.
+| Recovery-Mode mit temporär reduzierten Anforderungen und positiver Bestärkung
+| Niedrig
+
+| Nutzer:innen wollen soziale Unterstützung nutzen.
+| Community-Features wie Accountability-Partnerschaften und thematische Gruppen
+| Niedrig
+
+| Nutzer:innen wollen ihre Motivation an ihren Lebensrhythmus anpassen.
+| Saisonale Challenges abgestimmt auf akademischen Kalender und Ferienzeiten
+| Niedrig
+
+| Nutzer:innen wollen verstehen, wie Gewohnheiten wissenschaftlich funktionieren.
+| Wissenschaftlicher Wissensbereich mit Hintergrundinformationen zur Gewohnheitsbildung und Forschung
+| Niedrig
 |===
 
 NOTE: Die Reihenfolge entspricht einer ersten groben Priorisierung und wird im Rahmen
