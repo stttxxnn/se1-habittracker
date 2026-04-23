@@ -225,12 +225,17 @@ technischen Entscheidungen, die sich daraus ergeben — ohne sie hier zu wiederh
 | Seitenladezeit unter 2 Sekunden bei normaler Netzwerkverbindung.
 
 | Verfügbarkeit
-| Das Produkt ist während der Hochschulöffnungszeiten zuverlässig erreichbar.
-| Verfügbarkeit ≥ 99 % während Betriebszeiten.
+| Die Main-Features sollen offline funktionieren. Nur Comminuty-Features, saisonale Challenges und Hintergrundinformationen zu den Habits brauchen Online-Zugang.
+| Testen mit/ohne Internet-Zugang.
 
-| [Qualitätsziel]
-| [Beschreibung]
-| [Messkriterium]
+| Kompatibilität
+| Die Daten müssen mit ändere Apps kompatibel sein für die Integration
+| Automatisierte Tests
+
+| Zuverlässigkeit
+| Export/Import müssen fehlerfrei funktionieren
+| Automatisierte Tests
+
 |===
 
 === Einschränkungen
@@ -242,6 +247,11 @@ organisatorische, rechtliche oder zeitliche Vorgaben._
 |===
 | Einschränkung | Beschreibung | Kategorie
 
+| Integration mit andere Apps
+| Die Daten müssen mit ändere Apps kompatibel sein für die Integration. Es kann sein, nicht alle Daten können angezeigt werden.
+| Technisch
+
+//
 | Betrieb auf Hochschulinfrastruktur
 | Das System muss auf den vorhandenen Servern der Hochschule betrieben werden können.
 | Technisch
@@ -254,9 +264,9 @@ organisatorische, rechtliche oder zeitliche Vorgaben._
 | Das Produkt muss innerhalb eines Semesters (ca. 4 Monate) lieferbar sein.
 | Zeitlich
 
-| [Einschränkung]
-| [Beschreibung]
-| [Technisch / Rechtlich / Organisatorisch / Zeitlich]
+//| [Einschränkung]
+//| [Beschreibung]
+//| [Technisch / Rechtlich / Organisatorisch / Zeitlich]
 |===
 
 
