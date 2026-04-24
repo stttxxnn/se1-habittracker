@@ -47,7 +47,7 @@ _Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur be
 | Der HabitTracker ist für sie hilfreich, weil er nicht nur zeigt, was sie geschafft hat, sondern sie aktiv dabei unterstützt, nach Unterbrechungen wieder einzusteigen. Besonders wichtig sind für sie einfache tägliche Interaktionen, sichtbare kleine Fortschritte und Mechaniken, die verhindern, dass ein verpasster Tag zum kompletten Abbruch führt.
 |===
 
-=== Persona 1: Elena S.
+=== Persona 2: Elena S.
 
 [cols="1,3"]
 |===
@@ -75,9 +75,33 @@ _Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur be
 |===
 
 
+=== Persona 3: Gerhard T.
 
+[cols="1,3"]
+|===
+| *Rolle*
+| Senior mit viel Zeit und wenig Struktur im Alltag
 
-=== Persona 2: Franz K.
+| *Alter*
+| 71
+
+| *Zitat*
+| _„Ich habe viel Zeit, aber es fällt mir schwer, sie sinnvoll zu nutzen und mich zu motivieren."_
+
+| *Ziele*
+| Möchte mehr Strukur in seinem Leben mit fokus auf seine Gesunheit und kognitiven Fähigkeiten. Außerdem hat er einige schlechte Gewohnheiten, die er gerne loswerden würde (z.B. Rauchen).
+
+| *Frustrationen*
+| Überforderung von zu komplexen Apps und das Gefühl, dass er zu alt ist, um neue Gewohnheiten zu etablieren und schlechte Gewohnheiten zu brechen.
+
+| *Verhalten & Kontext*
+| Gerhard nutzt sein Smartphone hauptsächlich für Telefonate und gelegentlich für Nachrichten. Er hat wenig Erfahrung mit Apps und digitalen Tools, fühlt sich aber verpflichtet, etwas zu ändern. Er bevorzugt einfache, klare Anweisungen und visuelle Hilfen. Nach dem Verlust seiner Frau vor einigen Jahren fing er an wieder zu rauchen, obwohl er es früher geschafft hatte, damit aufzuhören. Er bewegt sich nicht viel und ernährt sich ungesund. Er möchte dennoch sein Verhalten verbessern, um noch lange für seine Kinder und Enkel da zu sein.
+
+| *Bezug zum Produkt*
+|Gerhard hat viele schlechte Gewohnheiten, die er gerne loswerden würde, aber er weiß nicht, wo er anfangen soll. Er brauch ein weg um sich selber zur rechenschaft zu ziehen und motiviert zu bleiben. Der HabitTracker könnte ihm helfen, kleine Schritte zu machen und Fortschritte zu sehen, um ihn zu motivieren, weiterzumachen.
+|===
+
+=== Persona 4: Franz K.
 
 [cols="1,3"]
 |===
