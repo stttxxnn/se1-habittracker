@@ -47,6 +47,36 @@ _Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur be
 | Der HabitTracker ist für sie hilfreich, weil er nicht nur zeigt, was sie geschafft hat, sondern sie aktiv dabei unterstützt, nach Unterbrechungen wieder einzusteigen. Besonders wichtig sind für sie einfache tägliche Interaktionen, sichtbare kleine Fortschritte und Mechaniken, die verhindern, dass ein verpasster Tag zum kompletten Abbruch führt.
 |===
 
+=== Persona 1: Elena S.
+
+[cols="1,3"]
+|===
+| *Rolle*
+| Marketingmanagerin im Homeoffice
+
+| *Alter*
+| 34
+
+| *Zitat*
+| _„Meine Grenzen von privat Leben und Arbeit verschwimmen. Mir fällt es schwer meine privaten Interessen zu prioritieren."_
+
+| *Ziele*
+| Etablierung von "Boundary-Habits"(z.B Spaziergang als simulierter arbeitsweg) um die Trennung von Arbeit und   Privatleben zu unterstützen. Sie möchte ihre Freizeitaktivitäten regelmäßig wahrnehmen, um einen Ausgleich zum Homeoffice zu schaffen.
+
+| *Frustrationen*
+| Rückenschmerzen durch bewegungsmangel und das Gefühl nie richtig fertig mit ihrer Arbeit zu sein.
+
+| *Verhalten & Kontext*
+| Elena sitzt den ganzen Tag am Schreibtisch und arbeitet an ihrem Laptop. Sie nutzt ihr Smartphone hauptsächlich für soziale Medien und zum Musik hören. Sie hat Schwierigkeiten, sich von der Arbeit zu lösen, da sie keinen klaren Arbeitsbeginn oder -ende hat. Sie möchte gerne mehr Bewegung in ihren Alltag integrieren, aber es fällt ihr schwer, sich dazu zu motivieren.
+
+
+| *Bezug zum Produkt*
+|Für Elena ist es wichtig notification zu erhalten um sich an ihre Boundary-Habits zu erinnern. Sie brauch klare Grenzen zwischen Arbeit und Freizeit, um ihre mentalen und physischen Gesundheit zu verbessern. Der HabitTracker könnte ihr helfen, regelmäßige Pausen einzulegen und Aktivitäten zu planen, die ihr helfen, sich von der Arbeit zu lösen.
+|===
+
+
+
+
 === Persona 2: Franz K.
 
 [cols="1,3"]
