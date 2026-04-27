@@ -1,17 +1,18 @@
 = Teamcharta: {project-name}
-Vorname Nachname <email@domain.org>; Vorname2 Nachname2 <email2@domain.org>; Vorname3 Nachname3 <email3@domain.org>
+Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Ben Frank Loritz <s88887@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne Mathis Tesch <s88618@htw-dresden.de>
 {localdatetime}
 include::../_includes/default-attributes.inc.adoc[]
 :version: 1.0
 
 == Über uns
-_Hier können Sie einen Teamnamen und ggf. ein Motto oder eine kurze Beschreibung hinzufügen, um die Identität Ihres Teams zu stärken._
+
+Wir sind ein Team von Studierenden, das gemeinsam an einer HabitTracker-App arbeitet. Uns ist wichtig, dass wir nicht nur gut zusammenarbeiten, sondern auch als Team gut klarkommen. Deshalb legen wir Wert auf offenen Austausch, gegenseitige Unterstützung und eine entspannte, respektvolle Atmosphäre – auch über das Projekt hinaus.
 
 == Zweck
 
 *Was bauen wir, und warum?*
 
-_Hier die Produktvision und den Projektzweck in 2–3 Sätzen beschreiben._
+Unsere Vision ist es, eine benutzerfreundliche HabitTracker-App zu entwickeln, die Menschen dabei hilft, langfristig positive Gewohnheiten aufzubauen. Die Anwendung soll besonders Studierende im Alltag unterstützen, indem sie Struktur, Motivation und Übersicht bietet. Ziel ist es, eine einfache, aber effektive Lösung zu schaffen, die Nutzer dabei begleitet, ihre persönlichen Ziele konsequent zu verfolgen.
 
 == Rollen
 
@@ -20,19 +21,19 @@ _Hier die Produktvision und den Projektzweck in 2–3 Sätzen beschreiben._
 | Rolle | Person
 
 | Product Owner
-| [Name]
+| Ben Frank Loritz, Etienne Mathis Tesch
 
 | Scrum Master
-| [Name]
+| Hannes Lutz Ullmann
 
 | Tech Lead footnote:[optionale Rolle, aber empfohlen, um technische Entscheidungen zu koordinieren]
-| [Name]
+| /
 
 | Entwickler:innen
-| [Namen]
+| Stan Schwerdtfeger, Olha Kochui, Daniel Andreas Menzel, Rohullah Sediqi, Sofiia Khaleeva
 
 | Stakeholder (Hauptansprechpartner)
-| [Name]
+| /
 |===
 
 
@@ -43,29 +44,29 @@ _Hier die Produktvision und den Projektzweck in 2–3 Sätzen beschreiben._
 | Ereignis | Wann | Dauer | Moderation
 
 | Standup (Daily / Weekly)
-| [z. B. täglich 09:30]
-| [z. B. 15 min]
-| [Rolle / Person]
+| wöchentlich dienstags ab 13:00 Uhr
+| ca. 10–15 min (integriert ins Meeting)
+| Scrum Master
 
 | Sprint Planning
-| [z. B. montags, Sprintstart]
-| [z. B. 2 h]
-| [Rolle / Person]
+| dienstags zu Sprintbeginn ab 13:00 Uhr
+| ca. 1,5–2 h
+| Product Owner & Scrum Master
 
 | Sprint Review
-| [z. B. freitags, Sprintende]
-| [z. B. 1 h]
-| [Rolle / Person]
+| dienstags zum Sprintende ab 13:00 Uhr
+| ca. 45–60 min
+| gesamtes Team
 
 | Retrospektive
-| [z. B. freitags, nach Review]
-| [z. B. 1 h]
-| [Rolle / Person]
+| im Anschluss an das Review (dienstags)
+| ca. 30–45 min
+| Scrum Master
 
 | Backlog Refinement
-| [z. B. mittwochs, wöchentlich]
-| [z. B. 1 h]
-| [Rolle / Person]
+| bei Bedarf im wöchentlichen Termin integriert
+| flexibel innerhalb der 1,5 h
+| Product Owner
 |===
 
 == Kommunikation
@@ -75,22 +76,22 @@ _Hier die Produktvision und den Projektzweck in 2–3 Sätzen beschreiben._
 | Thema | Vereinbarung
 
 | Primärer Kanal
-| [z. B. Discord – #projektname]
+| Discord – Server für das Projekt „habit-tracker“
 
 | Entscheidungsprotokoll
-| [z. B. Wiki oder per Asciidoc in Ordner <Ordnername>]
+| Wichtige Entscheidungen werden in GitHub Issues oder kurz im Repository dokumentiert
 
 | Erwartete Reaktionszeit
-| [z. B. innerhalb von 4 Stunden während Kernzeit]
+| in der Regel innerhalb von 24 Stunden, bei wichtigen Themen schneller
 
 | Kernarbeitszeit
-| [z. B. 09:00 – 16:00 Uhr]
+| grob zwischen 13:00 – 16:00 Uhr (abhängig von Verfügbarkeit)
 
 | Videokonferenz-Tool
-| [z. B. Teams / Discord / Google Meet]
+| Discord
 
 | Asynchrone Abstimmung
-| [z. B. kurze Statusupdates im Issue-Diskussion]
+| Kommunikation über GitHub Issues und Discord-Nachrichten (Updates, Fragen, Abstimmungen)
 |===
 
 == Arbeitsweise
@@ -98,24 +99,19 @@ _Hier die Produktvision und den Projektzweck in 2–3 Sätzen beschreiben._
 === Definition of Ready (DoR)
 _Eine User Story ist bereit für die Entwicklung, wenn:_
 
-// Hier können die Kriterien individuell angepasst werden, z. B.:
-* [ ] Die Akzeptanzkriterien sind klar und vollständig beschrieben
-* [ ] Der Aufwand wurde vom Team geschätzt
-* [ ] Abhängigkeiten sind identifiziert und geklärt
-* [ ] Designs / Mockups sind vorhanden (falls relevant)
-* [ ] [Weitere Kriterien ergänzen]
+* [ ] Die Aufgabe verständlich beschrieben ist
+* [ ] Klar ist, was genau umgesetzt werden soll
+* [ ] Wichtige Fragen im Team geklärt wurden
+* [ ] Falls nötig, grobe Ideen oder Skizzen vorhanden sind
 
 === Definition of Done (DoD)
 _Eine User Story gilt als fertig, wenn:_
 
-// Hier können die Kriterien individuell angepasst werden, z. B.:
-* [ ] Der Code wurde implementiert und in den Hauptbranch gemergt
-* [ ] Unit- und Integrationstests wurden geschrieben und sind grün
-* [ ] Der Code wurde von mindestens einer weiteren Person reviewt
-* [ ] Die Funktionalität wurde im Staging-System getestet
-* [ ] Dokumentation wurde aktualisiert (falls erforderlich)
-* [ ] Der Product Owner hat die Story abgenommen
-* [ ] [Weitere Kriterien ergänzen]
+* [ ] Die Funktion umgesetzt wurde
+* [ ] Es keine offensichtlichen Fehler mehr gibt
+* [ ] Der Code einmal von jemand anderem angeschaut wurde
+* [ ] Die Aufgabe im Team kurz überprüft wurde
+* [ ] Alles Wichtige dokumentiert oder erklärt wurde
 
 === Code & Versionierung
 
@@ -124,27 +120,26 @@ _Eine User Story gilt als fertig, wenn:_
 | Thema | Vereinbarung
 
 | Branching-Strategie
-| [z. B. Feature Branches, Trunk-Based Development]
+|  Nutzung von Feature Branches für neue Funktionen
 
 | PR-Review-Regeln
-| [z. B. mind. 1 Approval, kein Merge ohne grüne Pipeline]
+| Änderungen werden vor dem Merge kurz von mindestens einer Person angeschaut
 
 | Merge-Berechtigung
-| [z. B. jedes Teammitglied nach Approval]
+| jedes Teammitglied
 
 | Commit-Konventionen
-| [z. B. Conventional Commits]
+| verständliche und kurze Commit-Nachrichten
 |===
 
 == Teamvereinbarungen
 
 _Diese Vereinbarungen haben wir gemeinsam getroffen:_
 
-. [z. B. Wir gehen respektvoll und offen miteinander um.]
-. [z. B. Wir sprechen Probleme frühzeitig an, anstatt sie zu ignorieren.]
-. [z. B. Fehler sind Lernchancen – wir suchen keine Schuldigen.]
-. [z. B. Meetings beginnen pünktlich; wer verhindert ist, gibt rechtzeitig Bescheid.]
-. [z. B. Entscheidungen werden dort dokumentiert, wo alle sie finden können.]
+. Wir gehen respektvoll und freundlich miteinander um.
+. Wir sprechen Probleme offen an, wenn etwas nicht passt.
+. Wir helfen uns gegenseitig und unterstützen uns bei Fragen.
+. Wir halten uns an Absprachen und geben Bescheid, wenn etwas nicht klappt.
+. Wir sorgen dafür, dass alle im Team eingebunden sind und mitkommen.
 
-
-_Nächste Überprüfung: [Datum / Sprint] — Diese Charta wird regelmäßig in der Retrospektive aktualisiert._
+_Nächste Überprüfung: nach sprint 2 — Diese Charta wird regelmäßig in der Retrospektive aktualisiert._
