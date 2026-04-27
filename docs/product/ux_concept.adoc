@@ -173,16 +173,21 @@ _Was könnte die Akzeptanz oder Nutzung des Produkts beeinträchtigen?_
 |===
 | Hürde / Risiko | Mögliche Reaktion im Design
 
-| [z. B. Datenschutzbedenken bei Registrierungspflicht]
-| [z. B. Gastzugang für erste Nutzung anbieten]
+| **Hohe Frustration bei Abbruch von "Streaks"** (Gefahr des Alles-oder-Nichts-Denkens nach einem verpassten Tag).
+| Implementierung eines **"Recovery-Mode"**: Nutzer können Ziele temporär reduzieren oder "Joker-Tage" nutzen, um die Motivation trotz Rückschlägen aufrechtzuerhalten.
 
-| [z. B. Schlechte WLAN-Verfügbarkeit in Gebäudeteilen]
-| [z. B. Offline-Ansicht für zuletzt geladene Daten]
+| **Datenschutzbedenken** bei der Erfassung sensibler Gewohnheiten (z. B. mentale Gesundheit, Hygiene).
+| **Privacy by Design**: Optionale lokale Speicherung der Daten, Verzicht auf Klarnamenpflicht und klare Kommunikation darüber, welche Daten synchronisiert werden.
 
-| [Weitere Hürde]
-| [Reaktion]
+| **Überforderung durch zu viele neue Gewohnheiten** am Anfang des Prozesses.
+| **Progressives Onboarding**: Empfehlung, mit maximal 1-3 Mikro-Gewohnheiten zu starten. Warnhinweise im Interface, wenn das System als "zu voll" erkannt wird.
+
+| **Vergessen des "Check-ins"** in hektischen Phasen oder bei fehlender Internetverbindung.
+| **Offline-First-Ansatz**: Alle Einträge können offline vorgenommen werden. Unterstützung von **Habit Stacking** durch Vorschläge für Trigger (z. B. "Nach der Vorlesung").
+
+| **Mangelnde Langzeitmotivation** nach der ersten Euphorie (bevor die 66 Tage erreicht sind).
+| **Gamification & Belohnungssystem**: Visuelles Feedback durch Fortschrittsbalken, kleine Meilenstein-Feiern und wissenschaftlich fundierte Fakten zur Gewohnheitsbildung als Motivations-Push.
 |===
-
 == Systemweite Interaktionsflüsse
 
 _Dieser Abschnitt beschreibt Abläufe, die mehrere Features oder Bereiche des Produkts
