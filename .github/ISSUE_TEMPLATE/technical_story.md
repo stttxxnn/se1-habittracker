@@ -93,4 +93,4 @@ PLANNING: Einträge als Sub-Issues anlegen und zuweisen.
 ---
 
 > **Definition of Ready** prüfen, bevor diese Story in einen Sprint aufgenommen wird:
-> [Team-Charta - Definition of Ready](https://github.com/[ORG]/[REPO]/blob/main/docs/team/team_charter.adoc)
+> [Team-Charta - Definition of Ready](https://github.com/stttxxnn/se1-habittracker/blob/main/docs/team/team_charter.adoc)
