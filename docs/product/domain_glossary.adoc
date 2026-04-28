@@ -1,5 +1,5 @@
-= Domänenmodell und Glossar: {project-name}
-Vorname Nachname <email@domain.org>; Vorname2 Nachname2 <email2@domain.org>; Vorname3 Nachname3 <email3@domain.org>
+= Domänenmodell und Glossar: HabitTracker (C1)
+Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Ben Frank Loritz <s88887@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne Mathis Tesch <s88618@htw-dresden.de>
 {localdatetime}
 include::../_includes/default-attributes.inc.adoc[]
 // Platzhalter für weitere Dokumenten-Attribute
@@ -19,28 +19,37 @@ Technische Implementierungsdetails gehören nicht hierher!
 |===
 | Begriff / Abkürzung | Definition | Synonyme / Abgrenzungen
 
-| Bestellung
-| Eine vom Nutzer ausgelöste Anforderung, ein oder mehrere Produkte zu erwerben.
-  Eine Bestellung durchläuft verschiedene Status (offen, bezahlt, versendet, abgeschlossen).
-| Auftrag; nicht zu verwechseln mit „Warenkorb" (noch nicht abgeschlossen)
+| Gewohnheit
+| Eine wiederkehrende Handlung, die der Nutzer regelmäßig im Alltag durchführen möchte (z. B. Sport, Lernen, Schlafroutine).
+| Habit
 
-| Nutzer
-| Eine Person, die das System aktiv verwendet. Nutzer müssen registriert und eingeloggt
-  sein, um Bestellungen aufzugeben.
-| Anwender, Benutzer; abzugrenzen von „Administrator"
+| Gewohnheitsmanagement
+| Die Erstellung, Anpassung und Verwaltung von Gewohnheiten inklusive ihrer Eigenschaften wie Häufigkeit, Zeitpunkt, Dauer und Schwierigkeit.
+| Habit-Planung
 
-| Produkt
-| Ein im System angebotener Artikel, der bestellt werden kann. Ein Produkt hat eine
-  Bezeichnung, einen Preis und eine Verfügbarkeit.
-| Artikel, Ware
+| Habit-Stacking
+| Methode, bei der eine neue Gewohnheit an eine bereits bestehende Gewohnheit gekoppelt wird.
+| Verknüpfung von Routinen, Gewohnheitsverknüpfung
 
-| [Begriff]
-| [Präzise, fachliche Definition in 1–3 Sätzen]
-| [Synonyme oder Abgrenzungen zu ähnlichen Begriffen]
+| Streak
+| Eine ununterbrochene Serie von Tagen, an denen eine Gewohnheit erfolgreich ausgeführt wurde.
+| Serie, Erfolgsreihe
 
-| [Begriff]
-| [Präzise, fachliche Definition in 1–3 Sätzen]
-| [Synonyme oder Abgrenzungen zu ähnlichen Begriffen]
+| Rückschlag
+| Ein Tag oder Zeitraum, in dem eine Gewohnheit nicht eingehalten wurde.
+| Unterbrechung
+
+| Recovery-Mode
+| Funktion zur Anpassung von Gewohnheiten in stressigen Phasen, um Rückschläge abzufedern und Nutzer:innen beim Wiedereinstieg zu unterstützen.
+| Anpassungsmodus
+
+| Belohnungssystem
+| Mechanismus, der positive Verstärkung für erledigte Gewohnheiten bietet.
+| Motivation-System, Rewards
+
+| Integration
+| Verbindung von HabitTracker mit externen Systemen wie Kalendern oder Fitness-Apps zur Unterstützung des Nutzeralltags.
+| Synchronisation, Anbindung
 |===
 
 
