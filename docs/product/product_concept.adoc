@@ -248,7 +248,7 @@ organisatorische, rechtliche oder zeitliche Vorgaben._
 | Einschränkung | Beschreibung | Kategorie
 
 | Integration mit andere Apps
-| Die Daten müssen mit ändere Apps kompatibel sein für die Integration. Es kann sein, nicht alle Daten können angezeigt werden.
+| Die Daten müssen mit anderen Apps kompatibel sein für die Integration. Es kann sein, dass nicht alle Daten angezeigt werden können.
 | Technisch
 
 //
