@@ -225,17 +225,16 @@ technischen Entscheidungen, die sich daraus ergeben — ohne sie hier zu wiederh
 | Seitenladezeit unter 2 Sekunden bei normaler Netzwerkverbindung.
 
 | Verfügbarkeit
-| Die Main-Features sollen offline funktionieren. Nur Comminuty-Features, saisonale Challenges und Hintergrundinformationen zu den Habits brauchen Online-Zugang.
-| Testen mit/ohne Internet-Zugang.
+| Zentrale Funktionen sind auch offline nutzbar. Nur Comminuty-Features, saisonale Challenges und Hintergrundinformationen zu den Habits brauchen Online-Zugang.
+| Kernfunktionen funktionieren ohne Internetverbindung zuverlässig.
 
 | Kompatibilität
-| Die Daten müssen mit ändere Apps kompatibel sein für die Integration
-| Automatisierte Tests
+| Daten können mit externen Anwendungen ausgetauscht werden.
+| Erfolgreicher Import/Export in gängigen Formaten (z. B. JSON, CSV).
 
 | Zuverlässigkeit
-| Export/Import müssen fehlerfrei funktionieren
-| Automatisierte Tests
-
+| Datenverarbeitung erfolgt stabil und fehlerfrei.
+| Keine Datenverluste bei Speicherung, Import oder Export in Testszenarien.
 |===
 
 === Einschränkungen
