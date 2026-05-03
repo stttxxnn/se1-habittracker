@@ -1,32 +1,42 @@
 = Kurzprotokoll für ein Sprint-Review
 
 // Kurzer Kontext zur Einordnung des Reviews.
-Team:: 
-Sprint:: 
-Datum:: 
+Team:: C1
+Sprint:: 1 
+Datum:: 31. März - 28. April 
 
 // Das Sprint-Ziel soll in einem Satz benannt werden.
 // Es beschreibt, was im Sprint erreicht oder validiert werden sollte.
 
 == Sprint-Ziel
-* Ziel:
-* Status: Erreicht / Teilweise erreicht / Nicht erreicht
+* Ziel: Der erste Sprint sollte uns dienen als Team zusammen zu kommen und eine Rollenverteilung zu etablieren, sowie erste Gedanken zur Umsetzung zu kreieren, außerdem folgten wir der Hinweis Datei des ersten Sprints und erfüllten diese voll umfänglich.
+* Status: Erreicht X / Teilweise erreicht / Nicht erreicht
 
 // Hier nur die wichtigsten Ergebnisse des Reviews festhalten.
 // "Artefakte" können z. B. ein Produktinkrement, Wireframes, Architekturentwürfe, Modelle, Produktvision 
 // oder andere überprüfte Ergebnisse sein.
 == Gezeigte Ergebnisse
-* Gezeigte Artefakte:
-* Links zu Nachweisen:
+* Gezeigte Artefakte: Wireframes, Produktkonzept, Nutzerkonzept, Teamcharta
+* Links zu Nachweisen: Wireframes: https://miro.com/app/board/uXjVHdoxdgc=/?share_link_id=296410648488
+Produktkonzept: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/product/product_concept.adoc
+Nutzerkonzept: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/product/ux_concept.adoc
+Teamcharta: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/team/teamcharter.adoc
+
 
 // Feedback möglichst knapp und konkret dokumentieren.
 // Positiv = was überzeugt hat
 // Bedenken = was problematisch, unklar oder riskant erschien
 // Offene Fragen = was noch geklärt werden muss
 == Feedback
-* Positiv:
-* Bedenken:
-* Offene Fragen:
+* Positiv: Jedes Teammitglied hat seine Aufgaben verantwortungsbewusst und fristgerecht durchgeführt, sodass ein reibungsloser Ablauf möglich war.
+* Bedenken: Der Stand unseres Projekts wirft Fraegn auf, da wir uns nicht sicher sind ob der Ablauf und die Durchführung synchron zu den Hinweis Dateien stattfindet oder eben nicht.
+* Offene Fragen: Auf Anfrage wurde ein Meeting mit Herr Zirkelbach vereinbart, mit welchem wir folgende Fragen bearbeiten möchten:
+-Umsetzung der Datenbank (VM)
+-generelle Nutzung von Entwicklungsumgebungen (Architecture)
+-Abgleich unseres Stands (ggf. gegenüber Gruppen des Vorjahr).
+Es gibt außerdem weitere Fragen, welche sich aber im Laufe des Gesprächs klären/ergeben werden und nicht all zu wesentlich sind.
+
+
 
 // Nur die wichtigsten Entscheidungen und Zielkonflikte aufnehmen.
 // Beispiele für Trade-off: schnellere Umsetzung vs. saubere Architektur oder besonders ausgefallene Features vs. solide Umsetzung von Basisfunktionen
@@ -37,10 +47,16 @@ Datum::
 // Konkrete nächste Schritte notieren.
 // Fokus = worauf sich das Team im nächsten Sprint besonders konzentrieren will
 == Nächste Schritte
-* Folgeaktionen:
-* Fokus für den nächsten Sprint:
+* Folgeaktionen: Nach dem Gespräch mit unserem Coach (Herr Zirkelbach) ggf. den Sprint 1 aufarbeiten und anpassen, andererseits voller Fokus auf Sprint 2.
+* Fokus für den nächsten Sprint: Synchron zur Hinweis Datei des zweiten Sprint arbeiten, sowie erste Inkrementierungsversuche bzw. eine Umgebung erstellen, sodass allmählich erste Ansätze umgesetzt werden können.
 
 // Was haben wir gelernt? 
 == Reflexion
-- Wichtigste Erkenntnis:  
+- Wichtigste Erkenntnis:
+Eine klare Rollenverteilung und strukturierte Zusammenarbeit im Team sind entscheidend, um Aufgaben effizient und fristgerecht umzusetzen.
+Frühe Orientierung an den Vorgaben (Hinweisdateien) hilft, Unsicherheiten zu reduzieren, ersetzt aber nicht die inhaltliche Abstimmung und das gemeinsame Verständnis.
+Offene Kommunikation über Unsicherheiten (z. B. bei Architektur oder Vorgehen) ist notwendig, um Fehlentwicklungen früh zu vermeiden.
 - Größte Überraschung:
+Trotz vollständiger Bearbeitung der vorgegebenen Aufgaben bestand weiterhin Unsicherheit darüber, ob der eingeschlagene Weg tatsächlich korrekt ist.
+Der organisatorische Teil (Abstimmung, Verständnis der Anforderungen, Klärung von Rahmenbedingungen wie Entwicklungsumgebung und Architektur) nimmt mehr Zeit und Bedeutung ein als erwartet.
+Wie wichtig externe Abstimmung (z. B. mit dem Coach) ist, um Sicherheit über den eigenen Fortschritt zu bekommen.
