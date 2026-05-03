@@ -29,7 +29,7 @@ Teamcharta: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/team/tea
 // Offene Fragen = was noch geklärt werden muss
 == Feedback
 * Positiv: Jedes Teammitglied hat seine Aufgaben verantwortungsbewusst und fristgerecht durchgeführt, sodass ein reibungsloser Ablauf möglich war.
-* Bedenken: Der Stand unseres Projekts wirft Fraegn auf, da wir uns nicht sicher sind ob der Ablauf und die Durchführung synchron zu den Hinweis Dateien stattfindet oder eben nicht.
+* Bedenken: Der Stand unseres Projekts wirft Fragen auf, da wir uns nicht sicher sind ob der Ablauf und die Durchführung synchron zu den Hinweis Dateien stattfindet oder eben nicht.
 * Offene Fragen: Auf Anfrage wurde ein Meeting mit Herr Zirkelbach vereinbart, mit welchem wir folgende Fragen bearbeiten möchten:
 -Umsetzung der Datenbank (VM)
 -generelle Nutzung von Entwicklungsumgebungen (Architecture)
