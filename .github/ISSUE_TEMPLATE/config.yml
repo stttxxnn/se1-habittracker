@@ -26,7 +26,7 @@ contact_links:
     about: Fachliche Begriffe — vor dem Erstellen von Stories konsultieren, um einheitliche Sprache sicherzustellen
 
   - name: ✅ Team-Charta & Definition of Ready / Done
-    url: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/team/team_charter.adoc
+    url: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/team/teamcharter.adoc
     about: Unsere Arbeitsvereinbarungen — inkl. Definition of Ready, Definition of Done und Zeremonien
 
   - name: 🏗️ Architekturdokument & ADRs
