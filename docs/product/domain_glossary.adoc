@@ -101,16 +101,28 @@ Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
 | Entität | Beschreibung
 
 | Nutzer
-| [Beschreibung der Entität und ihrer Rolle im System]
+| Verwaltet persönliche Gewohnheiten, Fortschritte und soziale Interaktionen innerhalb der Anwendung.
 
-| Bestellung
-| [Beschreibung der Entität und ihrer Rolle im System]
+| Gewohnheit
+| Beschreibt eine wiederkehrende Aktivität, die ein Nutzer regelmäßig durchführen möchte.
 
-| Produkt
-| [Beschreibung der Entität und ihrer Rolle im System]
+| Gewohnheitsabschluss
+| Dokumentiert die erfolgreiche Durchführung einer Gewohnheit zu einem bestimmten Zeitpunkt.
 
-| [Weitere Entität]
-| [Beschreibung]
+| Streak
+| Speichert die aktuelle und längste Erfolgsserie eines Nutzers.
+
+| Planung
+| Enthält Informationen zur zeitlichen Planung und Wiederholung von Gewohnheiten.
+
+| Benachrichtigung
+| Informiert Nutzer über Erinnerungen, Meilensteine oder wichtige Ereignisse.
+
+| Meilenstein
+| Repräsentiert erreichte Fortschritte oder Ziele innerhalb einer Gewohnheit.
+
+| Statistik
+| Zeigt Auswertungen und Trends zum Fortschritt des Nutzers.
 |===
 
 === Beschreibung der Beziehungen
@@ -122,20 +134,34 @@ Beschreibung der wichtigsten Beziehungen zwischen den Entitäten, sofern diese b
 | Von | Zu | Kardinalität | Bedeutung
 
 | Nutzer
-| Bestellung
+| Gewohnheit
 | 1 zu 0..*
-| Ein Nutzer kann keine oder mehrere Bestellungen aufgeben.
+| Ein Nutzer kann mehrere Gewohnheiten verwalten.
 
-| Bestellung
-| Produkt
-| 1 zu 1..*
-| Eine Bestellung enthält mindestens ein Produkt.
+| Gewohnheit
+| Gewohnheitsabschluss
+| 1 zu 0..*
+| Eine Gewohnheit kann mehrfach abgeschlossen werden.
 
-| [Entität]
-| [Entität]
-| [z. B. 0..* zu 1]
-| [Beschreibung der Beziehung in natürlicher Sprache]
-|===
+| Nutzer
+| Streak
+| 1 zu 1
+| Jeder Nutzer besitzt genau eine Streak-Verwaltung.
+
+| Gewohnheit
+| Planung
+| 1 zu 0..*
+| Eine Gewohnheit kann mehrere geplante Zeitpunkte besitzen.
+
+| Nutzer
+| Benachrichtigung
+| 1 zu 0..*
+| Nutzer erhalten Benachrichtigungen zu Fortschritten und Erinnerungen.
+
+| Gewohnheit
+| Meilenstein
+| 1 zu 0..*
+| Zu einer Gewohnheit können mehrere Meilensteine gehören.
 
 _Dieses Dokument wird kontinuierlich gepflegt. Änderungen an Fachbegriffen oder Beziehungen
 müssen hier nachgezogen werden, bevor sie in User Stories oder Code einfließen._
