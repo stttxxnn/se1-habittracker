@@ -95,7 +95,7 @@ _Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur be
 | Überforderung von zu komplexen Apps und das Gefühl, dass er zu alt ist, um neue Gewohnheiten zu etablieren und schlechte Gewohnheiten zu brechen.
 
 | *Verhalten & Kontext*
-| Gerhard nutzt sein Smartphone hauptsächlich für Telefonate und gelegentlich für Nachrichten. Er hat wenig Erfahrung mit Apps und digitalen Tools, fühlt sich aber verpflichtet, etwas zu ändern. Er bevorzugt einfache, klare Anweisungen und visuelle Hilfen. Nach dem Verlust seiner Frau vor einigen Jahren fing er an wieder zu rauchen, obwohl er es früher geschafft hatte, damit aufzuhören. Er bewegt sich nicht viel und ernährt sich ungesund. Er möchte dennoch sein Verhalten verbessern, um noch lange für seine Kinder und Enkel da zu sein.
+| Gerhard nutzt sein Smartphone hauptsächlich für Telefonate und gelegentlich für Nachrichten. Er hat wenig Erfahrung mit Apps und digitalen Tools, fühlt sich aber verpflichtet, etwas zu ändern. Er bevorzugt einfache, klare Anweisungen und visuelle Hilfen. Gerhard bewegt sich nicht viel und ernährt sich ungesund. Er möchte dennoch sein Verhalten verbessern, um noch lange für seine Kinder und Enkel da zu sein.
 
 | *Bezug zum Produkt*
 |Gerhard hat viele schlechte Gewohnheiten, die er gerne loswerden würde, aber er weiß nicht, wo er anfangen soll. Er brauch ein weg um sich selber zur rechenschaft zu ziehen und motiviert zu bleiben. Der HabitTracker könnte ihm helfen, kleine Schritte zu machen und Fortschritte zu sehen, um ihn zu motivieren, weiterzumachen.
@@ -142,8 +142,8 @@ _Der Nutzungskontext gemäß DIN EN ISO 9241-11 beschreibt die Lebenswirklichkei
 | Primär Studierende der HTW Dresden. Diese verfügen über hohe Technikaffinität, leiden jedoch oft unter Zeitmangel, Stress in Prüfungsphasen und schwankender Motivation. Die Nutzer sind erfahren in der Smartphone-Nutzung, aber oft überfordert von komplexen Menüstrukturen (Verweis auf link:#persona-1-laura-m[Persona Laura M.]).
 
 | Ziele & Aufgaben
-| Hauptziel ist der Aufbau langfristiger, positiver Routinen (Gewohnheitsbildung > 66 Tage). 
-Konkrete Aufgaben: 
+| Hauptziel ist der Aufbau langfristiger, positiver Routinen (Gewohnheitsbildung > 66 Tage).
+Konkrete Aufgaben:
 1. Schnelles Protokollieren ("Check-in") von Gewohnheiten unmittelbar nach einem Trigger (Habit-Stacking).
 2. Reflexion über Rückschläge im Tagebuch.
 3. Anpassung von Zielen in Stressphasen (Aktivierung Recovery-Mode).
