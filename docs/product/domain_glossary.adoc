@@ -157,32 +157,92 @@ Beschreibung der wichtigsten Beziehungen zwischen den Entitäten, sofern diese b
 | Nutzer
 | Gewohnheit
 | 1 zu 0..*
-| Ein Nutzer kann mehrere Gewohnheiten verwalten.
+| Ein Nutzer kann beliebig viele Gewohnheiten erstellen und verwalten. Jede Gewohnheit gehört dabei genau einem Nutzer und dient der langfristigen Routinebildung.
+
+| Gewohnheitsvorlage
+| Gewohnheit
+| 1 zu 0..*
+| Eine Gewohnheitsvorlage kann als Grundlage für mehrere individuelle Gewohnheiten verwendet werden, um Nutzern die Erstellung neuer Routinen zu erleichtern.
 
 | Gewohnheit
 | Gewohnheitsabschluss
 | 1 zu 0..*
-| Eine Gewohnheit kann mehrfach abgeschlossen werden.
-
-| Nutzer
-| Streak
-| 1 zu 1
-| Jeder Nutzer besitzt genau eine Streak-Verwaltung.
+| Eine Gewohnheit kann beliebig oft abgeschlossen werden. Jeder Abschluss dokumentiert eine konkrete Durchführung der Gewohnheit und dient als Grundlage für Statistiken und Streaks.
 
 | Gewohnheit
 | Planung
 | 1 zu 0..*
-| Eine Gewohnheit kann mehrere geplante Zeitpunkte besitzen.
+| Eine Gewohnheit kann mehrere geplante Zeitpunkte oder Wiederholungen besitzen, beispielsweise tägliche oder wöchentliche Routinen.
+
+| Gewohnheit
+| Routineanker
+| 0..1 zu 1
+| Eine Gewohnheit kann optional mit einer bereits bestehenden Routine verknüpft werden, um den Aufbau neuer Gewohnheiten durch Habit-Stacking zu unterstützen.
 
 | Nutzer
-| Benachrichtigung
+| Dashboard
+| 1 zu 1
+| Jeder Nutzer besitzt genau ein persönliches Dashboard, das zentrale Informationen wie Fortschritte, Streaks und geplante Gewohnheiten bündelt.
+
+| Dashboard
+| Gewohnheit
 | 1 zu 0..*
-| Nutzer erhalten Benachrichtigungen zu Fortschritten und Erinnerungen.
+| Das Dashboard zeigt die relevanten Gewohnheiten eines Nutzers an und dient als zentrale Übersicht der aktuellen Routinen.
+
+| Dashboard
+| Statistik
+| 1 zu 0..1
+| Das Dashboard kann statistische Auswertungen und Fortschrittsanalysen visualisieren, um dem Nutzer einen Überblick über seine Entwicklung zu geben.
+
+| Nutzer
+| Streak
+| 1 zu 1
+| Jeder Nutzer besitzt genau eine Streak-Verwaltung, die aktuelle sowie längste Erfolgsserien speichert und visualisiert.
 
 | Gewohnheit
 | Meilenstein
 | 1 zu 0..*
-| Zu einer Gewohnheit können mehrere Meilensteine gehören.
+| Zu einer Gewohnheit können mehrere Meilensteine definiert werden, beispielsweise das Erreichen bestimmter Zeiträume oder Erfolgszahlen.
+
+| Meilenstein
+| Benachrichtigung
+| 1 zu 0..*
+| Beim Erreichen eines Meilensteins können automatisch Benachrichtigungen ausgelöst werden, um Nutzer über ihre Fortschritte zu informieren und zu motivieren.
+
+| Nutzer
+| Benachrichtigung
+| 1 zu 0..*
+| Ein Nutzer kann mehrere Benachrichtigungen erhalten, beispielsweise Erinnerungen, Meilensteinmeldungen oder soziale Aktivitäten.
+
+| Nutzer
+| Freundschaft
+| 1 zu 0..*
+| Nutzer können Freundschaften zu anderen Nutzern aufbauen, um Fortschritte zu teilen, sich gegenseitig zu motivieren oder soziale Funktionen zu nutzen.
+
+| Nutzer
+| Skilltree
+| 1 zu 1
+| Jeder Nutzer besitzt genau einen persönlichen Skilltree, der den individuellen Fortschritt und freigeschaltete Fähigkeiten darstellt.
+
+| Skilltree
+| Skillknoten
+| 1 zu 1..*
+| Ein Skilltree besteht aus mehreren Skillknoten, die unterschiedliche Fortschrittsstufen, Fähigkeiten oder Belohnungen repräsentieren.
+
+| Kategorie
+| Gewohnheit
+| 1 zu 0..*
+| Eine Kategorie kann mehrere Gewohnheiten thematisch gruppieren, beispielsweise Gesundheit, Produktivität oder Studium.
+
+| Kategorie
+| Skillknoten
+| 1 zu 0..*
+| Kategorien dienen zusätzlich der Strukturierung und Organisation von Skillknoten innerhalb des Skilltrees.
+
+| Skillknoten
+| Skillknoten
+| 0..* zu 0..*
+| Skillknoten können voneinander abhängig sein. Bestimmte Knoten werden erst freigeschaltet, wenn vorherige Voraussetzungen oder andere Skillknoten erfüllt wurden.
 | ===
 
 _Dieses Dokument wird kontinuierlich gepflegt. Änderungen an Fachbegriffen oder Beziehungen
