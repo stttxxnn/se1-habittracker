@@ -101,28 +101,49 @@ Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
 | Entität | Beschreibung
 
 | Nutzer
-| Verwaltet persönliche Gewohnheiten, Fortschritte und soziale Interaktionen innerhalb der Anwendung.
+| Repräsentiert eine registrierte Person innerhalb der Anwendung, die persönliche Gewohnheiten erstellt, organisiert und verfolgt. Nutzer können individuelle Einstellungen vornehmen, Fortschritte analysieren, soziale Funktionen nutzen und durch Gamification-Elemente motiviert werden. Zusätzlich verwaltet der Nutzer eigene Streaks, Statistiken, Freundschaften sowie den persönlichen Skilltree.
 
 | Gewohnheit
-| Beschreibt eine wiederkehrende Aktivität, die ein Nutzer regelmäßig durchführen möchte.
+| Beschreibt eine wiederkehrende Aktivität oder Routine, die ein Nutzer langfristig etablieren möchte, beispielsweise Lernen, Sport, Schlaftracking oder Meditation. Eine Gewohnheit enthält Informationen wie Titel, Beschreibung, Priorität, Aktivitätsstatus oder Schwierigkeitsgrad und bildet den zentralen Kern der Anwendung.
+
+| Gewohnheitsvorlage
+| Enthält vordefinierte Gewohnheiten und Routinen, die Nutzern als Orientierung oder Schnellstart dienen. Vorlagen ermöglichen eine schnellere Erstellung neuer Gewohnheiten und unterstützen Nutzer dabei, wissenschaftlich empfohlene oder häufig genutzte Routinen einfacher zu übernehmen.
 
 | Gewohnheitsabschluss
-| Dokumentiert die erfolgreiche Durchführung einer Gewohnheit zu einem bestimmten Zeitpunkt.
+| Dokumentiert die erfolgreiche Durchführung einer Gewohnheit zu einem bestimmten Zeitpunkt. Zusätzlich können weitere Informationen wie Fokuslevel, Messwerte oder verzögerte Ausführungen gespeichert werden. Die Daten dienen als Grundlage für Streaks, Fortschrittsanalysen und Motivationselemente.
 
-| Streak
-| Speichert die aktuelle und längste Erfolgsserie eines Nutzers.
+| Routineanker
+| Beschreibt eine bereits bestehende Routine oder Alltagshandlung, an die eine neue Gewohnheit gekoppelt werden kann. Dadurch wird das Prinzip des Habit-Stackings unterstützt, bei dem neue Gewohnheiten leichter aufgebaut werden, indem sie mit bestehenden Routinen verbunden werden.
 
 | Planung
-| Enthält Informationen zur zeitlichen Planung und Wiederholung von Gewohnheiten.
+| Enthält Informationen zur zeitlichen Organisation und Wiederholung von Gewohnheiten. Dazu gehören beispielsweise Startzeiten, Endzeiten, Wiederholungsintervalle oder Kalenderzuordnungen. Die Planung unterstützt Nutzer dabei, Gewohnheiten mit ihrem Alltag, Arbeitsblöcken oder persönlichen Routinen zu koordinieren.
 
-| Benachrichtigung
-| Informiert Nutzer über Erinnerungen, Meilensteine oder wichtige Ereignisse.
+| Streak
+| Repräsentiert die aktuelle sowie die längste ununterbrochene Erfolgsserie eines Nutzers. Die Streak visualisiert die Kontinuität bei der Durchführung von Gewohnheiten und nutzt Motivationstechniken wie die „Don’t break the chain“-Methode, um langfristige Disziplin und Routinebildung zu fördern.
 
 | Meilenstein
-| Repräsentiert erreichte Fortschritte oder Ziele innerhalb einer Gewohnheit.
+| Beschreibt definierte Fortschrittsziele innerhalb einer Gewohnheit oder Streak, beispielsweise das Erreichen von 30 oder 365 erfolgreichen Tagen. Beim Erreichen eines Meilensteins können Belohnungen, Benachrichtigungen oder neue Skilltree-Inhalte freigeschaltet werden.
+
+| Benachrichtigung
+| Informiert Nutzer über wichtige Ereignisse innerhalb der Anwendung, beispielsweise Erinnerungen an geplante Gewohnheiten, erreichte Meilensteine, Streak-Warnungen oder soziale Aktivitäten. Benachrichtigungen dienen zusätzlich der Motivation und der langfristigen Nutzerbindung.
 
 | Statistik
-| Zeigt Auswertungen und Trends zum Fortschritt des Nutzers.
+| Enthält Auswertungen und Analysen zum Verhalten und Fortschritt eines Nutzers. Dazu zählen beispielsweise Erfolgsquoten, Aktivitätstrends, Regelmäßigkeit von Gewohnheiten oder langfristige Entwicklungen. Die Statistik unterstützt Nutzer dabei, ihre Routinen datenbasiert zu reflektieren und zu optimieren.
+
+| Dashboard
+| Dient als zentrale Übersichtsseite der Anwendung und bündelt wichtige Informationen wie aktuelle Gewohnheiten, offene Aufgaben, Fortschritte, Streaks, Statistiken und motivierende Inhalte. Das Dashboard ermöglicht Nutzern einen schnellen Überblick über ihren aktuellen Stand.
+
+| Freundschaft
+| Beschreibt die soziale Verbindung zwischen zwei Nutzern innerhalb der Anwendung. Freundschaften ermöglichen das Teilen von Erfolgen, gegenseitige Motivation sowie soziale Interaktionen rund um Fortschritte und Gewohnheiten.
+
+| Skilltree
+| Repräsentiert das spielerische Fortschritts- und Belohnungssystem der Anwendung. Nutzer sammeln durch abgeschlossene Gewohnheiten Erfahrungspunkte und können dadurch neue Fähigkeiten, Level oder Fortschrittsbereiche freischalten.
+
+| Skillknoten
+| Einzelne Bestandteile des Skilltrees, die bestimmte Fähigkeiten, Fortschrittsstufen oder Belohnungen repräsentieren. Skillknoten können durch Erfahrungspunkte, erreichte Meilensteine oder bestimmte Voraussetzungen freigeschaltet werden.
+
+| Kategorie
+| Dient zur thematischen Einordnung und Strukturierung von Gewohnheiten und Skillknoten. Beispiele für Kategorien sind Gesundheit, Produktivität, Studium, Fitness oder mentale Gesundheit.
 |===
 
 === Beschreibung der Beziehungen
