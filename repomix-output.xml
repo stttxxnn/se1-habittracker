@@ -1,0 +1,4735 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.github/
+  ISSUE_TEMPLATE/
+    bug_report.md
+    config.yml
+    development_task.md
+    project_task.md
+    spike.md
+    technical_story.md
+    user_story.md
+abgabe_se1/
+  .gitignore
+  LICENSE
+  readme.md
+  se1_projektdokumentation_x0.adoc
+docs/
+  _includes/
+    default-attributes.inc.adoc
+  product/
+    images/
+      .keep
+    domain_glossary.adoc
+    product_concept.adoc
+    ux_concept.adoc
+  review/
+    Sprint_Review_Protokoll.adoc
+  team/
+    images/
+      .keep
+    teamcharter.adoc
+  technical/
+    images/
+      .keep
+    architecture.adoc
+    deployment.adoc
+    design.adoc
+    test_concept.adoc
+  .gitignore
+  index.adoc
+  LICENSE
+src/
+  domain/
+    models/
+      Habit.ts
+  infrastructure/
+    supabase/
+      supabaseClient.ts
+  presentation/
+    stores/
+      habitStore.ts
+    App.vue
+  .env
+  .keep
+  main.ts
+  vite-env.d.ts
+.editorconfig
+.gitignore
+.markdownlint.json
+index.html
+package.json
+README.md
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/domain/models/Habit.ts">
+export interface Habit {
+  id: string;
+  userId: string;
+  title: string;
+  streakCount: number;
+  createdAt: Date;
+}
+
+export function incrementStreak(habit: Habit): Habit {
+  return {
+    ...habit,
+    streakCount: habit.streakCount + 1
+  };
+}
+</file>
+
+<file path="src/infrastructure/supabase/supabaseClient.ts">
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'VITE_SUPABASE_URL'
+const supabaseAnonKey = 'VITE_SUPABASE_ANON_KEY'
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+</file>
+
+<file path="src/presentation/stores/habitStore.ts">
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { Habit } from '@/domain/models/Habit'
+
+export const useHabitStore = defineStore('habit', () => {
+  const habits = ref<Habit[]>([])
+  const isLoading = ref<boolean>(false)
+
+  function setHabits(newHabits: Habit[]) {
+    habits.value = newHabits
+  }
+
+  return {
+    habits,
+    isLoading,
+    setHabits
+  }
+})
+</file>
+
+<file path="src/presentation/App.vue">
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useHabitStore } from '@/presentation/stores/habitStore'
+import { Habit, incrementStreak } from '@/domain/models/Habit'
+
+const habitStore = useHabitStore()
+
+onMounted(() => {
+  const demoHabit: Habit = {
+    id: '1',
+    userId: 'user-123',
+    title: '30 Min. für SE1 lernen 🚀',
+    streakCount: 2,
+    createdAt: new Date()
+  }
+  
+  const updated = incrementStreak(demoHabit)
+  habitStore.setHabits([updated])
+})
+</script>
+
+<template>
+  <div class="skeleton-container">
+    <h1>HabitTracker-System (C1) — Walking Skeleton</h1>
+    <p>Status: <span class="badge">Lauffähig & Hexagonal konfiguriert</span></p>
+    
+    <div class="habit-preview" v-for="h in habitStore.habits" :key="h.id">
+      <h3>{{ h.title }}</h3>
+      <p>Aktueller Streak: 🔥 {{ h.streakCount }} Tage</p>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.skeleton-container {
+  font-family: sans-serif;
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  border-radius: 12px;
+  background: #1e1e24;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.badge {
+  background: #42b883;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+.habit-preview {
+  margin-top: 20px;
+  padding: 15px;
+  background: #fff;
+  color: #333;
+  border-radius: 8px;
+}
+</style>
+</file>
+
+<file path="src/.env">
+VITE_SUPABASE_URL="https://cfdwmeozyewwfbucfgep.supabase.co/rest/v1/"
+VITE_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZHdtZW96eWV3d2ZidWNmZ2VwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODY5MzMsImV4cCI6MjA5NTg2MjkzM30.L5swRAvOO7vb30zx3C833UowXvZUFUieKjIFhIkdsRg"
+</file>
+
+<file path="src/main.ts">
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import App from '@/presentation/App.vue'
+
+const app = createApp(App)
+const pinia = createPinia()
+
+app.use(pinia)
+app.mount('#app')
+</file>
+
+<file path="src/vite-env.d.ts">
+/// <reference types="vite/client" />
+
+declare module '*.vue' {
+  import type { DefineComponent } from 'vue'
+  const component: DefineComponent<{}, {}, any>
+  export default component
+}
+</file>
+
+<file path="index.html">
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HabitTracker - Walking Skeleton</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+</file>
+
+<file path="package.json">
+{
+  "name": "se1-habittracker",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.0",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.4",
+    "vue-tsc": "^1.8.27"
+  }
+}
+</file>
+
+<file path="tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+</file>
+
+<file path="tsconfig.node.json">
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["vite.config.ts"]
+}
+</file>
+
+<file path="vite.config.ts">
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { resolve } from 'path'
+
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      '@': resolve(se1-habittracker, './src'),
+    },
+  },
+})
+</file>
+
+<file path=".github/ISSUE_TEMPLATE/bug_report.md">
+---
+name: Bug Report
+about: Einen Fehler im System melden
+title: 'Bug: [Kurzbeschreibung des Fehlers]'
+labels: bug
+assignees: ''
+---
+
+<!--
+HINWEIS: Ein guter Bug Report ermöglicht es einer anderen Person, den Fehler zu
+reproduzieren, ohne nachfragen zu müssen. Fülle alle Abschnitte aus.
+Ein unvollständiger Bug Report kostet das Team mehr Zeit als das sorgfältige Ausfüllen.
+-->
+
+## Beschreibung
+
+[Kurze, sachliche Beschreibung des Fehlers — was passiert, das nicht passieren sollte?]
+
+---
+
+## Schritte zur Reproduktion
+
+<!--
+Beschreibe genau, wie der Fehler ausgelöst werden kann.
+Ohne Reproduktionsschritte kann der Fehler nicht zuverlässig behoben werden.
+-->
+
+1. [z. B. „Auf die Seite /buchungen navigieren"]
+2. [z. B. „Als Maria (Studierende) einloggen"]
+3. [z. B. „Auf ‚Neuen Raum buchen' klicken"]
+4. [Fehler tritt auf]
+
+---
+
+## Erwartetes Verhalten
+
+[Was hätte passieren sollen?]
+
+## Tatsächliches Verhalten
+
+[Was ist stattdessen passiert?]
+
+---
+
+## Umgebung
+
+| | |
+|---|---|
+| **Umgebung** | [Lokal / CI / Staging / Produktion] |
+| **Browser & Version** | [z. B. Chrome 124 / Firefox 125 / Safari 17] |
+| **Betriebssystem** | [z. B. macOS 14 / Windows 11 / Ubuntu 22.04] |
+| **Mobilgerät** | [falls relevant, z. B. iPhone 15 / Android 14 — sonst „nicht zutreffend"] |
+| **Branch / Commit** | [z. B. `main` @ `a3f92bc`] |
+
+---
+
+## Belege
+
+<!--
+Screenshots, Bildschirmaufnahmen oder Logauszüge helfen enorm.
+Achte darauf, keine personenbezogenen Daten (Passwörter, E-Mail-Adressen) einzufügen.
+-->
+
+**Screenshots / Aufnahmen:**
+[Screenshot einfügen oder „nicht vorhanden"]
+
+**Relevante Logausgaben:**
+```
+[Logzeilen hier einfügen — oder „keine"]
+```
+
+---
+
+## Mögliche Ursache
+
+<!--
+Optional — aber hilfreich, wenn du bereits eine Vermutung hast.
+Kennzeichne es klar als Vermutung, nicht als gesicherte Diagnose.
+-->
+
+[Vermutete Ursache — oder Abschnitt löschen, wenn völlig unklar]
+
+---
+
+## Schweregrad
+
+<!--
+Wie stark beeinträchtigt der Fehler die Nutzung des Systems?
+Genau eine Option auswählen.
+-->
+
+- [ ] **Kritisch** — System nicht nutzbar; Datenverlust möglich
+- [ ] **Hoch** — Kernfunktion betroffen; kein Workaround möglich
+- [ ] **Mittel** — Funktion eingeschränkt; Workaround vorhanden
+- [ ] **Niedrig** — Kosmetischer Fehler; Nutzung kaum beeinträchtigt
+</file>
+
+<file path=".github/ISSUE_TEMPLATE/development_task.md">
+---
+name: Entwicklungsaufgabe
+about: Konkrete Implementierungsaufgabe als Sub-Issue einer User Story oder Technischen Story
+title: 'Aufgabe: [Kurzbeschreibung]'
+labels: task
+assignees: ''
+---
+
+<!--
+HINWEIS: Eine Entwicklungsaufgabe ist immer ein Sub-Issue — sie gehört zu einer
+übergeordneten User Story oder Technischen Story und steht nie allein im Backlog.
+
+WANN wird dieses Template verwendet?
+  Im Sprint Planning: Die Aufgaben-Checkliste der übergeordneten Story wird
+  finalisiert und jeder Eintrag als Entwicklungsaufgabe angelegt.
+  GitHub erlaubt es, Checklisten-Einträge mit einem Klick in verknüpfte Issues
+  umzuwandeln — dieses Template füllt das dann entstandene Issue aus.
+
+ZUWEISUNG:
+  Jede Entwicklungsaufgabe wird genau einer Person zugewiesen.
+  Mehrere Aufgaben derselben Story können parallel von verschiedenen
+  Teammitgliedern bearbeitet werden.
+
+Die Story gilt erst als fertig (Done), wenn alle ihre Entwicklungsaufgaben
+abgeschlossen sind — unabhängig davon, wer welche Aufgabe bearbeitet hat.
+-->
+
+## Übergeordnete Story
+
+**Gehört zu:** #[Issue-Nummer der übergeordneten User Story oder Technischen Story]
+
+<!--
+Immer verlinken — eine Entwicklungsaufgabe ohne übergeordnete Story ist nicht zulässig.
+-->
+
+---
+
+## Beschreibung
+
+<!--
+Was genau ist zu tun? Sei so konkret, dass die Aufgabe ohne Rückfragen
+begonnen werden kann. Eine Entwicklungsaufgabe beschreibt genau eine
+Aktivität — z. B. einen Endpunkt implementieren, einen Test schreiben,
+eine Komponente bauen.
+-->
+
+[Präzise Beschreibung der Aufgabe in 1–3 Sätzen.
+z. B. „REST-Endpunkt `GET /raeume/verfuegbar` implementieren, der verfügbare Räume
+für einen gegebenen Zeitraum zurückgibt. Parameter: `von`, `bis` als ISO-8601-Zeitstempel."]
+
+---
+
+## Fertigstellungskriterium
+
+<!--
+Woran erkennt man, dass diese Aufgabe abgeschlossen ist?
+Ein konkreter, überprüfbarer Satz genügt — keine lange Liste.
+-->
+
+[z. B. „Endpunkt ist implementiert, Unit-Tests sind grün, Code wurde reviewed und gemergt."]
+
+---
+
+## Technische Hinweise
+
+<!--
+Optional — aber hilfreich, wenn es relevante Vorgaben, Links oder Fallstricke gibt.
+Z. B. Verweis auf ein ADR, eine externe API-Dokumentation oder eine Designvorgabe.
+-->
+
+[Technische Details, Links, Hinweise — oder Abschnitt löschen, wenn nicht benötigt]
+</file>
+
+<file path=".github/ISSUE_TEMPLATE/project_task.md">
+---
+name: Projektaufgabe
+about: Projektbezogene Aufgabe, die Sprintkapazität verbraucht aber keinen direkten Produktwert liefert
+title: 'Projekt: [Kurzbeschreibung]'
+labels: project-task
+assignees: ''
+---
+
+<!--
+HINWEIS: Eine Projektaufgabe erfasst Arbeit, die real Zeit kostet und auf dem
+Sprint Board sichtbar sein muss — aber keinen direkten Wert für Endnutzer:innen
+liefert und nicht aus einer User Story abgeleitet ist.
+
+Zwei Arten von Projektaufgaben:
+
+  Einmalig — tritt unregelmäßig auf und wird bei Bedarf im Backlog erfasst.
+  Beispiele:
+    - Stakeholder-Präsentation vorbereiten
+    - Zwischenpräsentation vorbereiten
+    - Projektabschlussbericht anfertigen
+    - Abnahme-Demo koordinieren und durchführen
+
+  Wiederkehrend — entsteht jeden Sprint und wird vom Scrum Master direkt im
+  Sprint Planning angelegt. Beispiele:
+    - Sprint Review vorbereiten
+    - Sprint Retrospektive moderieren und dokumentieren
+    - Sprint-Fortschritt im Board aktualisieren
+
+  Weniger aufwändig ist die Alternativ können wiederkehrende Aufgaben auch als Checkliste in der Teamcharta aufgeführt werden. Die dafür notwendige Zeit (Kapazität) muss pauschal bei jedem Sprint einkalkuliert werden.
+
+WICHTIG: Diese Aufgaben werden bei der Sprintkapazität berücksichtigt.
+Wer die Aufgabe übernimmt, steht für Feature-Entwicklung in diesem Sprint
+entsprechend weniger zur Verfügung.
+-->
+
+## Beschreibung
+
+[Was ist zu tun? Ein konkreter Satz genügt.]
+
+---
+
+## Art
+
+- [ ] **Wiederkehrend** — tritt jeden Sprint auf
+- [ ] **Einmalig** — tritt nur in diesem Sprint auf
+
+---
+
+## Ergebnis / Deliverable
+
+<!--
+Was liegt am Ende dieser Aufgabe vor?
+Auch für scheinbar offensichtliche Aufgaben lohnt es sich, das Ergebnis
+explizit zu benennen — es klärt Erwartungen und ermöglicht eine saubere Abnahme.
+-->
+
+[z. B. „Präsentationsfolien sind fertig und wurden im Sprint Review vorgeführt."
+oder „Sprint-Retrospektive wurde moderiert; Ergebnisse sind in Confluence dokumentiert."]
+
+---
+
+## Kapazität
+
+**Geschätzter Aufwand:** [z. B. 2 Stunden / halber Tag]
+</file>
+
+<file path=".github/ISSUE_TEMPLATE/spike.md">
+---
+name: Spike
+about: Zeitlich begrenzte Recherche zur Klärung einer Frage — fachlich oder technisch
+title: 'Spike: [Zu untersuchende Frage]'
+labels: spike
+assignees: ''
+---
+
+<!--
+HINWEIS: Ein Spike ist eine zeitlich begrenzte Untersuchung, um eine konkrete Frage
+zu beantworten und Unsicherheit zu reduzieren. Er endet immer mit einem dokumentierten
+Ergebnis — nicht mit einer offenen Diskussion.
+
+Ein Spike ist KEIN:
+  - Freies Ausprobieren ohne klares Ziel
+  - Ersatz für eine User Story oder Technische Story
+  - Endloser Rechercheprozess
+
+Ein Spike wird einer Person oder zwei Personen, die zusammenarbeiten, zugewiesen — nicht dem ganzen Team. Untersuchungen lassen sich nicht sinnvoll parallelisieren.
+
+Zwei Arten von Spikes sind möglich (siehe Feld "Art" unten):
+
+  Produkt-Spike: Reduziert fachliche oder UX-Unsicherheit.
+    Beispiele: Nutzerinterviews zur Klärung einer Story; Validierung einer Annahme
+    aus dem Produktkonzept; Klärung von Scope oder Priorisierung.
+    Ergebnis: Entscheidung, verfeinerte Story, aktualisiertes UX-Konzept oder Persona.
+
+  Technischer Spike: Reduziert technische Unsicherheit.
+    Beispiele: Machbarkeit einer API prüfen; zwei Frameworks vergleichen;
+    Integrationsproblem untersuchen.
+    Ergebnis: ADR, Proof-of-Concept, Empfehlung zwischen Alternativen.
+-->
+
+## Art des Spikes
+
+<!--
+Genau eine Option auswählen.
+-->
+
+- [ ] **Produkt-Spike** — fachliche oder UX-Unsicherheit
+- [ ] **Technischer Spike** — technische Unsicherheit
+
+---
+
+## Zu beantwortende Frage
+
+<!--
+Formuliere die zentrale Frage als präzisen Fragesatz.
+Ein Spike hat genau eine Frage — nicht fünf.
+Wenn mehrere Fragen bestehen, mehrere Spikes erstellen.
+-->
+
+**Leitfrage:** [z. B. „Welche Informationen brauchen Studierende auf der Raumdetailseite,
+bevor wir die Story schreiben?" — oder: „Können wir die Hochschul-LDAP-Schnittstelle
+mit Spring Security integrieren, und welche Konfiguration ist nötig?"]
+
+---
+
+## Hintergrund & Motivation
+
+[Warum stellt sich diese Frage? Was wird durch die Antwort ermöglicht oder entsperrt?]
+
+**Blockierte Story / Entscheidung:**
+[Link zur blockierten User Story, Technischen Story oder zum offenen ADR — oder „noch offen"]
+
+---
+
+## Time-Box
+
+<!--
+Ein Spike hat immer eine feste Zeitgrenze.
+Wenn die Zeit abläuft, wird das Ergebnis dokumentiert — auch wenn die Frage
+nicht vollständig beantwortet werden konnte. In diesem Fall wird eine Folge-Entscheidung
+getroffen: Spike verlängern, anders vorgehen, oder mit Unsicherheit leben.
+-->
+
+**Maximale Dauer:** [z. B. 4 Stunden / 1 Tag / 2 Tage]
+**Geplant für Sprint:** [Sprint-Nummer oder -Name]
+**Bearbeitet von:** [Name oder @mention — Spike wird einer Person oder einem Paar zugewiesen]
+
+---
+
+## Vorgehensweise
+
+<!--
+Skizziere kurz den geplanten Ansatz. Das zwingt zur Konkretisierung
+und verhindert zielloses Ausprobieren.
+-->
+
+- [ ] [z. B. „Vorhandene Nutzerinterviews auf offene Fragen zur Raumdetailseite auswerten"]
+- [ ] [z. B. „2 Kurzinterviews mit Studierenden durchführen"]
+- [ ] [z. B. „Offizielle Dokumentation der Hochschul-IT lesen"]
+- [ ] [z. B. „Minimalen Prototyp mit Spring Boot + LDAP aufbauen"]
+- [ ] [Weiterer Schritt]
+
+---
+
+## Erwartetes Ergebnis
+
+<!--
+Was soll am Ende des Spikes vorliegen?
+Das Ergebnis ist immer ein konkretes Artefakt — kein „wir haben darüber geredet".
+-->
+
+- [ ] Klare Antwort auf die Leitfrage (dokumentiert im Abschnitt „Ergebnis" unten)
+- [ ] Empfehlung oder Entscheidung für das weitere Vorgehen
+- [ ] [z. B. „ADR in `architecture.adoc` erstellt" — bei technischem Spike]
+- [ ] [z. B. „UX-Konzept oder Persona aktualisiert" — bei Produkt-Spike]
+- [ ] [z. B. „Proof-of-Concept-Code in Branch `spike/ldap` verfügbar"]
+- [ ] Folgeaufgaben als neue Issues erstellt (User Stories, Technische Stories oder Bugs)
+
+---
+
+## Ergebnis
+
+<!--
+Dieser Abschnitt wird NACH Abschluss des Spikes ausgefüllt — vor dem Schließen des Issues.
+Ein Spike ohne dokumentiertes Ergebnis gilt nicht als abgeschlossen.
+-->
+
+**Antwort auf die Leitfrage:**
+[Nach Abschluss ausfüllen]
+
+**Empfehlung / Entscheidung:**
+[Nach Abschluss ausfüllen]
+
+**Folgeaufgaben:**
+[Links zu Issues, ADRs oder Dokumenten, die aus diesem Spike entstanden sind]
+</file>
+
+<file path="abgabe_se1/.gitignore">
+# Syntax: https://git-scm.com/docs/gitignore
+
+# Asciidoctor
+**/.asciidoctor/
+**/images/diagrams/
+*.pdf
+*.html
+</file>
+
+<file path="abgabe_se1/LICENSE">
+Attribution 4.0 International
+
+=======================================================================
+
+Creative Commons Corporation ("Creative Commons") is not a law firm and
+does not provide legal services or legal advice. Distribution of
+Creative Commons public licenses does not create a lawyer-client or
+other relationship. Creative Commons makes its licenses and related
+information available on an "as-is" basis. Creative Commons gives no
+warranties regarding its licenses, any material licensed under their
+terms and conditions, or any related information. Creative Commons
+disclaims all liability for damages resulting from their use to the
+fullest extent possible.
+
+Using Creative Commons Public Licenses
+
+Creative Commons public licenses provide a standard set of terms and
+conditions that creators and other rights holders may use to share
+original works of authorship and other material subject to copyright
+and certain other rights specified in the public license below. The
+following considerations are for informational purposes only, are not
+exhaustive, and do not form part of our licenses.
+
+     Considerations for licensors: Our public licenses are
+     intended for use by those authorized to give the public
+     permission to use material in ways otherwise restricted by
+     copyright and certain other rights. Our licenses are
+     irrevocable. Licensors should read and understand the terms
+     and conditions of the license they choose before applying it.
+     Licensors should also secure all rights necessary before
+     applying our licenses so that the public can reuse the
+     material as expected. Licensors should clearly mark any
+     material not subject to the license. This includes other CC-
+     licensed material, or material used under an exception or
+     limitation to copyright. More considerations for licensors:
+	wiki.creativecommons.org/Considerations_for_licensors
+
+     Considerations for the public: By using one of our public
+     licenses, a licensor grants the public permission to use the
+     licensed material under specified terms and conditions. If
+     the licensor's permission is not necessary for any reason--for
+     example, because of any applicable exception or limitation to
+     copyright--then that use is not regulated by the license. Our
+     licenses grant only permissions under copyright and certain
+     other rights that a licensor has authority to grant. Use of
+     the licensed material may still be restricted for other
+     reasons, including because others have copyright or other
+     rights in the material. A licensor may make special requests,
+     such as asking that all changes be marked or described.
+     Although not required by our licenses, you are encouraged to
+     respect those requests where reasonable. More_considerations
+     for the public:
+	wiki.creativecommons.org/Considerations_for_licensees
+
+=======================================================================
+
+Creative Commons Attribution 4.0 International Public License
+
+By exercising the Licensed Rights (defined below), You accept and agree
+to be bound by the terms and conditions of this Creative Commons
+Attribution 4.0 International Public License ("Public License"). To the
+extent this Public License may be interpreted as a contract, You are
+granted the Licensed Rights in consideration of Your acceptance of
+these terms and conditions, and the Licensor grants You such rights in
+consideration of benefits the Licensor receives from making the
+Licensed Material available under these terms and conditions.
+
+
+Section 1 -- Definitions.
+
+  a. Adapted Material means material subject to Copyright and Similar
+     Rights that is derived from or based upon the Licensed Material
+     and in which the Licensed Material is translated, altered,
+     arranged, transformed, or otherwise modified in a manner requiring
+     permission under the Copyright and Similar Rights held by the
+     Licensor. For purposes of this Public License, where the Licensed
+     Material is a musical work, performance, or sound recording,
+     Adapted Material is always produced where the Licensed Material is
+     synched in timed relation with a moving image.
+
+  b. Adapter's License means the license You apply to Your Copyright
+     and Similar Rights in Your contributions to Adapted Material in
+     accordance with the terms and conditions of this Public License.
+
+  c. Copyright and Similar Rights means copyright and/or similar rights
+     closely related to copyright including, without limitation,
+     performance, broadcast, sound recording, and Sui Generis Database
+     Rights, without regard to how the rights are labeled or
+     categorized. For purposes of this Public License, the rights
+     specified in Section 2(b)(1)-(2) are not Copyright and Similar
+     Rights.
+
+  d. Effective Technological Measures means those measures that, in the
+     absence of proper authority, may not be circumvented under laws
+     fulfilling obligations under Article 11 of the WIPO Copyright
+     Treaty adopted on December 20, 1996, and/or similar international
+     agreements.
+
+  e. Exceptions and Limitations means fair use, fair dealing, and/or
+     any other exception or limitation to Copyright and Similar Rights
+     that applies to Your use of the Licensed Material.
+
+  f. Licensed Material means the artistic or literary work, database,
+     or other material to which the Licensor applied this Public
+     License.
+
+  g. Licensed Rights means the rights granted to You subject to the
+     terms and conditions of this Public License, which are limited to
+     all Copyright and Similar Rights that apply to Your use of the
+     Licensed Material and that the Licensor has authority to license.
+
+  h. Licensor means the individual(s) or entity(ies) granting rights
+     under this Public License.
+
+  i. Share means to provide material to the public by any means or
+     process that requires permission under the Licensed Rights, such
+     as reproduction, public display, public performance, distribution,
+     dissemination, communication, or importation, and to make material
+     available to the public including in ways that members of the
+     public may access the material from a place and at a time
+     individually chosen by them.
+
+  j. Sui Generis Database Rights means rights other than copyright
+     resulting from Directive 96/9/EC of the European Parliament and of
+     the Council of 11 March 1996 on the legal protection of databases,
+     as amended and/or succeeded, as well as other essentially
+     equivalent rights anywhere in the world.
+
+  k. You means the individual or entity exercising the Licensed Rights
+     under this Public License. Your has a corresponding meaning.
+
+
+Section 2 -- Scope.
+
+  a. License grant.
+
+       1. Subject to the terms and conditions of this Public License,
+          the Licensor hereby grants You a worldwide, royalty-free,
+          non-sublicensable, non-exclusive, irrevocable license to
+          exercise the Licensed Rights in the Licensed Material to:
+
+            a. reproduce and Share the Licensed Material, in whole or
+               in part; and
+
+            b. produce, reproduce, and Share Adapted Material.
+
+       2. Exceptions and Limitations. For the avoidance of doubt, where
+          Exceptions and Limitations apply to Your use, this Public
+          License does not apply, and You do not need to comply with
+          its terms and conditions.
+
+       3. Term. The term of this Public License is specified in Section
+          6(a).
+
+       4. Media and formats; technical modifications allowed. The
+          Licensor authorizes You to exercise the Licensed Rights in
+          all media and formats whether now known or hereafter created,
+          and to make technical modifications necessary to do so. The
+          Licensor waives and/or agrees not to assert any right or
+          authority to forbid You from making technical modifications
+          necessary to exercise the Licensed Rights, including
+          technical modifications necessary to circumvent Effective
+          Technological Measures. For purposes of this Public License,
+          simply making modifications authorized by this Section 2(a)
+          (4) never produces Adapted Material.
+
+       5. Downstream recipients.
+
+            a. Offer from the Licensor -- Licensed Material. Every
+               recipient of the Licensed Material automatically
+               receives an offer from the Licensor to exercise the
+               Licensed Rights under the terms and conditions of this
+               Public License.
+
+            b. No downstream restrictions. You may not offer or impose
+               any additional or different terms or conditions on, or
+               apply any Effective Technological Measures to, the
+               Licensed Material if doing so restricts exercise of the
+               Licensed Rights by any recipient of the Licensed
+               Material.
+
+       6. No endorsement. Nothing in this Public License constitutes or
+          may be construed as permission to assert or imply that You
+          are, or that Your use of the Licensed Material is, connected
+          with, or sponsored, endorsed, or granted official status by,
+          the Licensor or others designated to receive attribution as
+          provided in Section 3(a)(1)(A)(i).
+
+  b. Other rights.
+
+       1. Moral rights, such as the right of integrity, are not
+          licensed under this Public License, nor are publicity,
+          privacy, and/or other similar personality rights; however, to
+          the extent possible, the Licensor waives and/or agrees not to
+          assert any such rights held by the Licensor to the limited
+          extent necessary to allow You to exercise the Licensed
+          Rights, but not otherwise.
+
+       2. Patent and trademark rights are not licensed under this
+          Public License.
+
+       3. To the extent possible, the Licensor waives any right to
+          collect royalties from You for the exercise of the Licensed
+          Rights, whether directly or through a collecting society
+          under any voluntary or waivable statutory or compulsory
+          licensing scheme. In all other cases the Licensor expressly
+          reserves any right to collect such royalties.
+
+
+Section 3 -- License Conditions.
+
+Your exercise of the Licensed Rights is expressly made subject to the
+following conditions.
+
+  a. Attribution.
+
+       1. If You Share the Licensed Material (including in modified
+          form), You must:
+
+            a. retain the following if it is supplied by the Licensor
+               with the Licensed Material:
+
+                 i. identification of the creator(s) of the Licensed
+                    Material and any others designated to receive
+                    attribution, in any reasonable manner requested by
+                    the Licensor (including by pseudonym if
+                    designated);
+
+                ii. a copyright notice;
+
+               iii. a notice that refers to this Public License;
+
+                iv. a notice that refers to the disclaimer of
+                    warranties;
+
+                 v. a URI or hyperlink to the Licensed Material to the
+                    extent reasonably practicable;
+
+            b. indicate if You modified the Licensed Material and
+               retain an indication of any previous modifications; and
+
+            c. indicate the Licensed Material is licensed under this
+               Public License, and include the text of, or the URI or
+               hyperlink to, this Public License.
+
+       2. You may satisfy the conditions in Section 3(a)(1) in any
+          reasonable manner based on the medium, means, and context in
+          which You Share the Licensed Material. For example, it may be
+          reasonable to satisfy the conditions by providing a URI or
+          hyperlink to a resource that includes the required
+          information.
+
+       3. If requested by the Licensor, You must remove any of the
+          information required by Section 3(a)(1)(A) to the extent
+          reasonably practicable.
+
+       4. If You Share Adapted Material You produce, the Adapter's
+          License You apply must not prevent recipients of the Adapted
+          Material from complying with this Public License.
+
+
+Section 4 -- Sui Generis Database Rights.
+
+Where the Licensed Rights include Sui Generis Database Rights that
+apply to Your use of the Licensed Material:
+
+  a. for the avoidance of doubt, Section 2(a)(1) grants You the right
+     to extract, reuse, reproduce, and Share all or a substantial
+     portion of the contents of the database;
+
+  b. if You include all or a substantial portion of the database
+     contents in a database in which You have Sui Generis Database
+     Rights, then the database in which You have Sui Generis Database
+     Rights (but not its individual contents) is Adapted Material; and
+
+  c. You must comply with the conditions in Section 3(a) if You Share
+     all or a substantial portion of the contents of the database.
+
+For the avoidance of doubt, this Section 4 supplements and does not
+replace Your obligations under this Public License where the Licensed
+Rights include other Copyright and Similar Rights.
+
+
+Section 5 -- Disclaimer of Warranties and Limitation of Liability.
+
+  a. UNLESS OTHERWISE SEPARATELY UNDERTAKEN BY THE LICENSOR, TO THE
+     EXTENT POSSIBLE, THE LICENSOR OFFERS THE LICENSED MATERIAL AS-IS
+     AND AS-AVAILABLE, AND MAKES NO REPRESENTATIONS OR WARRANTIES OF
+     ANY KIND CONCERNING THE LICENSED MATERIAL, WHETHER EXPRESS,
+     IMPLIED, STATUTORY, OR OTHER. THIS INCLUDES, WITHOUT LIMITATION,
+     WARRANTIES OF TITLE, MERCHANTABILITY, FITNESS FOR A PARTICULAR
+     PURPOSE, NON-INFRINGEMENT, ABSENCE OF LATENT OR OTHER DEFECTS,
+     ACCURACY, OR THE PRESENCE OR ABSENCE OF ERRORS, WHETHER OR NOT
+     KNOWN OR DISCOVERABLE. WHERE DISCLAIMERS OF WARRANTIES ARE NOT
+     ALLOWED IN FULL OR IN PART, THIS DISCLAIMER MAY NOT APPLY TO YOU.
+
+  b. TO THE EXTENT POSSIBLE, IN NO EVENT WILL THE LICENSOR BE LIABLE
+     TO YOU ON ANY LEGAL THEORY (INCLUDING, WITHOUT LIMITATION,
+     NEGLIGENCE) OR OTHERWISE FOR ANY DIRECT, SPECIAL, INDIRECT,
+     INCIDENTAL, CONSEQUENTIAL, PUNITIVE, EXEMPLARY, OR OTHER LOSSES,
+     COSTS, EXPENSES, OR DAMAGES ARISING OUT OF THIS PUBLIC LICENSE OR
+     USE OF THE LICENSED MATERIAL, EVEN IF THE LICENSOR HAS BEEN
+     ADVISED OF THE POSSIBILITY OF SUCH LOSSES, COSTS, EXPENSES, OR
+     DAMAGES. WHERE A LIMITATION OF LIABILITY IS NOT ALLOWED IN FULL OR
+     IN PART, THIS LIMITATION MAY NOT APPLY TO YOU.
+
+  c. The disclaimer of warranties and limitation of liability provided
+     above shall be interpreted in a manner that, to the extent
+     possible, most closely approximates an absolute disclaimer and
+     waiver of all liability.
+
+
+Section 6 -- Term and Termination.
+
+  a. This Public License applies for the term of the Copyright and
+     Similar Rights licensed here. However, if You fail to comply with
+     this Public License, then Your rights under this Public License
+     terminate automatically.
+
+  b. Where Your right to use the Licensed Material has terminated under
+     Section 6(a), it reinstates:
+
+       1. automatically as of the date the violation is cured, provided
+          it is cured within 30 days of Your discovery of the
+          violation; or
+
+       2. upon express reinstatement by the Licensor.
+
+     For the avoidance of doubt, this Section 6(b) does not affect any
+     right the Licensor may have to seek remedies for Your violations
+     of this Public License.
+
+  c. For the avoidance of doubt, the Licensor may also offer the
+     Licensed Material under separate terms or conditions or stop
+     distributing the Licensed Material at any time; however, doing so
+     will not terminate this Public License.
+
+  d. Sections 1, 5, 6, 7, and 8 survive termination of this Public
+     License.
+
+
+Section 7 -- Other Terms and Conditions.
+
+  a. The Licensor shall not be bound by any additional or different
+     terms or conditions communicated by You unless expressly agreed.
+
+  b. Any arrangements, understandings, or agreements regarding the
+     Licensed Material not stated herein are separate from and
+     independent of the terms and conditions of this Public License.
+
+
+Section 8 -- Interpretation.
+
+  a. For the avoidance of doubt, this Public License does not, and
+     shall not be interpreted to, reduce, limit, restrict, or impose
+     conditions on any use of the Licensed Material that could lawfully
+     be made without permission under this Public License.
+
+  b. To the extent possible, if any provision of this Public License is
+     deemed unenforceable, it shall be automatically reformed to the
+     minimum extent necessary to make it enforceable. If the provision
+     cannot be reformed, it shall be severed from this Public License
+     without affecting the enforceability of the remaining terms and
+     conditions.
+
+  c. No term or condition of this Public License will be waived and no
+     failure to comply consented to unless expressly agreed to by the
+     Licensor.
+
+  d. Nothing in this Public License constitutes or may be interpreted
+     as a limitation upon, or waiver of, any privileges and immunities
+     that apply to the Licensor or You, including from the legal
+     processes of any jurisdiction or authority.
+
+
+=======================================================================
+
+Creative Commons is not a party to its public
+licenses. Notwithstanding, Creative Commons may elect to apply one of
+its public licenses to material it publishes and in those instances
+will be considered the “Licensor.” The text of the Creative Commons
+public licenses is dedicated to the public domain under the CC0 Public
+Domain Dedication. Except for the limited purpose of indicating that
+material is shared under a Creative Commons public license or as
+otherwise permitted by the Creative Commons policies published at
+creativecommons.org/policies, Creative Commons does not authorize the
+use of the trademark "Creative Commons" or any other trademark or logo
+of Creative Commons without its prior written consent including,
+without limitation, in connection with any unauthorized modifications
+to any of its public licenses or any other arrangements,
+understandings, or agreements concerning use of licensed material. For
+the avoidance of doubt, this paragraph does not form part of the
+public licenses.
+
+Creative Commons may be contacted at creativecommons.org.
+</file>
+
+<file path="abgabe_se1/readme.md">
+# Abgabe in SE I
+
+Im Verzeichnis **abgabe_se1** finden Sie die Vorlagedatei
+_se1_projektdokumentation_x0.adoc_, welche alle Ihre erzeugten Dokumente für die Abgabe als
+PDF in <ins>ein</ins> Dokument bündelt.
+
+Folgende Schritte sind für eine Abgabe durchzuführen:
+
+1. Ändern Sie die Projek-ID **x0** in der Vorlagedatei
+   _se1_projektdokumentation_x0.adoc_ in Ihre Themennummer (a1, a2, b1, ...).
+2. Inhalt der Vorlagedatei anpassen:
+   - Ist in Ihrem Projekt in der Datei
+     _docs/\_includes/default-attributes.inc.adoc_ der Projektname im Attribut
+     `:project-name:` nicht gesetzt bzw. nutzen Sie eine andere Struktur,
+     können Sie im Dokumententitel nach dem `:` das `{project-name}` mit Ihrem
+     Projektthema ersetzen:
+
+     ```asciidoc
+     // --- 1. Projektthema -------------------------
+     = SE I - Projektdokumentation: {project-name}
+     ```
+
+   - Tragen Sie **alle** Teammitglieder als Autoren ein:
+
+     ```asciidoc
+     // --- 2. Teammitglieder -----------------------
+     Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; ...
+     ```
+
+     > Lange Autorennamen (mehr als 3 Teile) in den Dokumentenattributen müssen
+     > mit einem `_` (Unterstrich) zu einer Gruppe von Vor- bzw. Nachnamen
+     > zusammengefasst werden. Es treten sonst Formatierungsfehler beim
+     > erzeugen der HTML- oder PDF-Dokumente auf. Der `_` (Unterstrich) wird im
+     > erzeugten Dokument nicht dargestellt.
+     >
+     > - `Vorname1_Vorname2 Nachname1_Nachname2 <mail@example.com>`
+     > - `Vorname Nachname1_Nachname2_Nachname3 <mail@example.com>`
+
+   - Tragen Sie als Versionsdatum Ihr **Abgabedatum** ein:
+
+     ```asciidoc
+     // --- 3. Abgabedatum --------------------------
+     01. Januar 2020
+     ```
+
+   - Passen Sie bei abweichender Projektstruktur die **include-Pfade** und
+     **Dateinamen** zu den einzelnen Dateien (_path/to/file.adoc_) an bzw.
+     erweitern Sie es für zusätzliche Dokumente:
+
+     ```asciidoc
+     include::path/to/file.adoc[lines=1..1;4..-1,leveloffset=+1]
+     ```
+
+     > Beim `include` wird über die `lines=1..1;4..-1` Angabe jeweils die 1.
+     > und alles ab der 4. Zeile übernommen. Jedes Dokument ist eigenständig
+     > und somit werden über die Zeilen 2 und 3 die jeweiligen Autoren und das
+     > Versionsdatum nicht mit übernommen.
+
+3. Erzeugen Sie das Abgabe-PDF _*se1_projektdokumentation_x0.pdf*_ ([Hinweise aus dem
+   Praktikum](https://www.informatik.htw-dresden.de/~zirkelba/praktika/se/git-docs-collab/01-basics.html#_htmlpdf_generierung)):
+
+   ```sh
+   asciidoctor-pdf se1_projektdokumentation_x0.adoc
+   ```
+
+   ```sh
+   # mit PlantUML
+   asciidoctor-pdf -r asciidoctor-diagram se1_projektdokumentation_x0.adoc
+   ```
+
+   oder:
+
+   ```sh
+   asciidoctor -r asciidoctor-pdf -b pdf se1_projektdokumentation_x0.adoc
+   ```
+
+   ```sh
+   # mit PlantUML
+   asciidoctor -r asciidoctor-diagram -r asciidoctor-pdf -b pdf se1_projektdokumentation_x0.adoc
+   ```
+
+4. Prüfen Sie, dass das korrekte **Projektthema**, alle **Teammitglieder** und
+   das **Abgabedatum** auf dem Deckblatt stehen und dass ebenfalls alle
+   erforderlichen **Dokumente** mit ihren Inhalten enthalten sind.
+
+5. Geben Sie das finale Abgabe-PDF _*se1_projektdokumentation_x0.pdf*_ über den
+   mitgeteilten Weg ab.
+</file>
+
+<file path="abgabe_se1/se1_projektdokumentation_x0.adoc">
+// --- 1. Projektthema -------------------------
+= SE I - Projektdokumentation: {project-name}
+// --- 2. Teammitglieder -----------------------
+Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>
+// --- 3. Abgabedatum --------------------------
+01. Januar 2025
+// ---------------------------------------------
+:docs: ../docs
+include::{docs}/_includes/default-attributes.inc.adoc[]
+// ---
+:doctype: book
+:toc:
+:toclevels: 2
+:toc-title: Inhaltsverzeichnis
+:sectnums:
+:icons: font
+//:source-highlighter: highlightjs
+:source-highlighter: rouge
+:rouge-style: github
+:xrefstyle: full
+:experimental:
+:chapter-signifier:
+:figure-caption: Abbildung
+:table-caption: Tabelle
+:listing-caption: Listing
+:!example-caption:
+:experimental:
+// Folders
+:imagesdir-reset: {imagesdir}
+:docs-team: {docs}/team
+:docs-product: {docs}/product
+:docs-technical: {docs}/technical
+
+<<<
+
+// --- 4. include Pfade anpassen ---------------
+
+// --- Projektdokumentation ---
+= Teamspezifikation
+* Teamcharta
+
+:imagesdir: {docs-team}/images
+
+// Teamcharta
+include::{docs-team}/teamcharter.adoc[lines=1..1;4..-1,leveloffset=+1]
+<<<
+
+// ---------------------------------------------
+
+= Produktspezifikation
+* Produktkonzept
+* Domänenmodell und Glossar
+* UX-Konzept
+
+:imagesdir: {docs-technical}/images
+
+// Produktkonzept
+include::{docs-product}/product_concept.adoc[lines=1..1;4..-1,leveloffset=+1]
+<<<
+// Domänenmodell und Glossar
+[#glossary]
+include::{docs-product}/domain_glossary.adoc[lines=1..1;4..-1,leveloffset=+1]
+<<<
+// UX-Konzept
+include::{docs-product}/ux_concept.adoc[lines=1..1;4..-1,leveloffset=+1]
+<<<
+
+// ---------------------------------------------
+
+= Technische Spezifikation
+* Architekturdokument
+* Softwaredesign
+* Testkonzept
+* Deployment & Betrieb
+
+// Architekturdokument
+:imagesdir: {docs-product}/images
+include::{docs-technical}/architecture.adoc[lines=1..1;4..-1,leveloffset=+1]
+<<<
+// Softwaredesign
+:imagesdir: {docs-test}/images
+include::{docs-technical}/design.adoc[lines=1..1;4..-1,leveloffset=+1]
+<<<
+// Testkonzept
+:imagesdir: {docs-test}/images
+include::{docs-technical}/test_concept.adoc[lines=1..1;4..-1,leveloffset=+1]
+<<<
+// Deployment & Betrieb
+:imagesdir: {docs-test}/images
+include::{docs-technical}/deployment.adoc[lines=1..1;4..-1,leveloffset=+1]
+<<<
+
+// ---------------------------------------------
+
+:imagesdir: {imagesdir-reset}/images
+</file>
+
+<file path="docs/product/images/.keep">
+Placeholder to include empty folders in the git repository.
+</file>
+
+<file path="docs/team/images/.keep">
+Placeholder to include empty folders in the git repository.
+</file>
+
+<file path="docs/technical/images/.keep">
+Placeholder to include empty folders in the git repository.
+</file>
+
+<file path="docs/technical/deployment.adoc">
+= Deployment & Betrieb: {project-name}
+Vorname Nachname <email@domain.org>; Vorname2 Nachname2 <email2@domain.org>; Vorname3 Nachname3 <email3@domain.org>
+{localdatetime}
+include::../_includes/default-attributes.inc.adoc[]
+// Platzhalter für weitere Dokumenten-Attribute
+
+= 
+[Projektname]
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+
+_Dieses Dokument beschreibt, wie das System gebaut, ausgeliefert und betrieben wird: 
+lokal, in der CI/CD-Pipeline und in den verschiedenen Umgebungen. Es richtet sich
+primär an Entwickler:innen und deckt das ab, was nach dem Schreiben von Code passiert._
+
+_Technische Entscheidungen rund um Containerisierung und CI/CD (das *Warum*) sind
+als ADRs im link:architecture.adoc[Architekturdokument] (`architecture.adoc`) dokumentiert.
+Dieses Dokument beschreibt das *Wie* und *Was*._
+
+---
+
+== Umgebungsübersicht
+
+Das System wird in mehreren Umgebungen betrieben, die unterschiedliche Zwecke haben.
+Jede Umgebung ist vollständig isoliert. Eine Änderung in einer Umgebung beeinflusst
+keine andere.
+
+[cols="1,1,2,1,1", options="header"]
+|===
+| Umgebung | URL | Zweck | Branch | Deployment
+
+| Lokal
+| http://localhost:8080
+| Entwicklung und manuelle Tests auf dem eigenen Rechner
+| Beliebig
+| Manuell (Docker Compose)
+
+| CI
+| —
+| Automatische Qualitätsprüfung bei jedem Push
+| Alle Branches
+| Automatisch (GitHub Actions)
+
+| Staging
+| [z. B. https://staging.example.com]
+| Integrationstest; Abnahme durch Product Owner vor Release
+| `main`
+| Automatisch nach Merge in `main`
+
+| Produktion
+| [z. B. https://example.com]
+| Live-System für Endnutzer:innen
+| `main` (getaggt)
+| Manuell mit Freigabe
+|===
+
+NOTE: In der Hochschulumgebung entfällt oft eine separate Produktionsumgebung.
+In diesem Fall dient Staging gleichzeitig als Produktionsumgebung.
+
+== Lokale Entwicklungsumgebung
+
+Diese Anleitung richtet sich an neue Teammitglieder, die das System zum ersten
+Mal lokal zum Laufen bringen wollen.
+
+=== Voraussetzungen
+
+[cols="1,1,2", options="header"]
+|===
+| Werkzeug | Version | Installationshinweis
+
+| Docker
+| ≥ 24.0
+| https://docs.docker.com/get-docker/
+
+| Docker Compose
+| ≥ 2.0
+| Wird mit Docker Desktop mitgeliefert
+
+| [z. B. Node.js]
+| [z. B. ≥ 20 LTS]
+| [z. B. https://nodejs.org — oder via `nvm`]
+
+| [z. B. Java JDK]
+| [z. B. ≥ 21]
+| [z. B. https://adoptium.net]
+
+| Git
+| Aktuell
+| https://git-scm.com
+|===
+
+=== System lokal starten
+
+[source,bash]
+----
+# 1. Repository klonen
+git clone [Repository-URL]
+cd [projektname]
+
+# 2. Umgebungsvariablen konfigurieren
+cp .env.example .env
+# .env mit einem Editor öffnen und ggf. anpassen
+
+# 3. Alle Dienste starten
+docker compose up --build
+
+# 4. Prüfen, ob alles läuft
+# Frontend:  http://localhost:3000
+# Backend:   http://localhost:8080
+# API-Docs:  http://localhost:8080/swagger-ui
+----
+
+=== System stoppen und aufräumen
+
+[source,bash]
+----
+# Dienste stoppen (Daten bleiben erhalten)
+docker compose down
+
+# Dienste stoppen und Volumes löschen (Datenbank wird geleert)
+docker compose down -v
+----
+
+=== Häufige Probleme beim lokalen Start
+
+[cols="2,3", options="header"]
+|===
+| Problem | Lösung
+
+| Port bereits belegt (`address already in use`)
+| `docker compose down` ausführen oder belegten Port prüfen:
+  `lsof -i :8080` (macOS/Linux) bzw. `netstat -ano` (Windows)
+
+| Datenbank-Container startet nicht
+| Volumes löschen und neu starten: `docker compose down -v && docker compose up`
+
+| Umgebungsvariablen fehlen
+| Prüfen ob `.env`-Datei vorhanden ist; Beispielwerte in `.env.example` ansehen
+
+| [Weiteres Problem]
+| [Lösung]
+|===
+
+
+== Docker & Container
+
+Dieser Abschnitt beschreibt, wie das System containerisiert ist, welche Container
+existieren, wie sie konfiguriert werden, und wie sie zusammenarbeiten.
+
+=== Container-Übersicht
+
+[cols="1,1,2,1", options="header"]
+|===
+| Service | Image | Zweck | Port (intern → extern)
+
+| [z. B. frontend]
+| [z. B. node:20-alpine (Build-Image)]
+| React-Anwendung — wird als statische Dateien gebaut und über nginx ausgeliefert
+| 80 → 3000
+
+| [z. B. backend]
+| [z. B. eclipse-temurin:21-jre-alpine]
+| Spring Boot REST-API
+| 8080 → 8080
+
+| [z. B. db]
+| [z. B. postgres:15-alpine]
+| PostgreSQL-Datenbank
+| 5432 → 5432
+
+| [z. B. mailhog]
+| [z. B. mailhog/mailhog]
+| E-Mail-Testserver (nur lokal); fängt alle ausgehenden E-Mails ab
+| 1025 (SMTP), 8025 (UI) → 8025
+|===
+
+=== Umgebungsvariablen
+
+Alle Konfiguration erfolgt über Umgebungsvariablen und *nicht* über feste Werte
+im Code. Eine vollständige Liste mit Beispielwerten befindet sich in `.env.example`.
+
+[cols="1,1,2,1", options="header"]
+|===
+| Variable | Beispielwert | Beschreibung | Pflicht
+
+| `DATABASE_URL`
+| `jdbc:postgresql://db:5432/projektname`
+| Verbindungs-URL zur Datenbank
+| Ja
+
+| `DATABASE_USER`
+| `projektname`
+| Datenbankbenutzername
+| Ja
+
+| `DATABASE_PASSWORD`
+| `[sicheres Passwort]`
+| Datenbankpasswort — nie im Repository speichern
+| Ja
+
+| `JWT_SECRET`
+| `[min. 32 Zeichen]`
+| Geheimnis für JWT-Token-Signierung
+| Ja
+
+| `SMTP_HOST`
+| `mailhog` (lokal) / `smtp.example.com` (prod)
+| E-Mail-Serveradresse
+| Ja
+
+| `LOG_LEVEL`
+| `INFO`
+| Log-Level: DEBUG / INFO / WARN / ERROR
+| Nein (Standard: INFO)
+
+| [Weitere Variable]
+| [Beispielwert]
+| [Beschreibung]
+| [Ja / Nein]
+|===
+
+IMPORTANT: Produktions-Secrets (Passwörter, API-Keys, JWT-Secrets) werden *nie*
+im Repository gespeichert — auch nicht in `.env`-Dateien. Sie werden ausschließlich
+als CI/CD-Secrets oder über einen Secret-Manager verwaltet.
+
+---
+
+== CI/CD-Pipeline
+
+Die Pipeline automatisiert Qualitätsprüfung und Deployment. Sie stellt sicher,
+dass kein Code in `main` gelangt, der Tests bricht oder Qualitätsstandards verletzt.
+
+=== Pipeline-Schritte im Detail
+
+[cols="1,2,1,1", options="header"]
+|===
+| Schritt | Beschreibung | Schlägt fehl bei | Ausgeführt bei
+
+| Linting
+| Code-Stil und statische Analyse prüfen
+| Stilfehler oder Warnungen über Schwellwert
+| Jedem Push
+
+| Unit-Tests
+| Alle Unit-Tests ausführen
+| Fehlschlagende Tests
+| Jedem Push
+
+| Integrationstests
+| Tests gegen echte Datenbank (Testcontainers)
+| Fehlschlagende Tests
+| Jedem Push
+
+| Abdeckungsprüfung
+| Testabdeckung messen und mit Mindestwert vergleichen
+| Unterschreitung des Mindestwerts (siehe Testkonzept)
+| Jedem Push
+
+| Image-Build
+| Docker-Images für alle Services bauen
+| Build-Fehler
+| Jedem Push auf `main` und PRs
+
+| Staging-Deployment
+| Neue Images auf Staging-Umgebung ausrollen
+| Deployment-Fehler oder fehlschlagende Smoke Tests
+| Merge in `main`
+
+| Produktions-Deployment
+| Neues Release auf Produktion ausrollen
+| Deployment-Fehler oder fehlschlagende Smoke Tests
+| Manuell nach Tag-Erstellung
+|===
+
+=== Pipeline-Konfiguration
+
+Die vollständige Pipeline-Konfiguration befindet sich in:
+
+[source]
+----
+.github/workflows/
+├── ci.yml          ← Qualitätsprüfung (bei jedem Push)
+└── deploy.yml      ← Deployment (Staging & Produktion)
+----
+
+
+== Deployment-Ablauf
+
+=== Deployment auf Staging (automatisch)
+
+Jeder Merge in `main` löst automatisch ein Deployment auf Staging aus.
+Kein manueller Eingriff erforderlich.
+
+. Pipeline baut neue Docker Images
+. Images werden in die Container-Registry gepusht
+. Staging-Umgebung zieht die neuen Images
+. Smoke Tests werden automatisch ausgeführt
+. Team wird bei Erfolg oder Fehler benachrichtigt
+
+=== Release und Deployment auf Produktion (manuell)
+
+[source,bash]
+----
+# 1. Sicherstellen, dass main aktuell und stabil ist
+git checkout main
+git pull
+
+# 2. Release-Tag erstellen (Semantic Versioning)
+git tag v1.2.0
+git push --tags
+
+# 3. In GitHub Actions: Produktions-Deployment manuell freigeben
+# → GitHub → Actions → deploy.yml → "Run workflow" → Version bestätigen
+----
+
+NOTE: Wir verwenden _Semantic Versioning_ mit dem Schema MAJOR.MINOR.PATCH: 
+MAJOR bei inkompatiblen Änderungen,
+MINOR bei neuen Features (abwärtskompatibel),
+PATCH bei Bugfixes.
+
+=== Smoke Tests nach Deployment
+
+Nach jedem Deployment werden folgende Prüfungen ausgeführt:
+
+[cols="2,2", options="header"]
+|===
+| Prüfung | Erwartetes Ergebnis
+
+| `GET /actuator/health` (Backend)
+| HTTP 200, Status `UP`
+
+| Startseite laden (Frontend)
+| HTTP 200, Ladezeit < 3 s
+
+| Login-Flow
+| Erfolgreicher Login mit Testnutzer möglich
+
+| [Kernfunktion prüfen]
+| [Erwartetes Ergebnis]
+|===
+
+== Rollback
+
+Ein Rollback ist notwendig, wenn ein Deployment kritische Fehler in der
+Produktionsumgebung verursacht. Schnelles Handeln minimiert die Auswirkungen.
+
+=== Wann wird ein Rollback durchgeführt?
+
+* Kritische Fehler in Produktion nach einem Deployment
+* Smoke Tests schlagen nach Deployment fehl
+* Fehlerrate oder Antwortzeiten steigen signifikant an
+
+=== Rollback-Ablauf
+
+. *Entscheidung treffen* — Tech Lead oder Product Owner entscheiden über Rollback
+. *Stakeholder informieren* — Team und relevante Stakeholder benachrichtigen
+. *Rollback ausführen* (eine von zwei Optionen):
+
+[source,bash]
+----
+# Option A: Letztes stabiles Tag erneut deployen
+# → GitHub → Actions → deploy.yml → Version des letzten stabilen Tags eingeben
+
+# Option B: Manuell das vorherige Image aktivieren
+docker compose pull [service]:[vorherige-version]
+docker compose up -d [service]
+----
+
+[start=4]
+. *Smoke Tests ausführen* — sicherstellen dass das System wieder stabil ist
+. *Ursache analysieren* — was hat das Problem verursacht?
+. *Nachbereitung dokumentieren* — im Ticket oder als Kommentar im ADR
+
+== Monitoring & Logging
+
+Dieser Abschnitt beschreibt, wie der Zustand des Systems beobachtet und wie
+Fehler diagnostiziert werden können.
+
+=== Health Checks
+
+[cols="1,2,1", options="header"]
+|===
+| Endpunkt | Beschreibung | Erwartet
+
+| `GET /actuator/health`
+| Gesamtstatus des Systems inkl. Datenbankverbindung
+| HTTP 200, `{"status": "UP"}`
+
+| `GET /actuator/info`
+| Version und Build-Informationen
+| HTTP 200
+
+| [Weiterer Endpunkt]
+| [Beschreibung]
+| [Erwartetes Ergebnis]
+|===
+
+=== Logs
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Beschreibung
+
+| Log-Format
+| Strukturiertes JSON-Logging; enthält Zeitstempel, Level, Service, Message
+
+| Log-Zugriff (lokal)
+| `docker compose logs -f [service]`
+
+| Log-Zugriff (Staging/Prod)
+| [z. B. `ssh user@server` → `journalctl -u [service]` oder Logging-Dashboard-URL]
+
+| Was geloggt wird
+| Alle Fehler (ERROR), Warnungen (WARN), wichtige Geschäftsereignisse (INFO)
+
+| Was *nicht* geloggt wird
+| Passwörter, Tokens, personenbezogene Daten (DSGVO-Anforderung)
+|===
+
+
+_Dieses Dokument ist ein lebendes Dokument. Änderungen an der Pipeline,
+den Umgebungen oder dem Deployment-Prozess sind hier im selben Pull Request
+zu dokumentieren, in dem die technische Änderung vorgenommen wird._
+</file>
+
+<file path="docs/technical/design.adoc">
+= Softwaredesign: {project-name}
+Vorname Nachname <email@domain.org>; Vorname2 Nachname2 <email2@domain.org>; Vorname3 Nachname3 <email3@domain.org>
+{localdatetime}
+include::../_includes/default-attributes.inc.adoc[]
+// Platzhalter für weitere Dokumenten-Attribute
+
+_Dieses Dokument beschreibt die interne Struktur des Systems, wie der Code organisiert ist,
+aus welchen Komponenten das System besteht, wie diese zusammenarbeiten, und welche
+Designmuster eingesetzt werden. Der Fokus liegt auf dem *Wie* der Implementierung._
+
+_Das Systemkontext-Diagramm und die Architekturentscheidungen (ADRs) sind im
+link:architecture.adoc[Architekturdokument] (`architecture.adoc`) beschrieben. Dieses Dokument vertieft die interne Sicht. Das Datenmodell hier beschreibt die technische Struktur der Persistenz. Die fachliche Bedeutung der Entitäten ist im link:domain_glossary.adoc[Domänenmodell] (`domain_glossary.adoc`) definiert._
+
+---
+
+== Systemübersicht & Schichtenarchitektur
+
+_Dieser Abschnitt beschreibt, in welche Schichten oder Bereiche das System aufgeteilt ist
+und welche Verantwortung jede Schicht trägt. Eine klare Schichtentrennung verhindert,
+dass Geschäftslogik, Datenzugriff und Präsentation unkontrolliert vermischt werden._
+
+=== Schichtendiagramm
+
+[plantuml, layer-diagram, svg]
+....
+@startuml
+skinparam monochrome true
+skinparam defaultFontSize 13
+skinparam rectangleBorderThickness 1
+
+rectangle "Präsentationsschicht\n(Frontend / API-Controller)" as presentation
+rectangle "Anwendungsschicht\n(Services / Use Cases)" as application
+rectangle "Domänenschicht\n(Entitäten / Geschäftslogik)" as domain
+rectangle "Persistenzschicht\n(Repositories / Datenbank)" as persistence
+
+presentation -down-> application : ruft auf
+application -down-> domain : verwendet
+application -down-> persistence : liest / schreibt
+domain -[hidden]down- persistence
+
+note right of presentation : HTTP-Anfragen,\nSerialisierung, Routing
+note right of application : Koordination,\nTransaktionen
+note right of domain : Fachliche Regeln,\nValidierung
+note right of persistence : Datenbankzugriff,\nMapping
+
+@enduml
+....
+
+=== Beschreibung der Schichten
+
+[cols="1,2,2", options="header"]
+|===
+| Schicht | Verantwortung | Darf abhängen von
+
+| Präsentationsschicht
+| HTTP-Anfragen entgegennehmen und beantworten;
+  Eingaben validieren; Antworten serialisieren;
+  Routing und Fehlerbehandlung auf API-Ebene
+| Anwendungsschicht
+
+| Anwendungsschicht
+| Fachliche Abläufe koordinieren (Use Cases);
+  Transaktionen verwalten; externe Dienste aufrufen;
+  zwischen Schichten vermitteln
+| Domänenschicht, Persistenzschicht
+
+| Domänenschicht
+| Fachliche Entitäten und Regeln kapseln;
+  Invarianten sicherstellen;
+  Kernlogik unabhängig von Infrastruktur halten
+| Keine äußeren Schichten
+
+| Persistenzschicht
+| Datenbankzugriff abstrahieren;
+  Entitäten auf Datenbankstrukturen mappen;
+  Abfragelogik kapseln
+| Domänenschicht (Entitäten)
+|===
+
+NOTE: Die Domänenschicht darf *nicht* von Persistenz- oder Präsentationsschicht
+abhängen. Diese Regel ist der häufigste Architekturverstoss in Studentenprojekten
+und sollte in Code Reviews explizit geprüft werden.
+
+== Komponentenübersicht
+
+_Dieser Abschnitt beschreibt die wichtigsten Komponenten des Systems — Module,
+Pakete oder Services — und ihre Verantwortlichkeiten. Eine Komponente ist eine
+zusammengehörige Einheit von Code mit einer klar definierten Aufgabe._
+
+=== Komponentendiagramm
+
+//Beipielhaftes Komponentendiagramm, das die Hauptkomponenten und ihre Schnittstellen zeigt
+//Die tatsächlichen Komponenten müssen auf das konkrete Projekt zugeschnitten sein
+[plantuml, component-diagram, svg]
+....
+@startuml
+
+' source: https://github.com/plantuml-stdlib/C4-PlantUML
+' C4 Model
+!include <c4/C4_Component.puml>
+
+LAYOUT_WITH_LEGEND()
+
+title Component Diagram – [Systemname]
+
+Container_Boundary(frontend, "Frontend") {
+  Component(booking_ui, "Buchungskomponente", "z. B. React / Angular", "Ermöglicht Nutzern das Erstellen und Verwalten von Buchungen")
+  Component(auth_ui, "Authentifizierungskomponente", "z. B. React / Angular", "Handhabt Login, Logout und Session-Management")
+  Component(shared_ui, "Gemeinsame UI-Komponenten", "z. B. Design System", "Wiederverwendbare UI-Elemente wie Buttons, Formulare, Navigation")
+}
+
+Container_Boundary(backend, "Backend") {
+  Component(booking_ctrl, "Buchungs-Controller", "z. B. REST Controller", "Nimmt eingehende Buchungsanfragen entgegen und delegiert an den Service")
+  Component(booking_svc, "Buchungs-Service", "z. B. Spring Service", "Enthält die Buchungslogik und orchestriert Repository und Benachrichtigung")
+  Component(user_svc, "Nutzer-Service", "z. B. Spring Service", "Verwaltung von Nutzerdaten und Authentifizierungslogik")
+  Component(notification_svc, "Benachrichtigungs-Service", "z. B. Spring Service", "Erstellt und versendet Benachrichtigungen an Nutzer:innen")
+}
+
+Container_Boundary(persistence, "Persistenz") {
+  Component(booking_repo, "Buchungs-Repository", "z. B. JPA Repository", "Datenzugriff für Buchungsentitäten")
+  Component(user_repo, "Nutzer-Repository", "z. B. JPA Repository", "Datenzugriff für Nutzerentitäten")
+  ContainerDb(db, "Datenbank", "z. B. PostgreSQL", "Persistente Datenhaltung für alle Entitäten")
+}
+
+System_Ext(ext, "Externer E-Mail-Dienst", "Zustellung von E-Mail-Benachrichtigungen, z. B. via SMTP")
+
+Rel(booking_ui, booking_ctrl, "sendet Buchungsanfragen", "REST / HTTPS")
+Rel(auth_ui, user_svc, "authentifiziert Nutzer:in", "REST / HTTPS")
+Rel(booking_ctrl, booking_svc, "delegiert an", "Java API")
+Rel(booking_svc, booking_repo, "liest / schreibt Buchungen", "JPA")
+Rel(booking_svc, notification_svc, "löst Benachrichtigung aus", "Java API")
+Rel(user_svc, user_repo, "liest / schreibt Nutzerdaten", "JPA")
+Rel(booking_repo, db, "persistiert Daten", "SQL")
+Rel(user_repo, db, "persistiert Daten", "SQL")
+Rel(notification_svc, ext, "sendet E-Mails über", "SMTP")
+
+@enduml
+....
+
+=== Komponentenbeschreibung
+
+[cols="1,2,2", options="header"]
+|===
+| Komponente | Verantwortung | Schnittstellen
+
+| [z. B. Buchungs-Controller]
+| HTTP-Anfragen für Buchungsvorgänge entgegennehmen;
+  Eingaben validieren; Antworten zurückgeben
+| REST-API (eingehend); Buchungs-Service (ausgehend)
+
+| [z. B. Buchungs-Service]
+| Buchungslogik koordinieren; Verfügbarkeit prüfen;
+  Transaktionen verwalten; Benachrichtigungen auslösen
+| Buchungs-Repository; Benachrichtigungs-Service
+
+| [z. B. Buchungs-Repository]
+| Buchungsdaten lesen und schreiben;
+  Datenbankabfragen kapseln
+| Datenbank (JPA / SQL)
+
+| [z. B. Benachrichtigungs-Service]
+| E-Mail-Benachrichtigungen versenden;
+  Vorlagen verwalten
+| Externer SMTP-Dienst
+
+| [Weitere Komponente]
+| [Verantwortung]
+| [Schnittstellen]
+|===
+
+---
+
+== Wichtige Interaktionsflüsse
+
+Sequenzdiagramme zeigen, wie Komponenten bei typischen Abläufen zusammenarbeiten.
+Dokumentiert werden hier nur die wichtigsten und komplexesten Flüsse —
+nicht jede einfache CRUD-Operation.
+
+=== [Flussname, z. B. Raum buchen]
+
+_Beschreibe kurz, was dieser Ablauf zeigt und warum er dokumentiert wird._
+
+//Beispielhaftes Sequenzdiagramm für den Buchungsprozess
+//Die tatsächlichen Flüsse müssen auf das konkrete Projekt zugeschnitten sein
+
+[plantuml, sequence-booking, svg]
+....
+@startuml
+skinparam monochrome true
+skinparam defaultFontSize 12
+
+actor "Nutzer:in" as user
+participant "Buchungs-\nController" as ctrl
+participant "Buchungs-\nService" as svc
+participant "Buchungs-\nRepository" as repo
+participant "Benachrichtigungs-\nService" as notify
+
+user -> ctrl : POST /buchungen\n{raumId, zeitraum}
+ctrl -> ctrl : Eingabe validieren
+ctrl -> svc : buchungErstellen(raumId, zeitraum, nutzerId)
+svc -> repo : istVerfuegbar(raumId, zeitraum)
+repo --> svc : true
+svc -> repo : buchungSpeichern(buchung)
+repo --> svc : gespeicherteBuchung
+svc -> notify : bestaetigungSenden(buchung)
+notify --> svc : OK
+svc --> ctrl : buchung
+ctrl --> user : 201 Created\n{buchungsId, details}
+
+@enduml
+....
+
+---
+
+=== [Weiterer Fluss, z. B. Fehlerfall: Raum nicht verfügbar]
+
+[plantuml, sequence-conflict, svg]
+....
+@startuml
+skinparam monochrome true
+skinparam defaultFontSize 12
+
+actor "Nutzer:in" as user
+participant "Buchungs-\nController" as ctrl
+participant "Buchungs-\nService" as svc
+participant "Buchungs-\nRepository" as repo
+
+user -> ctrl : POST /buchungen\n{raumId, zeitraum}
+ctrl -> svc : buchungErstellen(raumId, zeitraum, nutzerId)
+svc -> repo : istVerfuegbar(raumId, zeitraum)
+repo --> svc : false
+svc --> ctrl : RaumNichtVerfuegbarException
+ctrl --> user : 409 Conflict\n{message, alternativen}
+
+@enduml
+....
+
+NOTE: Flussnamen im Diagramm sollten identisch mit den Methodennamen im Code sein.
+Das macht es einfacher, vom Diagramm zum Code zu navigieren und umgekehrt.
+
+---
+
+== Datenmodell
+
+_Dieser Abschnitt beschreibt die technische Datenbankstruktur: Tabellen, Spalten,
+Datentypen und Beziehungen. Er beantwortet die Frage: Wie werden die Daten gespeichert?_
+
+NOTE: Die *fachliche* Bedeutung der Entitäten — was sie repräsentieren und wie sie sich zueinander verhalten — ist im Domänenmodell (`domain_glossary.adoc`) beschrieben.
+Dieses Dokument zeigt ausschließlich die technische Persistenzstruktur.
+
+=== Datenbankmodell
+
+//beispielhaftes ER-Diagramm für das Datenmodell
+//Die tatsächlichen Tabellen und Spalten müssen auf das konkrete Projekt zugeschnitten sein
+
+[plantuml, data-model, svg]
+....
+@startuml
+skinparam monochrome true
+skinparam defaultFontSize 12
+
+entity "nutzer" as user {
+  * id : UUID <<PK>>
+  --
+  * email : VARCHAR(255) <<UNIQUE>>
+  * name : VARCHAR(100)
+  * erstellt_am : TIMESTAMP
+}
+
+entity "raum" as room {
+  * id : UUID <<PK>>
+  --
+  * bezeichnung : VARCHAR(100)
+  * kapazitaet : INTEGER
+  * standort : VARCHAR(100)
+}
+
+entity "buchung" as booking {
+  * id : UUID <<PK>>
+  --
+  * nutzer_id : UUID <<FK>>
+  * raum_id : UUID <<FK>>
+  * beginn : TIMESTAMP
+  * ende : TIMESTAMP
+  * status : VARCHAR(20)
+  * erstellt_am : TIMESTAMP
+}
+
+user ||--o{ booking : "gibt auf"
+room ||--o{ booking : "ist Gegenstand von"
+
+@enduml
+....
+
+=== Tabellenbeschreibung
+
+[cols="1,1,3", options="header"]
+|===
+| Tabelle | Spalte | Beschreibung & Besonderheiten
+
+.4+| nutzer
+| id | UUID als Primärschlüssel; wird vom System generiert
+| email | Eindeutig; wird für Login und Benachrichtigungen verwendet
+| name | Anzeigename; kein Pflichtfeld nach DSGVO-Anforderung
+| erstellt_am | Automatisch gesetzt; nicht änderbar
+
+.4+| buchung
+| id | UUID als Primärschlüssel
+| status | Enum-Werte: `AKTIV`, `STORNIERT`, `ABGELAUFEN`
+| beginn / ende | Beide Zeitpunkte inklusive; keine Überschneidung per DB-Constraint
+| nutzer_id / raum_id | Fremdschlüssel; kein Cascade Delete — Buchungen bleiben erhalten
+
+| [Weitere Tabelle]
+| [Spalte]
+| [Beschreibung]
+|===
+
+=== Datenbankmigrationen
+
+_Schemaänderungen werden nicht manuell durchgeführt, sondern über Migrationsskripte
+versioniert. So ist der Datenbankzustand jederzeit reproduzierbar._
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Beschreibung
+
+| Werkzeug
+| [z. B. Flyway / Liquibase]
+
+| Speicherort
+| [z. B. `src/main/resources/db/migration/`]
+
+| Namenskonvention
+| [z. B. `V001__initiales_schema.sql`, `V002__buchung_status_spalte.sql`]
+
+| Regel
+| Bestehende Migrationsskripte werden *nie* verändert — nur neue hinzugefügt
+|===
+
+== Eingesetzte Muster & Konventionen
+
+_Dieser Abschnitt dokumentiert übergreifende Designmuster und Konventionen, die im
+gesamten Codebase gelten. Das verhindert, dass verschiedene Teammitglieder dasselbe
+Problem auf unterschiedliche Weise lösen._
+
+=== Designmuster
+
+[cols="1,2,2", options="header"]
+|===
+| Muster | Wo eingesetzt | Begründung
+
+| Repository Pattern
+| Persistenzschicht: alle Datenbankzugriffe
+| Datenbanklogik von Geschäftslogik trennen;
+  einfacher austauschbar und testbar
+
+| DTO (Data Transfer Object)
+| Schnittstelle zwischen Controller und Service
+| Interne Domänenobjekte nicht direkt exponieren;
+  API-Struktur unabhängig vom Datenbankmodell
+
+| Service Layer
+| Anwendungsschicht: alle Use Cases
+| Geschäftslogik zentralisieren;
+  Controller schlank halten
+
+| [Weiteres Muster]
+| [Wo eingesetzt]
+| [Begründung]
+|===
+
+=== Fehlerbehandlung
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Konvention
+
+| Fachliche Fehler
+| Als eigene Exception-Klassen modellieren
+  (z. B. `RaumNichtVerfuegbarException`, `BuchungNichtGefundenException`)
+
+| HTTP-Fehlercodes
+| 400 für Validierungsfehler; 404 für nicht gefundene Ressourcen;
+  409 für Konflikte; 500 nur für unerwartete Systemfehler
+
+| Fehlermeldungen
+| Immer strukturiert zurückgeben:
+  `{ "fehler": "...", "details": "..." }` — kein Stack Trace an den Client
+
+| Logging
+| Fachliche Fehler als WARN; unerwartete Fehler als ERROR;
+  keine personenbezogenen Daten in Log-Ausgaben (DSGVO)
+|===
+
+=== API-Konventionen
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Konvention
+
+| URL-Struktur
+| Ressourcenorientiert im Plural: `/buchungen`, `/raeume`, `/nutzer`
+
+| HTTP-Methoden
+| GET = lesen; POST = erstellen; PUT = ersetzen; PATCH = teilweise ändern;
+  DELETE = löschen
+
+| Antwortformat
+| JSON in allen Fällen; Datumsformat ISO 8601: `2024-06-01T09:00:00Z`
+
+| Versionierung
+| [z. B. URL-Präfix `/api/v1/` - Version nur erhöhen bei Breaking Changes]
+|===
+
+_Diagramme in diesem Dokument sollten den aktuellen Stand des Codes widerspiegeln.
+Bei größeren Refactorings oder neuen Komponenten ist dieses Dokument im selben
+Pull Request zu aktualisieren._
+</file>
+
+<file path="docs/technical/test_concept.adoc">
+= Testkonzept: {project-name}
+Vorname Nachname <email@domain.org>; Vorname2 Nachname2 <email2@domain.org>; Vorname3 Nachname3 <email3@domain.org>
+{localdatetime}
+include::../_includes/default-attributes.inc.adoc[]
+// Platzhalter für weitere Dokumenten-Attribute
+
+_Dieses Dokument beschreibt, wie die Qualität der Software sichergestellt wird.
+Es legt fest, welche Arten von Tests eingesetzt werden, welche Werkzeuge verwendet werden,
+und wie Tests in den Entwicklungsprozess integriert sind._
+
+---
+
+== Teststrategie
+
+_Beschreibe in wenigen Sätzen den grundsätzlichen Ansatz zur Qualitätssicherung im Projekt.
+Warum wurden diese Testarten gewählt? Welchen Stellenwert hat Testing im Team?_
+
+[Hier die übergeordnete Teststrategie beschreiben, z. B.:
+„Wir setzen auf eine Teststrategie mit einem starken Fokus auf Unit-Tests,
+ergänzt durch Integrationstests für kritische Schnittstellen und manuelle Tests für die wichtigsten Nutzerinteraktionen."]
+
+== Testarten
+
+=== Unit-Tests
+
+Unit-Tests prüfen einzelne Klassen oder Funktionen isoliert voneinander.
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Beschreibung
+
+| Ziel
+| Sicherstellung der korrekten Funktionsweise einzelner Komponenten in Isolation
+
+| Umfang
+| Alle Service- und Domänenklassen; Fokus auf Geschäftslogik
+
+| Werkzeug
+| [z. B. JUnit 5, Pytest, Jest]
+
+| Mocking (Faken / Simulieren)
+| [z. B. Mockito, unittest.mock — externe Abhängigkeiten werden gemockt]
+
+| Abdeckungsziel
+| [z. B. mind. 80 % Zeilenabdeckung auf der Service-Schicht]
+
+| Ausführung
+| Lokal bei jedem Build; automatisch in der CI-Pipeline bei jedem Push
+|===
+
+=== Integrationstests
+
+Integrationstests prüfen das Zusammenspiel mehrerer Komponenten, z. B. Service und Datenbank.
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Beschreibung
+
+| Ziel
+| Sicherstellung der korrekten Kommunikation zwischen Komponenten und mit externen Systemen
+
+| Umfang
+| [z. B. REST-Endpunkte, Datenbankzugriffe, externe API-Aufrufe]
+
+| Werkzeug
+| [z. B. Spring Boot Test, Testcontainers, Supertest]
+
+| Testdaten
+| [z. B. dedizierte Testdatenbank, In-Memory-Datenbank, Fixtures]
+
+| Ausführung
+| Automatisch in der CI-Pipeline; nicht zwingend bei jedem lokalen Build
+|===
+
+=== Optional: End-to-End-Tests (E2E)
+
+E2E-Tests simulieren echte Nutzerinteraktionen durch die gesamte Anwendung.
+
+//E2E-Tests sind optional und sollten erst betrachtet werden, wenn alle anderen Testarten ausreichend berücksichtigt wurden.
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Beschreibung
+
+| Ziel
+| Sicherstellung der wichtigsten Interaktionen aus Endnutzerperspektive
+
+| Umfang
+| [z. B. Login, Kernfunktion A, Kernfunktion B — nur kritische Pfade]
+
+| Werkzeug
+| [z. B. Cypress, Playwright, Selenium]
+
+| Ausführung
+| [z. B. manuell vor jedem Release; oder automatisch auf Staging-Umgebung]
+|===
+
+=== Manuelle Tests
+
+Hier werden alle Tests aufgeführt, die nicht automatisiert werden können.
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Beschreibung
+
+| Ziel
+| Überprüfung von Usability, visueller Korrektheit und explorativem Testen
+
+| Umfang
+| [z. B. UI-Design, Responsivität, neue Features vor dem Sprint Review]
+
+| Vorgehen
+| [z. B. Exploratives Testen durch Teammitglied, das das Feature nicht implementiert hat]
+
+| Dokumentation
+| [z. B. Testergebnisse als Kommentar in GitIssue]
+|===
+
+== Nicht getestet
+
+Es ist genauso wichtig zu dokumentieren, was bewusst NICHT getestet wird — und warum. Das verhindert Missverständnisse und zeigt, dass die Entscheidung bewusst getroffen wurde.
+
+[cols="2,3", options="header"]
+|===
+| Bereich | Begründung
+
+| [z. B. Infrastruktur-Code (Docker, CI-Konfiguration)]
+| [z. B. Zu aufwändig für den Projektumfang; wird durch manuelle Überprüfung abgedeckt]
+
+| [z. B. Drittanbieter-Bibliotheken]
+| [z. B. Vertrauen in externe Qualitätssicherung der Bibliothek]
+
+| [Weiterer Bereich]
+| [Begründung]
+|===
+
+== Werkzeuge & Frameworks
+
+[cols="1,2,2", options="header"]
+|===
+| Werkzeug | Zweck | Dokumentation
+
+| [z. B. JUnit 5]
+| Unit- und Integrationstests (Backend)
+| https://junit.org/junit5/
+
+| [z. B. Mockito]
+| Mocking von Abhängigkeiten in Unit-Tests
+| https://site.mockito.org/
+
+| [z. B. Testcontainers]
+| Datenbankintegrationstests mit echtem Container
+| https://testcontainers.com/
+
+| [z. B. Cypress]
+| End-to-End-Tests im Browser
+| https://www.cypress.io/
+
+| [z. B. JaCoCo]
+| Messung der Testabdeckung
+| https://www.jacoco.org/
+|===
+
+== Testabdeckung
+
+_Definiert die angestrebten Mindestwerte für die Testabdeckung._
+
+[cols="1,1,2", options="header"]
+|===
+| Schicht | Zielwert | Bemerkung
+
+| Service-Schicht
+| [z. B. ≥ 80 %]
+| Geschäftslogik hat höchste Priorität
+
+| Persistenz-Schicht
+| [z. B. ≥ 60 %]
+| Grundlegende CRUD-Operationen abgedeckt
+
+| Controller / API
+| [z. B. ≥ 70 %]
+| Wichtigste Endpunkte per Integrationstest abgedeckt
+
+| Frontend-Komponenten
+| [z. B. ≥ 50 %]
+| Fokus auf wiederverwendbare Kernkomponenten
+|===
+
+NOTE: Abdeckung ist kein Selbstzweck. 80 % sinnlose Tests sind schlechter als 60 % gut durchdachte Tests. Qualität der Tests ist wichtiger als der Prozentwert.
+
+== Integration in den Entwicklungsprozess
+
+=== Ausführung der Tests
+==== Lokale Entwicklung
+[source,bash]
+----
+# Alle Unit-Tests ausführen
+[z. B.  pytest  |  npm test]
+
+# Testabdeckung prüfen
+[z. B.  pytest --cov]
+----
+
+==== CI-Pipeline
+
+Tests werden automatisch bei jedem Push im Repository ausgeführt. Je nach Testart können unterschiedliche Trigger und Umgebungen sinnvoll sein. Die Konfiguration der CI-Pipeline sollte sicherstellen, dass alle Tests zuverlässig und schnell ausgeführt werden.
+
+=== Definition of Done
+
+//Bitte anpassen und nur das aufnehmen, was tatsächlich auch durchgeführt wird.
+Folgende Testkriterien sind Teil unserer Definition of Done:
+
+* [ ] Alle bestehenden Tests sind grün
+* [ ] Neue Funktionalität ist durch Unit-Tests abgedeckt
+* [ ] Die Mindest-Testabdeckung wird nicht unterschritten
+* [ ] Manuelle Tests für neue Features wurden durchgeführt
+* [ ] Keine bekannten kritischen Fehler sind offen
+
+== Fehlerbehandlung & Bugtracking
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Beschreibung
+
+| Wo werden Bugs erfasst?
+| [z. B. Als Issue mit Label "Bug" in GitHub Issues]
+
+| Priorisierung
+| [z. B. kritische Bugs werden sofort im laufenden Sprint behoben; andere ins Backlog]
+
+| Reproduzierbarkeit
+| [z. B. Jeder Bug-Report enthält Schritte zur Reproduktion, erwartetes und tatsächliches Verhalten]
+|===
+
+_Dieses Testkonzept wird bei Bedarf aktualisiert — insbesondere wenn neue Testarten eingeführt,
+Werkzeuge gewechselt oder Abdeckungsziele angepasst werden._
+</file>
+
+<file path="docs/.gitignore">
+# Syntax: https://git-scm.com/docs/gitignore
+
+# Asciidoctor
+**/.asciidoctor/
+**/images/diagrams/
+*.pdf
+*.html
+</file>
+
+<file path="docs/index.adoc">
+= Dokumentation im Überblick
+
+Die Dokumentation in diesem Repository enthält grundlegende und systemweite bzw. projektweite Festlegungen. Angaben, die sich auf konkrete Funktionen und Aufgaben beziehen, werden im Product Backlog bzw. Sprint Backlog verwaltet.
+
+Die Dokumentation folgt dem https://docs-as-co.de/[*Docs-as-Code*]-Ansatz, in dem leichtgewichtige Markdown-Dokumente in einem Repository genauso behandelt werden wie Code.
+
+Die Dokumentation in diesem Repository ist wie folgt aufgebaut:
+
+== Produkt
+Was wir entwickeln und für wen (`docs/product`).
+
+* link:product/product_concept.adoc[Produktkonzept] beschreibt das Produkt und die Motivation für seine Entwicklung.
+* link:product/ux_concept.adoc[UX-Konzept] gibt Details für die Gestaltung der Benutzeroberfläche auf Basis von Nutzerkontext und Personas als Ergänzung zu User Stories.
+* link:product/domain_glossary.adoc[Fachbegriffe und Domänenmodell] beschreibt Begriffe der Fachdomäne und ihre Zusammenhänge.
+
+== Team
+Wie wir zusammenarbeiten (`docs/team`).
+
+* link:team/teamcharter.adoc[Teamcharta] enthält Verantwortlichkeiten und Regeln für die Zusammenarbeit.
+
+== Technik 
+Wie das Produkt entwickelt und betrieben wird (`docs/technical`).
+
+* link:technical/architecture.adoc[Architektur] enthält grundlegende Entscheidungen zur technischen Grundlage und Struktur des Systems.
+* link:technical/design.adoc[Softwaredesign] beschreibt den Aufbau der Codebasis, den Aufbau und Zusammenspiel zentraler Komponenten und Schnittstellen.
+* link:technical/deployment.adoc[Bereitstellung] enthält Informationen zur Betriebsumgebung, ihrer Konfiguration sowie Schritten zur Auslieferung (CI/CD).
+* link:technical/test_concept.adoc[Testkonzept] beschreibt das gewählte Testkonzept, Tools und die Einbindung in den Entwicklungsprozess. 
+
+---
+_Dieses Dokument wird kontinuierlich gepflegt. Zusätzliche Dokumente können in den drei Kategorien bei Bedarf ergänzt und auf dieser Seite verlinkt werden._
+</file>
+
+<file path="docs/LICENSE">
+Attribution 4.0 International
+
+=======================================================================
+
+Creative Commons Corporation ("Creative Commons") is not a law firm and
+does not provide legal services or legal advice. Distribution of
+Creative Commons public licenses does not create a lawyer-client or
+other relationship. Creative Commons makes its licenses and related
+information available on an "as-is" basis. Creative Commons gives no
+warranties regarding its licenses, any material licensed under their
+terms and conditions, or any related information. Creative Commons
+disclaims all liability for damages resulting from their use to the
+fullest extent possible.
+
+Using Creative Commons Public Licenses
+
+Creative Commons public licenses provide a standard set of terms and
+conditions that creators and other rights holders may use to share
+original works of authorship and other material subject to copyright
+and certain other rights specified in the public license below. The
+following considerations are for informational purposes only, are not
+exhaustive, and do not form part of our licenses.
+
+     Considerations for licensors: Our public licenses are
+     intended for use by those authorized to give the public
+     permission to use material in ways otherwise restricted by
+     copyright and certain other rights. Our licenses are
+     irrevocable. Licensors should read and understand the terms
+     and conditions of the license they choose before applying it.
+     Licensors should also secure all rights necessary before
+     applying our licenses so that the public can reuse the
+     material as expected. Licensors should clearly mark any
+     material not subject to the license. This includes other CC-
+     licensed material, or material used under an exception or
+     limitation to copyright. More considerations for licensors:
+	wiki.creativecommons.org/Considerations_for_licensors
+
+     Considerations for the public: By using one of our public
+     licenses, a licensor grants the public permission to use the
+     licensed material under specified terms and conditions. If
+     the licensor's permission is not necessary for any reason--for
+     example, because of any applicable exception or limitation to
+     copyright--then that use is not regulated by the license. Our
+     licenses grant only permissions under copyright and certain
+     other rights that a licensor has authority to grant. Use of
+     the licensed material may still be restricted for other
+     reasons, including because others have copyright or other
+     rights in the material. A licensor may make special requests,
+     such as asking that all changes be marked or described.
+     Although not required by our licenses, you are encouraged to
+     respect those requests where reasonable. More_considerations
+     for the public:
+	wiki.creativecommons.org/Considerations_for_licensees
+
+=======================================================================
+
+Creative Commons Attribution 4.0 International Public License
+
+By exercising the Licensed Rights (defined below), You accept and agree
+to be bound by the terms and conditions of this Creative Commons
+Attribution 4.0 International Public License ("Public License"). To the
+extent this Public License may be interpreted as a contract, You are
+granted the Licensed Rights in consideration of Your acceptance of
+these terms and conditions, and the Licensor grants You such rights in
+consideration of benefits the Licensor receives from making the
+Licensed Material available under these terms and conditions.
+
+
+Section 1 -- Definitions.
+
+  a. Adapted Material means material subject to Copyright and Similar
+     Rights that is derived from or based upon the Licensed Material
+     and in which the Licensed Material is translated, altered,
+     arranged, transformed, or otherwise modified in a manner requiring
+     permission under the Copyright and Similar Rights held by the
+     Licensor. For purposes of this Public License, where the Licensed
+     Material is a musical work, performance, or sound recording,
+     Adapted Material is always produced where the Licensed Material is
+     synched in timed relation with a moving image.
+
+  b. Adapter's License means the license You apply to Your Copyright
+     and Similar Rights in Your contributions to Adapted Material in
+     accordance with the terms and conditions of this Public License.
+
+  c. Copyright and Similar Rights means copyright and/or similar rights
+     closely related to copyright including, without limitation,
+     performance, broadcast, sound recording, and Sui Generis Database
+     Rights, without regard to how the rights are labeled or
+     categorized. For purposes of this Public License, the rights
+     specified in Section 2(b)(1)-(2) are not Copyright and Similar
+     Rights.
+
+  d. Effective Technological Measures means those measures that, in the
+     absence of proper authority, may not be circumvented under laws
+     fulfilling obligations under Article 11 of the WIPO Copyright
+     Treaty adopted on December 20, 1996, and/or similar international
+     agreements.
+
+  e. Exceptions and Limitations means fair use, fair dealing, and/or
+     any other exception or limitation to Copyright and Similar Rights
+     that applies to Your use of the Licensed Material.
+
+  f. Licensed Material means the artistic or literary work, database,
+     or other material to which the Licensor applied this Public
+     License.
+
+  g. Licensed Rights means the rights granted to You subject to the
+     terms and conditions of this Public License, which are limited to
+     all Copyright and Similar Rights that apply to Your use of the
+     Licensed Material and that the Licensor has authority to license.
+
+  h. Licensor means the individual(s) or entity(ies) granting rights
+     under this Public License.
+
+  i. Share means to provide material to the public by any means or
+     process that requires permission under the Licensed Rights, such
+     as reproduction, public display, public performance, distribution,
+     dissemination, communication, or importation, and to make material
+     available to the public including in ways that members of the
+     public may access the material from a place and at a time
+     individually chosen by them.
+
+  j. Sui Generis Database Rights means rights other than copyright
+     resulting from Directive 96/9/EC of the European Parliament and of
+     the Council of 11 March 1996 on the legal protection of databases,
+     as amended and/or succeeded, as well as other essentially
+     equivalent rights anywhere in the world.
+
+  k. You means the individual or entity exercising the Licensed Rights
+     under this Public License. Your has a corresponding meaning.
+
+
+Section 2 -- Scope.
+
+  a. License grant.
+
+       1. Subject to the terms and conditions of this Public License,
+          the Licensor hereby grants You a worldwide, royalty-free,
+          non-sublicensable, non-exclusive, irrevocable license to
+          exercise the Licensed Rights in the Licensed Material to:
+
+            a. reproduce and Share the Licensed Material, in whole or
+               in part; and
+
+            b. produce, reproduce, and Share Adapted Material.
+
+       2. Exceptions and Limitations. For the avoidance of doubt, where
+          Exceptions and Limitations apply to Your use, this Public
+          License does not apply, and You do not need to comply with
+          its terms and conditions.
+
+       3. Term. The term of this Public License is specified in Section
+          6(a).
+
+       4. Media and formats; technical modifications allowed. The
+          Licensor authorizes You to exercise the Licensed Rights in
+          all media and formats whether now known or hereafter created,
+          and to make technical modifications necessary to do so. The
+          Licensor waives and/or agrees not to assert any right or
+          authority to forbid You from making technical modifications
+          necessary to exercise the Licensed Rights, including
+          technical modifications necessary to circumvent Effective
+          Technological Measures. For purposes of this Public License,
+          simply making modifications authorized by this Section 2(a)
+          (4) never produces Adapted Material.
+
+       5. Downstream recipients.
+
+            a. Offer from the Licensor -- Licensed Material. Every
+               recipient of the Licensed Material automatically
+               receives an offer from the Licensor to exercise the
+               Licensed Rights under the terms and conditions of this
+               Public License.
+
+            b. No downstream restrictions. You may not offer or impose
+               any additional or different terms or conditions on, or
+               apply any Effective Technological Measures to, the
+               Licensed Material if doing so restricts exercise of the
+               Licensed Rights by any recipient of the Licensed
+               Material.
+
+       6. No endorsement. Nothing in this Public License constitutes or
+          may be construed as permission to assert or imply that You
+          are, or that Your use of the Licensed Material is, connected
+          with, or sponsored, endorsed, or granted official status by,
+          the Licensor or others designated to receive attribution as
+          provided in Section 3(a)(1)(A)(i).
+
+  b. Other rights.
+
+       1. Moral rights, such as the right of integrity, are not
+          licensed under this Public License, nor are publicity,
+          privacy, and/or other similar personality rights; however, to
+          the extent possible, the Licensor waives and/or agrees not to
+          assert any such rights held by the Licensor to the limited
+          extent necessary to allow You to exercise the Licensed
+          Rights, but not otherwise.
+
+       2. Patent and trademark rights are not licensed under this
+          Public License.
+
+       3. To the extent possible, the Licensor waives any right to
+          collect royalties from You for the exercise of the Licensed
+          Rights, whether directly or through a collecting society
+          under any voluntary or waivable statutory or compulsory
+          licensing scheme. In all other cases the Licensor expressly
+          reserves any right to collect such royalties.
+
+
+Section 3 -- License Conditions.
+
+Your exercise of the Licensed Rights is expressly made subject to the
+following conditions.
+
+  a. Attribution.
+
+       1. If You Share the Licensed Material (including in modified
+          form), You must:
+
+            a. retain the following if it is supplied by the Licensor
+               with the Licensed Material:
+
+                 i. identification of the creator(s) of the Licensed
+                    Material and any others designated to receive
+                    attribution, in any reasonable manner requested by
+                    the Licensor (including by pseudonym if
+                    designated);
+
+                ii. a copyright notice;
+
+               iii. a notice that refers to this Public License;
+
+                iv. a notice that refers to the disclaimer of
+                    warranties;
+
+                 v. a URI or hyperlink to the Licensed Material to the
+                    extent reasonably practicable;
+
+            b. indicate if You modified the Licensed Material and
+               retain an indication of any previous modifications; and
+
+            c. indicate the Licensed Material is licensed under this
+               Public License, and include the text of, or the URI or
+               hyperlink to, this Public License.
+
+       2. You may satisfy the conditions in Section 3(a)(1) in any
+          reasonable manner based on the medium, means, and context in
+          which You Share the Licensed Material. For example, it may be
+          reasonable to satisfy the conditions by providing a URI or
+          hyperlink to a resource that includes the required
+          information.
+
+       3. If requested by the Licensor, You must remove any of the
+          information required by Section 3(a)(1)(A) to the extent
+          reasonably practicable.
+
+       4. If You Share Adapted Material You produce, the Adapter's
+          License You apply must not prevent recipients of the Adapted
+          Material from complying with this Public License.
+
+
+Section 4 -- Sui Generis Database Rights.
+
+Where the Licensed Rights include Sui Generis Database Rights that
+apply to Your use of the Licensed Material:
+
+  a. for the avoidance of doubt, Section 2(a)(1) grants You the right
+     to extract, reuse, reproduce, and Share all or a substantial
+     portion of the contents of the database;
+
+  b. if You include all or a substantial portion of the database
+     contents in a database in which You have Sui Generis Database
+     Rights, then the database in which You have Sui Generis Database
+     Rights (but not its individual contents) is Adapted Material; and
+
+  c. You must comply with the conditions in Section 3(a) if You Share
+     all or a substantial portion of the contents of the database.
+
+For the avoidance of doubt, this Section 4 supplements and does not
+replace Your obligations under this Public License where the Licensed
+Rights include other Copyright and Similar Rights.
+
+
+Section 5 -- Disclaimer of Warranties and Limitation of Liability.
+
+  a. UNLESS OTHERWISE SEPARATELY UNDERTAKEN BY THE LICENSOR, TO THE
+     EXTENT POSSIBLE, THE LICENSOR OFFERS THE LICENSED MATERIAL AS-IS
+     AND AS-AVAILABLE, AND MAKES NO REPRESENTATIONS OR WARRANTIES OF
+     ANY KIND CONCERNING THE LICENSED MATERIAL, WHETHER EXPRESS,
+     IMPLIED, STATUTORY, OR OTHER. THIS INCLUDES, WITHOUT LIMITATION,
+     WARRANTIES OF TITLE, MERCHANTABILITY, FITNESS FOR A PARTICULAR
+     PURPOSE, NON-INFRINGEMENT, ABSENCE OF LATENT OR OTHER DEFECTS,
+     ACCURACY, OR THE PRESENCE OR ABSENCE OF ERRORS, WHETHER OR NOT
+     KNOWN OR DISCOVERABLE. WHERE DISCLAIMERS OF WARRANTIES ARE NOT
+     ALLOWED IN FULL OR IN PART, THIS DISCLAIMER MAY NOT APPLY TO YOU.
+
+  b. TO THE EXTENT POSSIBLE, IN NO EVENT WILL THE LICENSOR BE LIABLE
+     TO YOU ON ANY LEGAL THEORY (INCLUDING, WITHOUT LIMITATION,
+     NEGLIGENCE) OR OTHERWISE FOR ANY DIRECT, SPECIAL, INDIRECT,
+     INCIDENTAL, CONSEQUENTIAL, PUNITIVE, EXEMPLARY, OR OTHER LOSSES,
+     COSTS, EXPENSES, OR DAMAGES ARISING OUT OF THIS PUBLIC LICENSE OR
+     USE OF THE LICENSED MATERIAL, EVEN IF THE LICENSOR HAS BEEN
+     ADVISED OF THE POSSIBILITY OF SUCH LOSSES, COSTS, EXPENSES, OR
+     DAMAGES. WHERE A LIMITATION OF LIABILITY IS NOT ALLOWED IN FULL OR
+     IN PART, THIS LIMITATION MAY NOT APPLY TO YOU.
+
+  c. The disclaimer of warranties and limitation of liability provided
+     above shall be interpreted in a manner that, to the extent
+     possible, most closely approximates an absolute disclaimer and
+     waiver of all liability.
+
+
+Section 6 -- Term and Termination.
+
+  a. This Public License applies for the term of the Copyright and
+     Similar Rights licensed here. However, if You fail to comply with
+     this Public License, then Your rights under this Public License
+     terminate automatically.
+
+  b. Where Your right to use the Licensed Material has terminated under
+     Section 6(a), it reinstates:
+
+       1. automatically as of the date the violation is cured, provided
+          it is cured within 30 days of Your discovery of the
+          violation; or
+
+       2. upon express reinstatement by the Licensor.
+
+     For the avoidance of doubt, this Section 6(b) does not affect any
+     right the Licensor may have to seek remedies for Your violations
+     of this Public License.
+
+  c. For the avoidance of doubt, the Licensor may also offer the
+     Licensed Material under separate terms or conditions or stop
+     distributing the Licensed Material at any time; however, doing so
+     will not terminate this Public License.
+
+  d. Sections 1, 5, 6, 7, and 8 survive termination of this Public
+     License.
+
+
+Section 7 -- Other Terms and Conditions.
+
+  a. The Licensor shall not be bound by any additional or different
+     terms or conditions communicated by You unless expressly agreed.
+
+  b. Any arrangements, understandings, or agreements regarding the
+     Licensed Material not stated herein are separate from and
+     independent of the terms and conditions of this Public License.
+
+
+Section 8 -- Interpretation.
+
+  a. For the avoidance of doubt, this Public License does not, and
+     shall not be interpreted to, reduce, limit, restrict, or impose
+     conditions on any use of the Licensed Material that could lawfully
+     be made without permission under this Public License.
+
+  b. To the extent possible, if any provision of this Public License is
+     deemed unenforceable, it shall be automatically reformed to the
+     minimum extent necessary to make it enforceable. If the provision
+     cannot be reformed, it shall be severed from this Public License
+     without affecting the enforceability of the remaining terms and
+     conditions.
+
+  c. No term or condition of this Public License will be waived and no
+     failure to comply consented to unless expressly agreed to by the
+     Licensor.
+
+  d. Nothing in this Public License constitutes or may be interpreted
+     as a limitation upon, or waiver of, any privileges and immunities
+     that apply to the Licensor or You, including from the legal
+     processes of any jurisdiction or authority.
+
+
+=======================================================================
+
+Creative Commons is not a party to its public
+licenses. Notwithstanding, Creative Commons may elect to apply one of
+its public licenses to material it publishes and in those instances
+will be considered the “Licensor.” The text of the Creative Commons
+public licenses is dedicated to the public domain under the CC0 Public
+Domain Dedication. Except for the limited purpose of indicating that
+material is shared under a Creative Commons public license or as
+otherwise permitted by the Creative Commons policies published at
+creativecommons.org/policies, Creative Commons does not authorize the
+use of the trademark "Creative Commons" or any other trademark or logo
+of Creative Commons without its prior written consent including,
+without limitation, in connection with any unauthorized modifications
+to any of its public licenses or any other arrangements,
+understandings, or agreements concerning use of licensed material. For
+the avoidance of doubt, this paragraph does not form part of the
+public licenses.
+
+Creative Commons may be contacted at creativecommons.org.
+</file>
+
+<file path="src/.keep">
+Placeholder to include empty folders in the git repository.
+</file>
+
+<file path=".editorconfig">
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# All files
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Makefile
+[Makefile]
+indent_style = tab
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+
+# Shell script
+[*.sh]
+switch_case_indent = true
+</file>
+
+<file path=".gitignore">
+# Syntax: https://git-scm.com/docs/gitignore
+
+# General
+.DS_Store
+*~
+.vscode
+</file>
+
+<file path=".markdownlint.json">
+{
+  "html": false,
+  "MD013": {
+    "code_blocks": false,
+    "tables": false
+  }
+}
+</file>
+
+<file path="README.md">
+# Vorlage Projektstruktur & Dokumente
+
+Das Repository enthält die Vorlage einer Projektstruktur und Template-Dokumente
+im AsciiDoc-Format. Dies wird für die Bearbeitung der Projektdokumentation in
+Software Engineering I und II benötigt. Im Detail sind das:
+
+- Projektstruktur für Code und Dokumente
+- Templates der benötigten Dokumente (AsciiDoc-Format)
+- Vorlage für die Abgabe in SE I (AsciiDoc-Format)
+
+> [!NOTE]
+> Dieses Repository enthält keinen Code.
+
+**Inhaltsverzeichnis**
+
+- [Projektstruktur](#projektstruktur)
+- [Dokumentvorlagen](#dokumentvorlagen)
+- [Nutzung der AsciiDoc-Vorlagen](#nutzung-der-asciidoc-vorlagen)
+- [Repo-Links anpassen](#repo-links-anpassen)
+- [Lizenz](#lizenz)
+
+## Projektstruktur
+
+Die Projektstruktur im Verzeichnis **docs** orientiert sich an den wesentlichen
+Aspekten im Software Engineering und den für die <ins>Abgabe im SE 1</ins>
+geforderten Dokumenten.
+
+```text
+docs
+├── _includes
+│   └── default-attributes.inc.adoc
+├── product
+│   ├── domains_glossary.adoc
+│   └── product_concept.adoc
+├── team
+│   └── team_charter.adoc
+├── technical
+│   ├── architecture.adoc
+│   ├── design.adoc
+│   ├── deployment.adoc
+│   └── test_concept.adoc
+└── index.adoc
+```
+
+## Dokumentvorlagen
+
+Dieses Repository enthält Vorlagen im AsciiDoc-Format zur Dokumentation der
+verschiedenen Arbeitsergebnisse.
+
+### Hinweis
+
+Falls Sie Fehler korrigieren oder Verbesserungen machen möchten, können Sie
+dies gern über einen _Pull Request_ tun.
+
+## Nutzung der AsciiDoc-Vorlagen
+
+Die Datei _default-attributes.inc.adoc_ im **docs/\_includes** Verzeichnis
+enthält die gemeinsamen Dokumentenattribute für alle AsciiDoc-Dokumente. In
+jedem Dokument selbst können, nach dem include der Datei, entsprechend noch
+zusätzlich benötigte Attribute mit aufgenommen werden.
+
+### Projektname und Systemname definieren
+
+In der _default-attributes.inc.adoc_ Datei ist am Anfang der **Projektname**
+und der **Systemname** als Attribute global definiert. Diese können über
+`{project-name}` und `{project-system-name}` in der Dokumentation an beliebiger
+Stelle verwendet werden.
+
+- **Projektname** `:project-name:`: Enthält das Projektthema inklusive der Projekt-ID
+- **Systemname** `:project-system-name:`: Enthält den Systemnamen der Software
+
+```asciidoc
+// Meta
+:project-name: <Projektname (X0)>
+:project-system-name: <Projektname-System>
+```
+
+- `X0` ... steht als Platzhalter für die Projekt-ID (bspw. A1, B2)
+- `<Platzhalter>` ... die Platzhalter inkl. der `<` und `>` ersetzen
+
+### Bilder und Diagramme einbinden
+
+In dem Dokumentenattribut `:imagesdir: images` ist das Standardverzeichnis
+**images** für die Bilder festgelegt. Somit reicht es, in den jeweiligen
+Dokumenten, die Bilder ohne Angabe des **images** Verzeichnis einzubinden:
+
+```asciidoc
+image::example.jpg[Beispielbild]
+```
+
+In dem Dokumentenattribut `:plantumlsdir: plantuml` ist das Standardverzeichnis
+**plantuml** für die Diagramme in plantUML-Notation festgelegt. Im
+Dokumentenattribut `:diagramsdir: diagrams` ist das Verzeichnis für die
+generierten Diagramme angegeben, welches unter dem `:imagesdir:` angelegt wird.
+
+```asciidoc
+product
+├── images
+│   ├── diagrams
+│   │   └── diagram.jpg
+│   └── example.jpg
+├── plantuml
+│   └── diagram.puml
+├── ...
+└── ux_concept.adoc
+```
+
+## Repo-Links anpassen
+
+Bitte ersetzen Sie in den folgenden Dateien `[ORG]/[REPO]` durch den tatsächlichen Repository-Namen, bevor dieses Projekt produktiv genutzt wird.
+
+- `/.github/ISSUE_TEMPLATE/config.yml`
+- `/.github/ISSUE_TEMPLATE/user_story.md`
+- `/.github/ISSUE_TEMPLATE/technical_story.md`
+
+## Lizenz
+
+### Dokumentation
+
+Die Templates im Ordner `docs` und `abgabe_se1` unterliegen der
+[CC-BY-4.0](https://choosealicense.com/licenses/cc-by-4.0/) Lizenz.
+
+### Quellcode / Anderes
+
+Für das Repository bzw. die entstehende Software muss eine separate Lizenz
+festgelegt werden.
+</file>
+
+<file path="docs/_includes/default-attributes.inc.adoc">
+// Meta
+:project-name: Habit Tracker (C1)
+:project-system-name: HabitTracker-System
+// Settings:
+:toc:
+:toc-title: Inhaltsverzeichnis
+:toclevels: 2
+:sectnums:
+:icons: font
+//:source-highlighter: highlightjs
+:source-highlighter: rouge
+:rouge-style: github
+:xrefstyle: full
+:figure-caption: Abbildung
+:table-caption: Tabelle
+:!example-caption:
+:experimental:
+// folders
+ifndef::imagesdir[:imagesdir: images]
+ifndef::diagramsdir[:diagramsdir: diagrams]
+ifndef::plantumlsdir[:plantumlsdir: plantuml]
+// Hyphenation for PDF dokumente
+:lang: DE
+:hyphens:
+// main document
+:main-document:
+</file>
+
+<file path="docs/team/teamcharter.adoc">
+= Teamcharta: {project-name}
+Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Ben Frank Loritz <s88887@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne Mathis Tesch <s88618@htw-dresden.de>
+{localdatetime}
+include::../_includes/default-attributes.inc.adoc[]
+:version: 1.0
+
+== Über uns
+
+Wir sind ein Team von Studierenden, das gemeinsam an einer HabitTracker-App arbeitet. Uns ist wichtig, dass wir nicht nur gut zusammenarbeiten, sondern auch als Team gut klarkommen. Deshalb legen wir Wert auf offenen Austausch, gegenseitige Unterstützung und eine entspannte, respektvolle Atmosphäre – auch über das Projekt hinaus.
+
+== Zweck
+
+*Was bauen wir, und warum?*
+
+Unsere Vision ist es, eine benutzerfreundliche HabitTracker-App zu entwickeln, die Menschen dabei hilft, langfristig positive Gewohnheiten aufzubauen. Die Anwendung soll besonders Studierende im Alltag unterstützen, indem sie Struktur, Motivation und Übersicht bietet. Ziel ist es, eine einfache, aber effektive Lösung zu schaffen, die Nutzer dabei begleitet, ihre persönlichen Ziele konsequent zu verfolgen.
+
+== Rollen
+
+[cols="1,2", options="header"]
+|===
+| Rolle | Person
+
+| Product Owner
+| Ben Frank Loritz, Etienne Mathis Tesch
+
+| Scrum Master
+| Hannes Lutz Ullmann
+
+| Tech Lead footnote:[optionale Rolle, aber empfohlen, um technische Entscheidungen zu koordinieren]
+| /
+
+| Entwickler:innen
+| Stan Schwerdtfeger, Olha Kochui, Daniel Andreas Menzel, Rohullah Sediqi, Sofiia Khaleeva
+
+| Stakeholder (Hauptansprechpartner)
+| /
+|===
+
+
+== Meetings
+
+[cols="2,1,1,2", options="header"]
+|===
+| Ereignis | Wann | Dauer | Moderation
+
+| Standup (Daily / Weekly)
+| wöchentlich dienstags ab 13:00 Uhr
+| ca. 10–15 min (integriert ins Meeting)
+| Scrum Master
+
+| Sprint Planning
+| dienstags zu Sprintbeginn ab 13:00 Uhr
+| ca. 1,5–2 h
+| Product Owner & Scrum Master
+
+| Sprint Review
+| dienstags zum Sprintende ab 13:00 Uhr
+| ca. 45–60 min
+| gesamtes Team
+
+| Retrospektive
+| im Anschluss an das Review (dienstags)
+| ca. 30–45 min
+| Scrum Master
+
+| Backlog Refinement
+| bei Bedarf im wöchentlichen Termin integriert
+| flexibel innerhalb der 1,5 h
+| Product Owner
+|===
+
+== Kommunikation
+
+[cols="1,2", options="header"]
+|===
+| Thema | Vereinbarung
+
+| Primärer Kanal
+| Discord – Server für das Projekt „habit-tracker“
+
+| Entscheidungsprotokoll
+| Wichtige Entscheidungen werden in GitHub Issues oder kurz im Repository dokumentiert
+
+| Erwartete Reaktionszeit
+| in der Regel innerhalb von 24 Stunden, bei wichtigen Themen schneller
+
+| Kernarbeitszeit
+| grob zwischen 13:00 – 16:00 Uhr (abhängig von Verfügbarkeit)
+
+| Videokonferenz-Tool
+| Discord
+
+| Asynchrone Abstimmung
+| Kommunikation über GitHub Issues und Discord-Nachrichten (Updates, Fragen, Abstimmungen)
+|===
+
+== Arbeitsweise
+
+=== Definition of Ready (DoR)
+_Eine User Story ist bereit für die Entwicklung, wenn:_
+
+* [ ] Die Aufgabe verständlich beschrieben ist
+* [ ] Klar ist, was genau umgesetzt werden soll
+* [ ] Wichtige Fragen im Team geklärt wurden
+* [ ] Falls nötig, grobe Ideen oder Skizzen vorhanden sind
+
+=== Definition of Done (DoD)
+_Eine User Story gilt als fertig, wenn:_
+
+* [ ] Die Funktion umgesetzt wurde
+* [ ] Es keine offensichtlichen Fehler mehr gibt
+* [ ] Der Code einmal von jemand anderem angeschaut wurde
+* [ ] Die Aufgabe im Team kurz überprüft wurde
+* [ ] Alles Wichtige dokumentiert oder erklärt wurde
+
+=== Code & Versionierung
+
+[cols="1,2", options="header"]
+|===
+| Thema | Vereinbarung
+
+| Branching-Strategie
+|  Nutzung von Feature Branches für neue Funktionen
+
+| PR-Review-Regeln
+| Änderungen werden vor dem Merge kurz von mindestens einer Person angeschaut
+
+| Merge-Berechtigung
+| jedes Teammitglied
+
+| Commit-Konventionen
+| verständliche und kurze Commit-Nachrichten
+|===
+
+== Teamvereinbarungen
+
+_Diese Vereinbarungen haben wir gemeinsam getroffen:_
+
+. Wir gehen respektvoll und freundlich miteinander um.
+. Wir sprechen Probleme offen an, wenn etwas nicht passt.
+. Wir helfen uns gegenseitig und unterstützen uns bei Fragen.
+. Wir halten uns an Absprachen und geben Bescheid, wenn etwas nicht klappt.
+. Wir sorgen dafür, dass alle im Team eingebunden sind und mitkommen.
+
+_Nächste Überprüfung: nach sprint 2 — Diese Charta wird regelmäßig in der Retrospektive aktualisiert._
+</file>
+
+<file path=".github/ISSUE_TEMPLATE/config.yml">
+blank_issues_enabled: false
+
+# HINWEIS: Ersetze [ORG] und [REPO] durch den tatsächlichen GitHub-Organisationsnamen
+# und Repository-Namen, bevor dieses Projekt produktiv genutzt wird.
+# Beispiel: https://github.com/meine-hochschule/raumbuchung/blob/main/docs/...
+#
+# WARUM blank_issues_enabled: false?
+# Alle Issues müssen über ein Template erstellt werden. Das stellt sicher, dass
+# jede Aufgabe — inklusive Projektaufgaben und wiederkehrender Zeremonien — die
+# Mindestinformationen enthält, die für Planung und Nachverfolgung notwendig sind.
+# Auch einfache wiederkehrende Aufgaben wie "Sprint Review vorbereiten" werden
+# über das Projektaufgaben-Template angelegt — das dauert unter einer Minute
+# und hält den Issue Tracker konsistent.
+
+contact_links:
+  - name: 📋 Produktkonzept
+    url: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/product/product_concept.adoc
+    about: Vision, Hauptfunktionen, Qualitätsziele und Einschränkungen — Pflichtlektüre vor dem Schreiben von Stories
+
+  - name: 👤 UX-Konzept & Personas
+    url: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/product/ux_concept.adoc
+    about: Personas und Nutzungskontext — hilfreich beim Formulieren des "Als ... möchte ich ..."
+
+  - name: 📖 Domänenmodell & Glossar
+    url: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/product/domain_glossary.adoc
+    about: Fachliche Begriffe — vor dem Erstellen von Stories konsultieren, um einheitliche Sprache sicherzustellen
+
+  - name: ✅ Team-Charta & Definition of Ready / Done
+    url: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/team/teamcharter.adoc
+    about: Unsere Arbeitsvereinbarungen — inkl. Definition of Ready, Definition of Done und Zeremonien
+
+  - name: 🏗️ Architekturdokument & ADRs
+    url: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/technical/architecture.adoc
+    about: Architekturentscheidungen — Pflichtlektüre vor dem Erstellen Technischer Stories und Spikes
+</file>
+
+<file path=".github/ISSUE_TEMPLATE/technical_story.md">
+---
+name: Technische Story
+about: Technische Arbeit mit eigenem fachlichen Wert, die nicht direkt aus einer User Story abgeleitet ist
+title: 'Tech-Story: [Kurzbeschreibung]'
+labels: technical-story
+assignees: ''
+---
+
+<!--
+HINWEIS: Eine Technische Story ist ein vollwertiges Product Backlog Item — kein
+Sub-Issue einer User Story. Sie beschreibt technische Arbeit, die einen eigenständigen
+Wert für das Projekt hat: Infrastruktur aufbauen, technische Schulden abbauen,
+Sicherheit verbessern, Dokumentation erstellen.
+
+Der Unterschied zu einer Entwicklungsaufgabe (Sub-Issue):
+  Technische Story: steht eigenständig im Backlog; hat eigene Begründung und DoD
+  Entwicklungsaufgabe: ist ein Sub-Issue einer User Story oder Technischen Story
+
+Typische Anwendungsfälle:
+  - CI/CD-Pipeline aufbauen
+  - Datenbankmigrationen einführen (Flyway / Liquibase)
+  - Technische Schulden abbauen (Refactoring, veraltete Abhängigkeiten)
+  - Sicherheitslücken beseitigen
+  - Performance-Engpässe beheben
+  - Projektdokumentation erstellen oder aktualisieren
+
+ABLAUF:
+  Refinement: Beschreibung + Akzeptanzkriterien ausfüllen; Aufgaben-Checkliste skizzieren
+  Planning: Checkliste finalisieren; Einträge als Sub-Issues anlegen und zuweisen
+-->
+
+## Beschreibung
+
+[Was soll gemacht werden? Beschreibe die Aufgabe klar und konkret in 2–4 Sätzen.]
+
+---
+
+## Begründung
+
+<!--
+Warum ist diese Story notwendig?
+Welches Problem löst sie, oder welchen Nutzen bringt sie dem Projekt?
+Eine Technische Story ohne Begründung ist nicht priorisierbar.
+-->
+
+[Warum wird diese Arbeit gebraucht? Welchen Nutzen hat sie für das Team, das Produkt
+oder die Qualität? — Verweis auf ein Qualitätsziel oder eine Einschränkung aus dem
+Produktkonzept, falls zutreffend.]
+
+---
+
+## Bezug zu anderen Artefakten
+
+**Zugehöriges ADR:**
+[Link zum ADR in `architecture.adoc` — oder „nicht zutreffend"]
+
+**Betroffene User Stories:**
+[Links zu Stories, die diese Arbeit voraussetzen oder davon profitieren — oder „keine"]
+
+**Dokumentation betroffen:**
+[Welche Dokumente in `/docs` müssen ebenfalls aktualisiert werden? — oder „keine"]
+
+---
+
+## Akzeptanzkriterien
+
+<!--
+Wie bei User Stories: konkret und testbar.
+Für technische Arbeit sind oft einfache testbare Aussagen passender als das Given/When/Then-Format.
+Mindestens 2 Kriterien.
+-->
+
+- [ ] [z. B. „CI-Pipeline ist grün bei jedem Push auf main."]
+- [ ] [z. B. „Alle bestehenden Tests bestehen nach dem Refactoring."]
+- [ ] [z. B. „Technische Änderung ist in `architecture.adoc` oder `design.adoc` dokumentiert."]
+- [ ] [Weiteres Kriterium]
+
+---
+
+## Aufgaben-Checkliste
+
+<!--
+REFINEMENT: Gemeinsam vom Team erarbeitet — welche Entwicklungsaufgaben sind ötig?
+PLANNING: Einträge als Sub-Issues anlegen und zuweisen.
+-->
+
+- [ ] [z. B. Pipeline-Konfiguration schreiben (`.github/workflows/ci.yml`)]
+- [ ] [z. B. Secrets in GitHub Repository konfigurieren]
+- [ ] [z. B. Deployment auf Staging-Umgebung testen]
+- [ ] [z. B. `deployment.adoc` aktualisieren]
+- [ ] [Weiterer Schritt]
+
+---
+
+> **Definition of Ready** prüfen, bevor diese Story in einen Sprint aufgenommen wird:
+> [Team-Charta - Definition of Ready](https://github.com/stttxxnn/se1-habittracker/blob/main/docs/team/teamcharter.adoc)
+</file>
+
+<file path=".github/ISSUE_TEMPLATE/user_story.md">
+---
+name: User Story
+about: Eine neue Funktion aus Nutzerperspektive beschreiben
+title: 'Story: [Kurzbeschreibung der Funktion]'
+labels: user-story
+assignees: ''
+---
+
+<!--
+HINWEIS: Ersetze alle Platzhalter in [eckigen Klammern] mit echten Inhalten.
+Kommentare wie dieser sind im fertigen Issue nicht sichtbar.
+Lösche keine Abschnitte — auch wenn sie kurz bleiben.
+
+ABLAUF:
+  Refinement: Story + Akzeptanzkriterien ausfüllen; Aufgaben-Checkliste gemeinsam skizzieren
+  Planning: Checkliste finalisieren; Einträge als Sub-Issues anlegen und zuweisen
+-->
+
+## User Story
+
+**Als** [Persona aus dem UX-Konzept, z. B. „Maria (Studierende)"]
+**möchte ich** [Ziel oder Tätigkeit, z. B. „sehen, welche Lernräume gerade frei sind"]
+**damit** [fachlicher Nutzen, z. B. „ich schnell einen passenden Platz finden kann"].
+
+<!--
+Das "damit" ist der wichtigste Teil — er begründet den Wert der Story.
+Wenn du das "damit" nicht klar formulieren kannst, ist die Story noch nicht bereit.
+-->
+
+---
+
+## Akzeptanzkriterien
+
+<!--
+Akzeptanzkriterien sind konkrete, testbare Bedingungen — keine Wünsche oder Absichten.
+Jedes Kriterium muss von einer Testerin oder einem Tester eindeutig als erfüllt oder
+nicht erfüllt bewertet werden können.
+
+Zwei Formate sind zulässig — wähle das, das besser zum Kriterium passt:
+
+  Interaktionen: bevorzugt im Given/When/Then-Format:
+    Gegeben [Ausgangszustand], wenn [Aktion], dann [erwartetes Ergebnis].
+
+  Regeln, Constraints, Qualität → einfache testbare Aussage:
+    [Konkrete, überprüfbare Bedingung.]
+
+Vage Kriterien wie „funktioniert korrekt" oder „ist benutzerfreundlich" sind nicht
+zulässig. Mindestens 2 Kriterien pro Story.
+-->
+
+- [ ] Gegeben [Ausgangszustand], wenn [Aktion], dann [erwartetes Ergebnis].
+- [ ] Gegeben [Ausgangszustand], wenn [Aktion], dann [erwartetes Ergebnis].
+- [ ] [Einfache testbare Aussage, z. B. „Die Liste zeigt maximal 20 Einträge pro Seite."]
+- [ ] [Weiteres Kriterium]
+
+---
+
+## Weitere Informationen
+
+**Zugehöriger Epic / Hauptfunktion:**
+[Verweis auf Epic oder Hauptfunktion im Produktkonzept]
+
+**Wireframe / Mockup:**
+[Link zum Miro- oder Balsamiq-Frame — oder „nicht erforderlich"]
+
+**Abhängigkeiten:**
+[Andere Stories oder technische Voraussetzungen — oder „keine"]
+
+**Offene Fragen:**
+[Dinge, die vor der Entwicklung geklärt werden müssen — oder „keine"]
+
+---
+
+> **Definition of Ready** prüfen, bevor diese Story in einen Sprint aufgenommen wird:
+> [Team-Charta - Definition of Ready](https://github.com/stttxxnn/se1-habittracker/blob/main/docs/team/teamcharter.adoc)
+
+---
+
+## Aufgaben-Checkliste
+
+<!--
+REFINEMENT: Diese Checkliste wird gemeinsam vom Team erarbeitet.
+Ziel: Welche Entwicklungsaufgaben sind notwendig, um diese Story umzusetzen?
+Die Checkliste hilft, versteckte Komplexität frühzeitig zu erkennen und den Aufwand
+realistisch einzuschätzen.
+
+PLANNING: Die finalisierten Einträge werden als Sub-Issues (Entwicklungsaufgaben)
+angelegt und einzelnen Teammitgliedern zugewiesen.
+GitHub erlaubt es, Checkboxen mit einem Klick in verknüpfte Issues umzuwandeln.
+
+Passe die Kategorien an deinen Technologie-Stack an.
+-->
+
+- [ ] Backend: [z. B. API-Endpunkt implementieren]
+- [ ] Backend: [z. B. Service-Logik schreiben]
+- [ ] Backend: [z. B. Unit-Tests schreiben]
+- [ ] Frontend: [z. B. UI-Komponente bauen]
+- [ ] Frontend: [z. B. Komponententest schreiben]
+- [ ] Datenbank: [z. B. Migration schreiben]
+- [ ] Allgemein: [z. B. Dokumentation aktualisieren]
+</file>
+
+<file path="docs/technical/architecture.adoc">
+= Architekturdokument: Habit-Tracker
+Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Ben Frank Loritz <s88887@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne Mathis Tesch <s88618@htw-dresden.de>
+{localdatetime}
+include::../_includes/default-attributes.inc.adoc[]
+
+Dieses Dokument beschreibt die technische Architektur des Systems — welche Technologien
+eingesetzt werden, wie das System in seine Umgebung eingebettet ist, und welche
+Architekturentscheidungen getroffen wurden. Der Fokus liegt auf dem *Warum* hinter
+technischen Entscheidungen.
+
+Qualitätsziele und Einschränkungen sind im Produktkonzept als einziger Quelle definiert.
+Dieses Dokument referenziert sie und dokumentiert ausschließlich die technischen
+Konsequenzen, die sich daraus ergeben.
+
+Detaillierte Beschreibungen der internen Softwarestruktur, z.B. Schichten, Komponenten,
+Datenmodell, Interaktionsflüsse, sind im link:design.adoc[Designdokument] (`design.adoc`) beschrieben.
+
+---
+
+== Architektursichten
+
+Der Systemkontext zeigt das System als Ganzes in seiner Umgebung: welche externen Akteure und Systeme mit ihm interagieren, und über welche Schnittstellen. Er beantwortet die Frage: Was gehört zum System, und was liegt außerhalb?
+
+=== Systemkontext
+//Level 1 im C4-Modell
+
+[plantuml, "{diagramsdir}/system-context", svg]
+....
+@startuml
+!include <c4/C4_Context.puml>
+
+LAYOUT_WITH_LEGEND()
+
+title System Context Diagram – Habit-Tracker
+
+Person(user, "Nutzer:in", "Verwendet den Habit-Tracker über den Webbrowser (PWA)")
+Person(admin, "Administrator:in", "Überwacht das System und verwaltet globale Konfigurationen")
+
+System(system, "Habit-Tracker PWA", "Kernanwendung: Bietet dem Nutzer die UI, berechnet lokale Streaks und zeigt reaktive Visualisierungen")
+
+System_Ext(supabase, "Supabase (BaaS)", "Übernimmt die Nutzerauthentifizierung, die relationale Datenhaltung (PostgreSQL) und Echtzeit-Synchronisation via WebSockets")
+
+Rel(user, system, "nutzt", "HTTPS / PWA")
+Rel(admin, supabase, "verwaltet Daten über", "Supabase Dashboard")
+Rel(system, supabase, "synchronisiert Daten, Auth & Realtime State", "HTTPS / WebSocket")
+@enduml
+....
+
+NOTE: Das Kontextdiagramm zeigt ausschließlich externe Schnittstellen.
+Die interne Struktur des Systems ist im Designdokument beschrieben.
+
+*Externe Schnittstellen:*
+
+[cols="1,1,2,1", options="header"]
+|===
+| Schnittstelle | Typ | Beschreibung | Protokoll / Format
+
+| Supabase Auth
+| Externes System
+| Authentifizierung und Session-Verwaltung der Benutzer
+| JWT / OAuth2
+
+| Supabase Realtime
+| Externes System
+| Echtzeit-Datenabgleich für sofortige UI-Updates (z.B. Heatmaps)
+| WebSockets
+
+| PWA-Client (Browser)
+| Menschlicher Akteur
+| Zugriff auf den Habit-Tracker über Desktop oder Mobile Endgeräte
+| HTTPS / HTML5
+|===
+
+=== Laufzeitumgebungen (Container Diagramm)
+//Level 2 im C4-Modell
+
+[plantuml, "{diagramsdir}/container-diagram", svg]
+....
+@startuml
+!include <c4/C4_Container.puml>
+
+LAYOUT_WITH_LEGEND()
+
+title Container Diagram – Habit-Tracker
+
+Person(user, "Nutzer:in", "Nutzt die App auf dem Smartphone/Desktop")
+
+System_Boundary(client_pwa, "Client-Seitige PWA (Browser)") {
+    Container(ui, "Vue 3 View Layer", "Vue 3 (Composition API)", "Rendert die UI mit Soft-UI/Glassmorphism-Effekten und fängt Interaktionen ab")
+    Container(state, "Pinia State Management", "JavaScript / Pinia", "Hält den aktuellen Anwendungsstatus im Speicher für reaktive UI-Updates")
+    Container(domain, "Domain Core (Business Logic)", "Pure TypeScript", "Enthält die reine, framework-unabhängige Logik (z.B. Berechnung von Streaks)")
+    Container(adapters, "Infrastructure Adapters", "TypeScript", "Implementiert die Repository-Interfaces und isoliert den Supabase-Client")
+}
+
+System_Boundary(backend_supabase, "Supabase Cloud Plattform") {
+    ContainerDb(postgres, "PostgreSQL Datenbank", "Postgres / RLS", "Persistiert Habits und Log-Einträge; sichert Daten per Row Level Security")
+    Container(edge, "Supabase Edge Functions", "Deno / TypeScript", "Berechnet im Hintergrund asynchrone Korrelationen für die AI-Insights")
+}
+
+Rel(user, ui, "interagiert mit")
+Rel(ui, state, "liest / schreibt")
+Rel(state, domain, "nutzt Business Rules")
+Rel(state, adapters, "ruft Datenaktionen auf")
+Rel(adapters, postgres, "liest / schreibt Daten", "PostgREST / WebSocket")
+Rel(adapters, edge, "triggert komplexe Analysen", "HTTPS / REST")
+@enduml
+....
+
+=== Verteilungsdiagramm (Deployment Diagramm)
+Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery Network (CDN) wie Vercel oder Netlify direkt an den Browser des Endnutzers ausgeliefert. Der Client kommuniziert direkt mit der cloudbasierten Supabase-Infrastruktur. Lokale Daten werden zur Offline-Fähigkeit in der `IndexedDB` des Browsers vorgehalten.
+
+== Technologie-Stack
+
+=== Übersicht
+
+[cols="1,1,2,2", options="header"]
+|===
+| Bereich | Technologie | Begründung | Entscheidung
+
+| Frontend
+| Vue 3 (Composition API)
+| Hohe Rendering-Performance, flache Lernkurve, native Unterstützung für feingranulare Reaktivität (wichtig für Echtzeit-Dashboards).
+| ADR-002
+
+| State Management
+| Pinia
+| Offizieller, leichtgewichtiger Store für Vue 3. Perfekt zur Verwaltung des reaktiven Anwendungszustands zwischen Domäne und UI.
+| ADR-002
+
+| Programmiersprache
+| TypeScript
+| Verhindert Laufzeitfehler durch Typsicherheit im gesamten Hexagonalen System. Erlaubt gemeinsame Nutzung von Datentypen.
+| ADR-002
+
+| Backend / Datenbank
+| Supabase (PostgreSQL)
+| Liefert relationale Datenstrukturen für komplexe Habit-Logs, Benutzerverwaltung und Echtzeit-WebSockets out-of-the-box.
+| ADR-003
+
+| Anwendungsarchitektur
+| Hexagonale Architektur (Ports & Adapters)
+| Verhindert die direkte Kopplung des Supabase-Clients an die Vue-Komponenten. Schützt die Kernlogik (Streaks) und erlaubt einfaches Mocking.
+| ADR-001
+
+| PWA & Build-Tool
+| Vite + Vite PWA Plugin
+| Ermöglicht extrem schnelles Build-Verhalten und konfiguriert Service Worker für echte Offline-Funktionalität und Homescreen-Installation.
+| ADR-004
+|===
+
+== Architekturrelevante Anforderungen/Archritekturtreiber
+
+[cols="2,3,2", options="header"]
+|===
+| Anforderung (aus Produktkonzept) | Technische Konsequenz | Entscheidung
+
+| Delightful Animationen & Echtzeit-Gefühl
+| UI-Zustand muss sofort reaktiv auf Datenänderungen reagieren; Nutzung von CSS-Hardwarebeschleunigung im Vue-Layer und Echtzeit-WebSockets von Supabase.
+| ADR-002, ADR-003
+
+| Offline-First Nutzbarkeit
+| Die App muss auch ohne Internetverbindung starten und Daten loggen können. Lokale Zwischenspeicherung im Adapter-Layer notwendig.
+| ADR-001, ADR-004
+
+| Strikte Datentrennung (DSGVO)
+| Nutzer dürfen nur Zugriff auf die eigenen Habit-Einträge besitzen. Absicherung darf nicht nur im Client, sondern muss auf Datenbank-Ebene erfolgen.
+| ADR-003
+
+| Schnelle Bereitstellung des MVP
+| Reduzierung von Backend-Infrastrukturarbeiten ("No-Code/Low-Code Backend"). Fokus liegt auf der Entwicklung von UI/UX Features im Frontend.
+| ADR-003
+|===
+
+== Architekturentscheidungen
+
+=== ADR-001: Einsatz der Hexagonalen Architektur im Client-Setup
+
+[cols="1,3"]
+|===
+| *Status*
+| Akzeptiert
+
+| *Datum*
+| 28. Mai 2026
+
+| *Kontext*
+| Wir nutzen Supabase als Backend-as-a-Service. Um nicht in einen unumkehrbaren "Vendor Lock-in" zu geraten und den Supabase-SDK-Code über das gesamte Frontend zu verteilen (was Unit-Tests der Streak-Berechnung erschwert), muss die Kern-Logik isoliert werden.
+
+| *Entscheidung*
+| Wir verwenden eine Hexagonale Architektur (Ports & Adapters) direkt innerhalb unserer TypeScript-Struktur im Frontend. Der Core (`/domain`) enthält reine mathematische Regeln (z.B. `calculateStreak()`) und arbeitet nur mit Interfaces wie `HabitRepository`. Die konkrete Implementierung `SupabaseHabitRepository` liegt im Infrastruktur-Layer.
+
+| *Alternativen*
+| Direktaufruf von Supabase in Vue-Komponenten (verworfen, da es zu Spaghetti-Code führt und Offline-Logik unmöglich macht).
+
+| *Konsequenzen*
+| *Vorteile:* Die Kernlogik ist unabhängig von Supabase testbar. Ein Wechsel auf ein anderes Backend oder eine lokale IndexedDB erfordert nur den Austausch des Adapters.
+*Nachteile:* Erhöhter Initialaufwand durch das Schreiben von Interfaces und Daten-Mappern zwischen DB-Entities und Domain-Models.
+|===
+
+=== ADR-002: Wahl von Vue 3 (Composition API) und TypeScript
+
+[cols="1,3"]
+|===
+| *Status*
+| Akzeptiert
+
+| *Datum*
+| 28. Mai 2026
+
+| *Kontext*
+| Für die Analytics-Seite und die Micro-Interactions (Dribbble-Trend) wird ein Framework benötigt, das reaktive Zustände performant verwaltet und eine saubere Strukturierung bietet.
+
+| *Entscheidung*
+| Wir verwenden Vue 3 mit der *Composition API* und TypeScript. Pinia dient als zentraler State-Store.
+
+| *Alternativen*
+| React 18 (verworfen, da das reaktive System von Vue (Reactivity API) intuitiver mit dem Hexagonalen Domain-State harmoniert und weniger Re-Renders erzeugt).
+
+| *Konsequenzen*
+| Typfehler werden bereits beim Kompilieren abgefangen. Das Team muss sich diszipliniert an die Aufteilung von UI (Vue) und Business-Zustand (Pinia/Domain) halten.
+|===
+
+=== ADR-003: Supabase als serverlose Backend-Infrastruktur mit PostgreSQL
+
+[cols="1,3"]
+|===
+| *Status*
+| Akzeptiert
+
+| *Datum*
+| 28. Mai 2026
+
+| *Kontext*
+| Die App benötigt ein relationales Datenmodell (Nutzer -> Habits -> Logs), Benutzer-Authentifizierung und Echtzeit-Fähigkeiten. Ein eigenes Java/Spring-Boot Backend würde die Entwicklungszeit für dieses fokussierte Projekt verdoppeln.
+
+| *Entscheidung*
+| Wir nutzen Supabase als Backend-as-a-Service. Zur Absicherung der Daten nutzen wir PostgreSQL *Row Level Security (RLS)*, wodurch Abfragen direkt auf Datenbankebene anhand der Nutzer-ID isoliert werden.
+
+| *Alternativen*
+| Firebase (verworfen, da NoSQL-Strukturen relationale Auswertungen für komplexe AI-Trends und Korrelationen erschweren).
+
+| *Konsequenzen*
+| *Vorteile:* Extrem schnelle Bereitstellung von Auth und DB. Echtzeit-Updates über WebSockets funktionieren out-of-the-box.
+*Nachteile:* Geschäftslogik muss konsequent im Client-Core gehalten werden und darf nicht in SQL-Prozeduren abwandern, um die hexagonale Struktur nicht zu verletzen.
+|===
+
+=== ADR-004: Offline-First Strategie via Vite PWA
+
+[cols="1,3"]
+|===
+| *Status*
+| Akzeptiert
+
+| *Datum*
+| 28. Mai 2026
+
+| *Kontext*
+| Ein Habit-Tracker wird oft in Situationen genutzt, in denen die Internetverbindung instabil ist (z.B. im Gym oder unterwegs). Die App muss jederzeit benutzbar sein.
+
+| *Entscheidung*
+| Wir setzen auf das `vite-plugin-pwa` zur Generierung eines robusten Service Workers. Der Infrastruktur-Adapter fängt Netzwerkausfälle ab und speichert anstehende Synchronisationen temporär lokal ab.
+
+| *Alternativen*
+| Reine Online-Web-App (verworfen, da mangelnde Zuverlässigkeit die Retention-Rate der Nutzer massiv gefährdet).
+
+| *Konsequences*
+| Erhöhte Komplexität im Adapter-Layer bei der Auflösung von Datenkonflikten (wenn lokal und remote unterschiedliche Stände existieren).
+|===
+
+== Risiken & technische Schulden
+
+=== Technische Risiken
+
+[cols="2,1,2,2", options="header"]
+|===
+| Risiko | Auswirkung | Wahrscheinlichkeit | Maßnahme
+
+| *Logic Leakage* (Geschäftslogik rutscht in Supabase-Datenbank ab)
+| Hoch
+| Mittel
+| Code-Reviews forcieren, dass Berechnungen (z.B. Streaks) ausschließlich im TypeScript Domain-Core ausgeführt werden.
+
+| *Sync-Konflikte im Offline-Modus*
+| Mittel
+| Mittel
+| Einführen einer "Last-Write-Wins"-Strategie im Adapter-Layer für den MVP-Stand.
+
+| *Erhöhter Latenz-Overhead durch Mapping*
+| Niedrig
+| Mittel
+| Einsatz von leichtgewichtigen, nativen JS-Mapping-Funktionen innerhalb der Infrastruktur-Adapter.
+|===
+
+=== Technische Schulden
+
+[cols="2,2,1", options="header"]
+|===
+| Beschreibung | Begründung für Kompromiss | Backlog-Eintrag
+
+| Manuelle Definition der TypeScript-Typen für DB-Entitäten
+| Automatische CLI-Generierung aus Supabase wird aus Zeitgründen erst in Sprint 3 eingerichtet.
+| TECH-01
+
+| Verzicht auf komplexe Konfliktlösungs-Algorithmen bei Offline-Sync
+| MVP-Fokus: Datenkonsistenz wird für den Single-User-Betrieb zunächst einfach gehalten.
+| TECH-02
+|===
+</file>
+
+<file path="docs/review/Sprint_Review_Protokoll.adoc">
+= Kurzprotokoll für ein Sprint-Review
+
+// Kurzer Kontext zur Einordnung des Reviews.
+Team:: C1
+Sprint:: 1 
+Datum:: 31. März - 28. April 
+
+// Das Sprint-Ziel soll in einem Satz benannt werden.
+// Es beschreibt, was im Sprint erreicht oder validiert werden sollte.
+
+== Sprint-Ziel
+* Ziel: Der erste Sprint sollte uns dienen als Team zusammen zu kommen und eine Rollenverteilung zu etablieren, sowie erste Gedanken zur Umsetzung zu kreieren, außerdem folgten wir der Hinweis Datei des ersten Sprints und erfüllten diese voll umfänglich.
+* Status: Erreicht X / Teilweise erreicht / Nicht erreicht
+
+// Hier nur die wichtigsten Ergebnisse des Reviews festhalten.
+// "Artefakte" können z. B. ein Produktinkrement, Wireframes, Architekturentwürfe, Modelle, Produktvision 
+// oder andere überprüfte Ergebnisse sein.
+== Gezeigte Ergebnisse
+* Gezeigte Artefakte: Wireframes, Produktkonzept, Nutzerkonzept, Teamcharta
+* Links zu Nachweisen: Wireframes: https://miro.com/app/board/uXjVHdoxdgc=/?share_link_id=296410648488
+Produktkonzept: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/product/product_concept.adoc
+Nutzerkonzept: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/product/ux_concept.adoc
+Teamcharta: https://github.com/stttxxnn/se1-habittracker/blob/main/docs/team/teamcharter.adoc
+
+
+// Feedback möglichst knapp und konkret dokumentieren.
+// Positiv = was überzeugt hat
+// Bedenken = was problematisch, unklar oder riskant erschien
+// Offene Fragen = was noch geklärt werden muss
+== Feedback
+* Positiv: Jedes Teammitglied hat seine Aufgaben verantwortungsbewusst und fristgerecht durchgeführt, sodass ein reibungsloser Ablauf möglich war.
+* Bedenken: Der Stand unseres Projekts wirft Fragen auf, da wir uns nicht sicher sind ob der Ablauf und die Durchführung synchron zu den Hinweis Dateien stattfindet oder eben nicht.
+* Offene Fragen: Auf Anfrage wurde ein Meeting mit Herr Zirkelbach vereinbart, mit welchem wir folgende Fragen bearbeiten möchten:
+-Umsetzung der Datenbank (VM)
+-generelle Nutzung von Entwicklungsumgebungen (Architecture)
+-Abgleich unseres Stands (ggf. gegenüber Gruppen des Vorjahr).
+Es gibt außerdem weitere Fragen, welche sich aber im Laufe des Gesprächs klären/ergeben werden und nicht all zu wesentlich sind.
+
+
+
+// Nur die wichtigsten Entscheidungen und Zielkonflikte aufnehmen.
+// Beispiele für Trade-off: schnellere Umsetzung vs. saubere Architektur oder besonders ausgefallene Features vs. solide Umsetzung von Basisfunktionen
+== Entscheidungen
+* Zentrale Entscheidung(en):
+* Wichtige Trade-offs:
+
+// Konkrete nächste Schritte notieren.
+// Fokus = worauf sich das Team im nächsten Sprint besonders konzentrieren will
+== Nächste Schritte
+* Folgeaktionen: Nach dem Gespräch mit unserem Coach (Herr Zirkelbach) ggf. den Sprint 1 aufarbeiten und anpassen, andererseits voller Fokus auf Sprint 2.
+* Fokus für den nächsten Sprint: Synchron zur Hinweis Datei des zweiten Sprint arbeiten, sowie erste Inkrementierungsversuche bzw. eine Umgebung erstellen, sodass allmählich erste Ansätze umgesetzt werden können.
+
+// Was haben wir gelernt? 
+== Reflexion
+- Wichtigste Erkenntnis:
+Eine klare Rollenverteilung und strukturierte Zusammenarbeit im Team sind entscheidend, um Aufgaben effizient und fristgerecht umzusetzen.
+Frühe Orientierung an den Vorgaben (Hinweisdateien) hilft, Unsicherheiten zu reduzieren, ersetzt aber nicht die inhaltliche Abstimmung und das gemeinsame Verständnis.
+Offene Kommunikation über Unsicherheiten (z. B. bei Architektur oder Vorgehen) ist notwendig, um Fehlentwicklungen früh zu vermeiden.
+- Größte Überraschung:
+Trotz vollständiger Bearbeitung der vorgegebenen Aufgaben bestand weiterhin Unsicherheit darüber, ob der eingeschlagene Weg tatsächlich korrekt ist.
+Der organisatorische Teil (Abstimmung, Verständnis der Anforderungen, Klärung von Rahmenbedingungen wie Entwicklungsumgebung und Architektur) nimmt mehr Zeit und Bedeutung ein als erwartet.
+Wie wichtig externe Abstimmung (z. B. mit dem Coach) ist, um Sicherheit über den eigenen Fortschritt zu bekommen.
+</file>
+
+<file path="docs/product/domain_glossary.adoc">
+= Domänenmodell und Glossar: {project-name}
+Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Ben Frank Loritz <s88887@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne Mathis Tesch <s88618@htw-dresden.de>
+{localdatetime}
+include::../_includes/default-attributes.inc.adoc[]
+// Platzhalter für weitere Dokumenten-Attribute
+
+_Dieses Dokument beschreibt die wesentlichen fachlichen Begriffe und ihre  Beziehungen untereinander. Es bildet die gemeinsame Sprache des Teams und aller Stakeholder — unabhängig von technischen Umsetzungsentscheidungen.
+Alle Begriffe in User Stories, Personas und Gesprächen mit Stakeholdern sollten hier definiert sein._
+
+---
+
+== Glossar
+
+Alle *fachlichen* Begriffe und Abkürzungen werden hier alphabetisch definiert.
+Ziel ist eine einheitliche Sprache im gesamten Team.
+Technische Implementierungsdetails gehören nicht hierher!
+
+[cols="1,3,2", options="header"]
+|===
+| Begriff / Abkürzung | Definition | Synonyme / Abgrenzungen
+
+| Belohnungssystem
+| Mechanismus, der positive Verstärkung für erledigte Gewohnheiten bietet.
+| Motivation-System, Rewards
+
+| Gewohnheit
+| Eine wiederkehrende Handlung, die der Nutzer regelmäßig im Alltag durchführen möchte (z. B. Sport, Lernen, Schlafroutine).
+| Habit
+
+| Gewohnheitsmanagement
+| Die Erstellung, Anpassung und Verwaltung von Gewohnheiten inklusive ihrer Eigenschaften wie Häufigkeit, Zeitpunkt, Dauer und Schwierigkeit.
+| Habit-Planung
+
+| Habit-Stacking
+| Methode, bei der eine neue Gewohnheit an eine bereits bestehende Gewohnheit gekoppelt wird (als Nachfolger).
+| Verknüpfung von Routinen, Gewohnheitsverknüpfung
+
+| Integration
+| Verbindung von HabitTracker mit externen Systemen wie Kalendern oder Fitness-Apps zur Unterstützung des Nutzeralltags.
+| Synchronisation, Anbindung
+
+| Recovery-Mode
+| Modus zur temporären Anpassung von Anforderungen in stressigen Phasen, um Nutzer:innen beim Wiedereinstieg zu unterstützen. Bildet sich im Domänenmodell als RecoveryPhase ab.
+| Anpassungsmodus
+
+| Rückschlag
+| Ein Tag oder Zeitraum, in dem eine Gewohnheit nicht eingehalten wurde. Dies ist keine eigene Entität, sondern beschreibt das Fehlen eines Gewohnheitsabschlusses.
+| Unterbrechung
+
+| Streak
+| Eine ununterbrochene Serie von Tagen, an denen eine Gewohnheit erfolgreich ausgeführt wurde.
+| Serie, Erfolgsreihe
+
+| Tagebucheintrag
+| Eine vom Nutzer verfasste Reflexion über Fortschritte, Rückschläge oder Erkenntnisse im Zusammenhang mit den eigenen Gewohnheiten.
+| Reflexion, Notiz
+|===
+
+
+== Domänenmodell
+
+_Das Domänenmodell zeigt die wichtigsten fachlichen Konzepte (Entitäten) und ihre Beziehungen.
+Es beschreibt die Realität des Problemraums, nicht die Datenbankstruktur._
+
+=== Diagramm
+
+[plantuml, domain-model, svg]
+....
+@startuml
+skinparam classAttributeIconSize 0
+hide empty members
+
+class Nutzer
+class Gewohnheit
+class Gewohnheitsvorlage
+class Gewohnheitsabschluss
+class Planung
+class Streak
+class Meilenstein
+class Benachrichtigung
+class Statistik
+class Freundschaft
+class Skilltree
+class Skillknoten
+class Kategorie
+class Tagebucheintrag
+class RecoveryPhase
+
+Nutzer "1" -- "0..*" Gewohnheit : erstellt
+Gewohnheitsvorlage "1" -- "0..*" Gewohnheit : dient als Vorlage für
+Gewohnheit "1" -- "0..*" Gewohnheitsabschluss : wird dokumentiert durch
+Gewohnheit "1" -- "0..*" Planung : wird zeitlich geplant in
+Gewohnheit "0..1" -- "0..1" Gewohnheit : baut auf (Habit-Stacking)
+
+Nutzer "1" -- "1" Streak : besitzt (Gesamt-Streak)
+Gewohnheit "1" -- "0..*" Meilenstein : definiert
+Meilenstein "1" -- "0..*" Benachrichtigung : löst aus
+Nutzer "1" -- "0..*" Benachrichtigung : erhält
+Nutzer "1" -- "0..*" Freundschaft : führt
+Nutzer "1" -- "1" Skilltree : besitzt
+Skilltree "1" -- "1..*" Skillknoten : besteht aus
+Kategorie "1" -- "0..*" Gewohnheit : gruppiert
+Kategorie "1" -- "0..*" Skillknoten : strukturiert
+Kategorie "0..1" -- "0..*" Kategorie : enthält Unterkategorien
+Skillknoten "0..*" -- "0..*" Skillknoten : setzt voraus
+
+Nutzer "1" -- "0..*" Tagebucheintrag : verfasst
+Nutzer "1" -- "0..*" RecoveryPhase : legt ein
+Nutzer "1" -- "0..1" Statistik : analysiert Fortschritt mit
+
+@enduml
+....
+
+NOTE: Das Domänenmodell wird im Laufe des Projekts weiterentwickelt.
+Änderungen sollten immer gemeinsam im Team besprochen und hier nachgepflegt werden.
+
+=== Beschreibung der Entitäten
+
+Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
+
+[cols="1,3", options="header"]
+|===
+| Entität | Beschreibung
+
+| Benachrichtigung
+| Informiert Nutzer über wichtige Ereignisse innerhalb der Anwendung, beispielsweise Erinnerungen, Meilensteine oder soziale Aktivitäten. 
+
+| Freundschaft
+| Beschreibt die soziale Verbindung zwischen zwei Nutzern innerhalb der Anwendung zum Teilen von Erfolgen und gegenseitiger Motivation.
+
+| Gewohnheit
+| Beschreibt eine wiederkehrende Aktivität oder Routine. Enthält Informationen wie Titel, Beschreibung, Priorität oder Schwierigkeitsgrad.
+
+| Gewohnheitsabschluss
+| Dokumentiert die erfolgreiche Durchführung einer Gewohnheit zu einem bestimmten Zeitpunkt. Hinweis: Das Fehlen eines Abschlusses zum geplanten Zeitpunkt repräsentiert fachlich einen "Rückschlag".
+
+| Gewohnheitsvorlage
+| Enthält vordefinierte Gewohnheiten und Routinen, die Nutzern als Orientierung oder Schnellstart dienen.
+
+| Kategorie
+| Dient zur thematischen Einordnung und Strukturierung von Gewohnheiten und Skillknoten. Kategorien können hierarchisch als Haupt- und Unterkategorien aufgebaut sein.
+
+| Meilenstein
+| Beschreibt definierte Fortschrittsziele innerhalb einer Gewohnheit oder Streak. Beim Erreichen können Belohnungen freigeschaltet werden.
+
+| Nutzer
+| Repräsentiert eine registrierte Person, die Gewohnheiten erstellt, organisiert und verfolgt.
+
+| Planung
+| Enthält Informationen zur zeitlichen Organisation und Wiederholung von Gewohnheiten (Startzeiten, Endzeiten, Intervalle).
+
+| RecoveryPhase
+| Repräsentiert einen Zeitraum (Recovery-Mode), in dem der Nutzer temporär verminderte Anforderungen hat, um in stressigen Phasen Rückschläge bei Streaks abzufedern.
+
+| Skillknoten
+| Einzelne Bestandteile des Skilltrees, die bestimmte Fähigkeiten, Fortschrittsstufen oder Belohnungen repräsentieren.
+
+| Skilltree
+| Repräsentiert das spielerische Fortschritts- und Belohnungssystem der Anwendung. Nutzer sammeln durch abgeschlossene Gewohnheiten Erfahrungspunkte.
+
+| Statistik
+| Enthält Auswertungen und Analysen zum Verhalten und Fortschritt eines Nutzers (Aktivitätstrends, Regelmäßigkeit).
+
+| Streak
+| Repräsentiert die aktuelle sowie die längste ununterbrochene Erfolgsserie. Wird hier als globale Streak-Verwaltung pro Nutzer geführt.
+
+| Tagebucheintrag
+| Beschreibt eine vom Nutzer verfasste Reflexion (Text, Datum, Stimmung) über den eigenen Fortschritt oder Hürden beim Gewohnheitsaufbau.
+|===
+
+=== Beschreibung der Beziehungen
+
+Beschreibung der wichtigsten Beziehungen zwischen den Entitäten, sofern diese besondere Kardinalitäten haben oder aus anderen Gründen erklärungsbedürftig sind.
+
+[cols="1,1,1,3", options="header"]
+|===
+| Von | Zu | Kardinalität | Bedeutung
+
+| Nutzer
+| Gewohnheit
+| 1 zu 0..*
+| Ein Nutzer kann beliebig viele Gewohnheiten erstellen und verwalten. Jede Gewohnheit gehört dabei genau einem Nutzer.
+
+| Gewohnheitsvorlage
+| Gewohnheit
+| 1 zu 0..*
+| Eine Gewohnheitsvorlage kann als Grundlage für mehrere individuelle Gewohnheiten verwendet werden.
+
+| Gewohnheit
+| Gewohnheitsabschluss
+| 1 zu 0..*
+| Eine Gewohnheit kann beliebig oft abgeschlossen werden. Jeder Abschluss dokumentiert eine konkrete Durchführung.
+
+| Gewohnheit
+| Planung
+| 1 zu 0..*
+| Eine Gewohnheit kann mehrere geplante Zeitpunkte oder Wiederholungen besitzen.
+
+| Gewohnheit
+| Gewohnheit
+| 0..1 zu 0..1
+| Eine Gewohnheit kann an eine andere Gewohnheit gekoppelt werden (Habit-Stacking). Hierdurch wird ein Vorgänger/Nachfolger-Prinzip realisiert.
+
+| Nutzer
+| Streak
+| 1 zu 1
+| Jeder Nutzer besitzt genau eine globale Streak-Verwaltung, die Erfolgsserien speichert.
+
+| Gewohnheit
+| Meilenstein
+| 1 zu 0..*
+| Zu einer Gewohnheit können mehrere Meilensteine (Ziele) definiert werden.
+
+| Meilenstein
+| Benachrichtigung
+| 1 zu 0..*
+| Beim Erreichen eines Meilensteins können automatisch Benachrichtigungen ausgelöst werden.
+
+| Nutzer
+| Benachrichtigung
+| 1 zu 0..*
+| Ein Nutzer kann mehrere Benachrichtigungen erhalten.
+
+| Nutzer
+| Freundschaft
+| 1 zu 0..*
+| Nutzer können Freundschaften zu anderen Nutzern aufbauen.
+
+| Nutzer
+| Skilltree
+| 1 zu 1
+| Jeder Nutzer besitzt genau einen persönlichen Skilltree.
+
+| Skilltree
+| Skillknoten
+| 1 zu 1..*
+| Ein Skilltree besteht aus mehreren Skillknoten (Fähigkeiten/Belohnungen).
+
+| Kategorie
+| Gewohnheit
+| 1 zu 0..*
+| Eine Kategorie kann mehrere Gewohnheiten thematisch gruppieren.
+
+| Kategorie
+| Skillknoten
+| 1 zu 0..*
+| Kategorien strukturieren ebenfalls Skillknoten.
+
+| Kategorie
+| Kategorie
+| 0..1 zu 0..*
+| Eine Kategorie kann beliebig viele Unterkategorien besitzen (Hierarchie).
+
+| Skillknoten
+| Skillknoten
+| 0..* zu 0..*
+| Skillknoten können voneinander abhängig sein (Voraussetzungen).
+
+| Nutzer
+| Tagebucheintrag
+| 1 zu 0..*
+| Ein Nutzer kann beliebig viele Tagebucheinträge zur Reflexion verfassen.
+
+| Nutzer
+| RecoveryPhase
+| 1 zu 0..*
+| Ein Nutzer kann in Belastungsphasen Recovery-Phasen einlegen, die sich auf das Tracking auswirken.
+
+| Nutzer
+| Statistik
+| 1 zu 0..1
+| Ein Nutzer analysiert seinen Fortschritt durch eine Statistik-Auswertung.
+| ===
+
+_Dieses Dokument wird kontinuierlich gepflegt. Änderungen an Fachbegriffen oder Beziehungen
+müssen hier nachgezogen werden, bevor sie in User Stories oder Code einfließen._
+</file>
+
+<file path="docs/product/product_concept.adoc">
+= Produktkonzept: {project-name}
+Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Ben Frank Loritz <s88887@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne Mathis Tesch <s88618@htw-dresden.de>
+{localdatetime}
+include::../_includes/default-attributes.inc.adoc[]
+// Platzhalter für weitere Dokumenten-Attribute
+
+
+_Dieses Dokument beschreibt das Produkt auf konzeptioneller Ebene — was gebaut wird, warum, für wen, und unter welchen Rahmenbedingungen. Es richtet sich an alle Projektbeteiligten:
+Stakeholder, Product Owner, Designer und Entwickler:innen._
+
+_Das Dokument ist so aufgebaut, dass es relativ stabil bleibt. Detaillierte UX-Artefakte wie Personas, Nutzerkontext,
+Interaktionsflüsse und Design-Entscheidungen sind im UX-Konzept beschrieben._
+
+---
+
+== Motivation
+
+_Warum wird dieses Produkt gebaut? Welches Problem existiert heute, und warum ist es relevant?
+Dieser Abschnitt beschreibt den Ausgangszustand und den Handlungsbedarf — ohne bereits eine
+Lösung zu nennen. 3–5 Sätze genügen._
+
+Nutzer:innen möchten gesunde und produktive Routinen aufbauen, scheitern im Alltag jedoch häufig an unregelmäßigen Zeitplänen, hoher Belastung und fehlender Kontinuität. Viele bestehende To-do- oder Notiz-Apps helfen zwar beim Organisieren einzelner Aufgaben, unterstützen jedoch die nachhaltige Verhaltensänderung nur unzureichend. Besonders in stressigen oder stark belasteten Phasen entstehen Rückschläge, die schnell zu Frustration und zum Abbruch neuer Gewohnheiten führen. Es fehlt eine geeignete Unterstützung, die den Aufbau von Routinen langfristig begleitet und an die Anforderungen des Studierendenalltags angepasst ist.
+
+== Produktvision
+
+_Die Produktvision beschreibt in einem oder wenigen Sätzen den angestrebten Zielzustand.
+Sie ist inspirierend, prägnant und stabil — sie sollte sich über die gesamte Projektlaufzeit
+nicht wesentlich verändern._
+
+=== Visions-Statement
+
+____
+Für Studierende,
+die positive Routinen aufbauen und langfristig beibehalten wollen,
+ist HabitTracker
+eine App zur Verfolgung und Förderung täglicher Gewohnheiten,
+die beim Planen, Dranbleiben und Reflektieren unterstützt.
+Im Gegensatz zu einfachen To-do-Listen
+bietet unser Produkt eine wissenschaftlich fundierte Begleitung mit Motivation, Fortschrittsanzeige und
+Anpassung an stressige Lebensphasen.
+____
+
+NOTE: Das Visions-Statement kann im Team mit der „Elevator Pitch"-Methode oder dem „Future Press Release"-Format erarbeitet werden.
+
+=== Zielbild
+
+_Optional: Beschreibe in 2–4 Sätzen, wie die Welt mit diesem Produkt aussieht. Was hat sich für die Nutzer:innen verändert?_
+Mit HabitTracker gelingt es Nutzer:innen, ihre Gewohnheiten langfristig in den Alltag zu integrieren und auch in stressigen Phasen beizubehalten. Fortschritte werden sichtbar gemacht, Rückschläge besser verstanden und als normaler Teil des Prozesses akzeptiert. Dadurch entwickeln Nutzer stabile Routinen, die ihre Produktivität, Gesundheit und ihr Wohlbefinden nachhaltig verbessern.
+
+== Produktpositionierung
+_Wer sind die Zielgruppen, und wie positioniert sich das Produkt im Vergleich zu bestehenden Alternativen?_
+
+=== Zielgruppen
+
+[cols="1,3", options="header"]
+|===
+| Zielgruppe | Beschreibung
+
+| Studierende
+| Hauptzielgruppe des Produkts. Sie wollen ihre Zeit effizient organisieren und langfristig gesunde sowie
+produktive Gewohnheiten aufbauen. Sie sind häufig durch wechselnde Stundenpläne, Prüfungsphasen und hohe
+Belastung geprägt und benötigen Unterstützung bei Struktur, Motivation und Kontinuität.
+
+| Menschen mit unregelmäßigem Alltag
+| Nutzer:innen mit schwankenden Tagesrhythmen, Stressphasen oder wechselnden Verpflichtungen, die
+Schwierigkeiten haben, stabile Routinen beizubehalten und daher flexible Unterstützung beim Gewohnheitsaufbau 
+benötigen.
+
+| Personen mit persönlichen Entwicklungszielen
+| Nutzer:innen, die gezielt an Bereichen wie Gesundheit, Fitness, Lernen oder Produktivität arbeiten möchten
+und dafür ein strukturiertes System zur Gewohnheitsbildung und Fortschrittsverfolgung benötigen.
+|===
+
+NOTE: Ausführliche Beschreibungen der Nutzenden — Personas, Nutzungskontext,
+typische Aufgaben — sind im link:ux_concept.adoc[UX-Konzept] dokumentiert.
+
+=== Wettbewerb & Alternativen
+
+[cols="1,3,2", options="header"]
+|===
+| Alternative | Beschreibung | Warum unser Produkt besser passt
+
+| To-Do-Listen-Apps
+| Nutzer:innen verwalten einzelne Aufgaben und Häkchen, ohne Fokus auf langfristige Verhaltensänderung oder Gewohnheitsbildung.
+| HabitTracker unterstützt gezielt die nachhaltige Entwicklung von Routinen durch Streaks, Motivation und verhaltenspsychologische Methoden.
+
+| Kalender-Apps
+| Gewohnheiten werden als Termine eingetragen und nur zeitlich erinnert, ohne Analyse des Verhaltens oder Fortschritts.
+| HabitTracker verbindet Erinnerungen mit Fortschrittsvisualisierung, Reflexion und langfristigem Habit-Aufbau.
+
+| Notiz- oder Tagebuch-Apps
+| Ziele und Fortschritte werden unstrukturiert dokumentiert, ohne systematisches Tracking oder Motivation.
+| HabitTracker bietet strukturierte Auswertung, Visualisierung von Trends und aktive Unterstützung beim Dranbleiben.
+
+| Einfache Habit-Tracker-Apps
+| Bestehende Apps zählen meist nur Streaks oder Checkmarks, berücksichtigen aber Stressphasen und Rückschläge kaum.
+| HabitTracker integriert Recovery-Mode, flexible Anpassung und wissenschaftlich fundierte Methoden zur Stabilisierung von Gewohnheiten.
+|===
+
+
+== Stakeholder
+
+Wer hat Einfluss auf das Produkt oder ein Interesse an dessen Erfolg? Stakeholder formen oft Anforderungen und Rahmenbedingungen — ihre Nennung hier
+erklärt, warum bestimmte Entscheidungen getroffen wurden.
+
+[cols="1,2,2,1", options="header"]
+|===
+| Stakeholder | Rolle / Interesse | Erwartungen an das Produkt | Einfluss
+
+| Studierende
+| Hauptnutzer:innen des Produkts; möchten produktive, gesunde und stabile Gewohnheiten im Alltag aufbauen und langfristig beibehalten.
+| Einfache Bedienung, motivierende Unterstützung, klare Fortschrittsanzeige, flexible Zielanpassung und Hilfe bei Rückschlägen.
+| Hoch
+
+| Berufstätige / Personen mit unregelmäßigem Alltag
+| Nutzer:innen mit wechselnden Tagesstrukturen, hoher Arbeitsbelastung oder Stressphasen, die stabile Routinen entwickeln möchten.
+| Flexible Nutzung, geringe Einstiegshürden, zuverlässige Erinnerungen und Anpassung an individuelle Zeitpläne.
+| Mittel
+
+| Lehrende / Betreuende
+| Begleiten und bewerten das Projekt im akademischen Kontext.
+| Verständliches Konzept, nachvollziehbare Entscheidungen, saubere Dokumentation und sinnvolle Priorisierung der Funktionen.
+| Niedrig
+|===
+
+== Hauptfunktionen
+
+Welche Kernfunktionen muss das Produkt bieten, um die Produktvision zu erfüllen? Jede Funktion ist direkt auf einen Nutzerbedarf zurückgeführt — nicht als technische Anforderung, sondern als Antwort auf ein Nutzungsproblem.
+
+Diese Hauptfunktionen sollten als Epics im Product Backlog für die Gruppierung von User Stories verwendet werden.
+
+[cols="2,2,1", options="header"]
+|===
+| Nutzerbedarf | Hauptfunktion | Priorität
+
+| Nutzer:innen wollen ihre Gewohnheiten individuell definieren und an persönliche Ziele anpassen.
+| Gewohnheitsmanagement mit personalisierbaren Parametern (Häufigkeit, Zeitpunkt, Dauer, Schwierigkeit)
+| Hoch
+
+| Nutzer:innen wollen ihre Gewohnheiten zuverlässig im Alltag ausführen.
+| Zeitpläne mit täglichen, wöchentlichen, monatlichen oder selbstdefinierten Intervallen
+| Hoch
+
+| Nutzer:innen wollen ihren Fortschritt visuell nachvollziehen.
+| Fortschrittsvisualisierung mit Kalenderansicht, Streak-Tracking und Trendanalysen
+| Hoch
+
+| Nutzer:innen wollen neue Gewohnheiten in bestehende Routinen integrieren.
+| Habit-Stacking zur Verknüpfung von Gewohnheiten für eine bessere Alltagsintegration
+| Mittel
+
+| Nutzer:innen wollen ihre Gewohnheiten thematisch organisieren.
+| Kategorisierungssystem mit Hauptbereichen und anpassbaren Unterkategorien
+| Mittel
+
+| Nutzer:innen wollen ihre Daten sichern und übertragen können.
+| Import- und Exportfunktionen für persönliche Daten in verschiedenen Formaten
+| Mittel
+
+| Nutzer:innen wollen ihre Erfahrungen reflektieren.
+| Tagebuch-Funktion zur Reflexion von Fortschritten, Rückschlägen und Erkenntnissen
+| Mittel
+
+| Nutzer:innen wollen ihr Gewohnheitstracking in ihren digitalen Alltag integrieren.
+| Integration mit Kalender-Apps, Fitness-Trackern und Produktivitätstools
+| Mittel
+
+| Nutzer:innen wollen langfristig motiviert bleiben.
+| Wissenschaftlich fundiertes Belohnungssystem mit variablen Verstärkungsplänen
+| Mittel
+
+| Nutzer:innen wollen Motivation durch Herausforderungen und spielerische Elemente erhalten.
+| Gamification-System mit Challenges abhängig von Motivation und Leistungsniveau
+| Niedrig
+
+| Nutzer:innen wollen ihr Verhalten verstehen und Muster erkennen.
+| Statistiken und Analysen zur Identifikation von Mustern, Hindernissen und optimalen Zeiten
+| Niedrig
+
+| Nutzer:innen wollen in stressigen Phasen ihre Ziele anpassen können.
+| Recovery-Mode mit temporär reduzierten Anforderungen und positiver Bestärkung
+| Niedrig
+
+| Nutzer:innen wollen soziale Unterstützung nutzen.
+| Community-Features wie Accountability-Partnerschaften und thematische Gruppen
+| Niedrig
+
+| Nutzer:innen wollen ihre Motivation an ihren Lebensrhythmus anpassen.
+| Saisonale Challenges abgestimmt auf akademischen Kalender und Ferienzeiten
+| Niedrig
+
+| Nutzer:innen wollen verstehen, wie Gewohnheiten wissenschaftlich funktionieren.
+| Wissenschaftlicher Wissensbereich mit Hintergrundinformationen zur Gewohnheitsbildung und Forschung
+| Niedrig
+|===
+
+NOTE: Die Reihenfolge entspricht einer ersten groben Priorisierung und wird im Rahmen
+der Backlog-Priorisierung verfeinert.
+
+== Qualitätsziele & Einschränkungen
+
+_Dieser Abschnitt beschreibt, unter welchen Rahmenbedingungen das Produkt entwickelt
+und betrieben wird. Es wird unterschieden zwischen Qualitätszielen (angestrebte
+Eigenschaften) und Einschränkungen (nicht verhandelbare Rahmenbedingungen)._
+
+=== Qualitätsziele
+
+_Qualitätsziele sind messbare oder zumindest überprüfbare Eigenschaften, die das
+Produkt erfüllen soll. Sie sollten spezifisch genug sein, um als Testkriterium zu dienen._
+
+NOTE: Dieses Dokument ist die einzige Quelle für Qualitätsziele und Einschränkungen.
+Das link:../technical/architecture.adoc[Architektur]-Dokument referenziert diese Anforderungen und dokumentiert die
+technischen Entscheidungen, die sich daraus ergeben — ohne sie hier zu wiederholen.
+
+[cols="1,3,2", options="header"]
+|===
+| Qualitätsziel | Beschreibung | Messkriterium
+
+| Benutzbarkeit
+| Das Produkt ist ohne Einarbeitung nutzbar.
+| Neue Nutzer:innen finden die Kernfunktion innerhalb von 2 Minuten ohne Hilfe.
+
+| Performance
+| Das Produkt reagiert schnell auf Nutzerinteraktionen.
+| Seitenladezeit unter 2 Sekunden bei normaler Netzwerkverbindung.
+
+| Verfügbarkeit
+| Zentrale Funktionen sind auch offline nutzbar. Nur Comminuty-Features, saisonale Challenges und Hintergrundinformationen zu den Habits brauchen Online-Zugang.
+| Kernfunktionen funktionieren ohne Internetverbindung zuverlässig.
+
+| Kompatibilität
+| Daten können mit externen Anwendungen ausgetauscht werden.
+| Erfolgreicher Import/Export in gängigen Formaten (z. B. JSON, CSV).
+
+| Zuverlässigkeit
+| Datenverarbeitung erfolgt stabil und fehlerfrei.
+| Keine Datenverluste bei Speicherung, Import oder Export in Testszenarien.
+|===
+
+=== Einschränkungen
+
+_Einschränkungen sind Rahmenbedingungen, die nicht verhandelbar sind — technische,
+organisatorische, rechtliche oder zeitliche Vorgaben._
+
+[cols="1,2,1", options="header"]
+|===
+| Einschränkung | Beschreibung | Kategorie
+
+| Integration mit andere Apps
+| Die Daten müssen mit anderen Apps kompatibel sein für die Integration. Es kann sein, dass nicht alle Daten angezeigt werden können.
+| Technisch
+
+//
+| Betrieb auf Hochschulinfrastruktur
+| Das System muss auf den vorhandenen Servern der Hochschule betrieben werden können.
+| Technisch
+
+| DSGVO-Konformität
+| Personenbezogene Daten dürfen nur gemäß DSGVO verarbeitet und gespeichert werden.
+| Rechtlich
+
+| Projektlaufzeit
+| Das Produkt muss innerhalb eines Semesters (ca. 4 Monate) lieferbar sein.
+| Zeitlich
+
+//| [Einschränkung]
+//| [Beschreibung]
+//| [Technisch / Rechtlich / Organisatorisch / Zeitlich]
+|===
+
+
+== Versionsverlauf
+
+[cols="1,1,2", options="header"]
+|===
+| Version | Datum | Änderung
+
+| 1.0
+| [Datum]
+| Initiale Version nach Kick-off-Workshop
+
+|===
+
+---
+
+_Dieses Dokument ist bewusst stabil gehalten. Änderungen sollten nur bei wesentlichen
+Richtungsentscheidungen vorgenommen werden und im Versionsverlauf dokumentiert sein._
+</file>
+
+<file path="docs/product/ux_concept.adoc">
+= UX-Konzept: {project-name}
+Vorname Nachname <email@domain.org>; Vorname2 Nachname2 <email2@domain.org>; Vorname3 Nachname3 <email3@domain.org>
+{localdatetime}
+include::../_includes/default-attributes.inc.adoc[]
+// Platzhalter für weitere Dokumenten-Attribute
+
+_Dieses Dokument beschreibt, wer das Produkt nutzt und wie — aus der Perspektive der Nutzenden. Es ergänzt das Produktkonzept um Personas, Nutzungskontext und
+systemweite Interaktionsflüsse und dient als gemeinsame Referenz für Design- und Entwicklungsentscheidungen._
+
+_Individuelle Wireframes einzelner Features werden direkt in den zugehörigen User Stories im Product Backlog gepflegt (verlinkt oder kopiert aus Miro oder anderem Tool). Dieses Dokument enthält nur Artefakte, die mehrere Stories oder das gesamte Produkt betreffen._
+
+---
+
+== Personas
+
+_Personas sind fiktive, aber realitätsbasierte Beschreibungen typischer Nutzender.
+Sie helfen dem Team, Entscheidungen konsequent aus Nutzerperspektive zu treffen.
+Personas sollten auf echten Nutzerinterviews oder Beobachtungen basieren — nicht
+auf Annahmen allein._
+
+_Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur benannt. Hier werden sie als Personas ausgearbeitet._
+
+=== Persona 1: Laura M.
+
+[cols="1,3"]
+|===
+| *Rolle*
+| Medieninformatikerin im 4. Semester
+
+| *Alter*
+| 23
+
+| *Zitat*
+| _„Ich weiß, was ich ändern will – ich schaffe es nur nicht, dauerhaft dranzubleiben."_
+
+| *Ziele*
+| Möchte feste Lernzeiten in ihren Alltag integrieren, regelmäßig kleine Aufgaben erledigen statt alles aufzuschieben und Routinen entwickeln, die auch in stressigen Phasen realistisch bleiben
+
+| *Frustrationen*
+| Hält neue Routinen oft nur ein paar Tage durch. Wenn sie einen Tag auslässt, verliert sie den Anschluss und kehrt nicht mehr zurück. Sie hat das Gefühl, entweder alles perfekt machen zu müssen oder es bringt nichts. Viele Tools erinnern sie nur daran, was sie *nicht* geschafft hat.
+
+| *Verhalten & Kontext*
+| Nutzt ihr Smartphone eher spontan als geplant – z. B. zwischen Vorlesungen oder abends im Bett. Trägt sich selten langfristig Dinge ein, sondern reagiert kurzfristig auf anstehende Aufgaben. In Prüfungsphasen verschiebt sie Gewohnheiten (Sport, Lernen in kleinen Einheiten) zugunsten von „alles auf einmal“. Probiert immer wieder neue Apps aus, bleibt aber selten länger dabei.
+
+
+| *Bezug zum Produkt*
+| Der HabitTracker ist für sie hilfreich, weil er nicht nur zeigt, was sie geschafft hat, sondern sie aktiv dabei unterstützt, nach Unterbrechungen wieder einzusteigen. Besonders wichtig sind für sie einfache tägliche Interaktionen, sichtbare kleine Fortschritte und Mechaniken, die verhindern, dass ein verpasster Tag zum kompletten Abbruch führt.
+|===
+
+=== Persona 2: Elena S.
+
+[cols="1,3"]
+|===
+| *Rolle*
+| Marketingmanagerin im Homeoffice
+
+| *Alter*
+| 34
+
+| *Zitat*
+| _„Meine Grenzen von privat Leben und Arbeit verschwimmen. Mir fällt es schwer meine privaten Interessen zu prioritieren."_
+
+| *Ziele*
+| Etablierung von "Boundary-Habits"(z.B Spaziergang als simulierter arbeitsweg) um die Trennung von Arbeit und   Privatleben zu unterstützen. Sie möchte ihre Freizeitaktivitäten regelmäßig wahrnehmen, um einen Ausgleich zum Homeoffice zu schaffen.
+
+| *Frustrationen*
+| Rückenschmerzen durch bewegungsmangel und das Gefühl nie richtig fertig mit ihrer Arbeit zu sein.
+
+| *Verhalten & Kontext*
+| Elena sitzt den ganzen Tag am Schreibtisch und arbeitet an ihrem Laptop. Sie nutzt ihr Smartphone hauptsächlich für soziale Medien und zum Musik hören. Sie hat Schwierigkeiten, sich von der Arbeit zu lösen, da sie keinen klaren Arbeitsbeginn oder -ende hat. Sie möchte gerne mehr Bewegung in ihren Alltag integrieren, aber es fällt ihr schwer, sich dazu zu motivieren.
+
+
+| *Bezug zum Produkt*
+|Für Elena ist es wichtig notification zu erhalten um sich an ihre Boundary-Habits zu erinnern. Sie brauch klare Grenzen zwischen Arbeit und Freizeit, um ihre mentalen und physischen Gesundheit zu verbessern. Der HabitTracker könnte ihr helfen, regelmäßige Pausen einzulegen und Aktivitäten zu planen, die ihr helfen, sich von der Arbeit zu lösen.
+|===
+
+
+=== Persona 3: Gerhard T.
+
+[cols="1,3"]
+|===
+| *Rolle*
+| Senior mit viel Zeit und wenig Struktur im Alltag
+
+| *Alter*
+| 71
+
+| *Zitat*
+| _„Ich habe viel Zeit, aber es fällt mir schwer, sie sinnvoll zu nutzen und mich zu motivieren."_
+
+| *Ziele*
+| Möchte mehr Strukur in seinem Leben mit fokus auf seine Gesunheit und kognitiven Fähigkeiten. Außerdem hat er einige schlechte Gewohnheiten, die er gerne loswerden würde (z.B. Rauchen).
+
+| *Frustrationen*
+| Überforderung von zu komplexen Apps und das Gefühl, dass er zu alt ist, um neue Gewohnheiten zu etablieren und schlechte Gewohnheiten zu brechen.
+
+| *Verhalten & Kontext*
+| Gerhard nutzt sein Smartphone hauptsächlich für Telefonate und gelegentlich für Nachrichten. Er hat wenig Erfahrung mit Apps und digitalen Tools, fühlt sich aber verpflichtet, etwas zu ändern. Er bevorzugt einfache, klare Anweisungen und visuelle Hilfen. Gerhard bewegt sich nicht viel und ernährt sich ungesund. Er möchte dennoch sein Verhalten verbessern, um noch lange für seine Kinder und Enkel da zu sein.
+
+| *Bezug zum Produkt*
+|Gerhard hat viele schlechte Gewohnheiten, die er gerne loswerden würde, aber er weiß nicht, wo er anfangen soll. Er brauch ein weg um sich selber zur rechenschaft zu ziehen und motiviert zu bleiben. Der HabitTracker könnte ihm helfen, kleine Schritte zu machen und Fortschritte zu sehen, um ihn zu motivieren, weiterzumachen.
+|===
+
+=== Persona 4: Franz K.
+
+[cols="1,3"]
+|===
+| *Rolle*
+| Wirtschaftsingenieurwesen-Student im Master
+
+| *Alter*
+| 27
+
+| *Zitat*
+| _„Ohne Daten ist meine Selbstoptimierung nur ein Gefühl."_
+
+| *Ziele*
+| Feste Routinen für Lernen, Sport und Arbeit etablieren, seine tägliche Zeit effizient nutzen und herausfinden, welche Gewohnheiten tatsächlich einen messbaren Effekt auf seine Produktivität haben.
+
+| *Frustrationen*
+|Sieht zwar, *dass* er Gewohnheiten einhält, aber nicht, *wie gut* sie funktionieren. Ihm fehlt eine klare Auswertung, wann und warum er produktiv ist. Viele Apps zeigen nur Streaks, aber keine echten Zusammenhänge oder Verbesserungspotenziale.
+
+| *Verhalten & Kontext*
+| Nutzt täglich mehrere Tools parallel (Kalender, Notizen, Fitness-Apps) auf Smartphone und Laptop. Checkt seine Fortschritte meist abends oder am Wochenende und passt dann seine Routinen an. Hat Erfahrung mit Tracking, verliert aber schnell Interesse, wenn kein klarer Mehrwert entsteht.
+
+| *Bezug zum Produkt*
+| Der HabitTracker ist für ihn interessant, weil er nicht nur Gewohnheiten abhaken kann, sondern Zusammenhänge erkennt (z. B. beste Zeiten, Muster, Rückschläge). Besonders wichtig sind für ihn Statistiken, Trends und die Möglichkeit, Routinen gezielt zu optimieren.
+|===
+
+NOTE: Für jedes Projekt sind 2–4 Personas ausreichend. Mehr Personas verwässern
+den Fokus. Wenn eine Persona in keiner User Story vorkommt, wird sie gestrichen.
+
+== Nutzungskontext
+
+_Der Nutzungskontext gemäß DIN EN ISO 9241-11 beschreibt die Lebenswirklichkeit der Personas — unabhängig vom Produkt. Er zeigt, in welchem Umfeld, mit welchen Mitteln und unter welchen Bedingungen das Produkt genutzt wird._
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Beschreibung
+
+| Benutzer
+| Primär Studierende der HTW Dresden. Diese verfügen über hohe Technikaffinität, leiden jedoch oft unter Zeitmangel, Stress in Prüfungsphasen und schwankender Motivation. Die Nutzer sind erfahren in der Smartphone-Nutzung, aber oft überfordert von komplexen Menüstrukturen (Verweis auf link:#persona-1-laura-m[Persona Laura M.]).
+
+| Ziele & Aufgaben
+| Hauptziel ist der Aufbau langfristiger, positiver Routinen (Gewohnheitsbildung > 66 Tage).
+Konkrete Aufgaben:
+1. Schnelles Protokollieren ("Check-in") von Gewohnheiten unmittelbar nach einem Trigger (Habit-Stacking).
+2. Reflexion über Rückschläge im Tagebuch.
+3. Anpassung von Zielen in Stressphasen (Aktivierung Recovery-Mode).
+
+| Ressourcen
+| Privat genutzte Smartphones (iOS/Android). Die Bedienung erfolgt oft einhändig ("on the go"). Benötigt wird eine Internetverbindung zur Synchronisation, wobei die App für den Einsatz in Funklöchern (z. B. Keller-Hörsäle) offline-fähig sein muss.
+
+| Umgebung
+| *Physisch:* Nutzung erfolgt mobil in der Mensa, Bibliothek, ÖPNV oder zu Hause. Oft schwierige Lichtverhältnisse (Sonne draußen vs. dunkler Hörsaal) und Lärmablenkung.
+*Technisch:* Mobile Plattformen; Integration in bestehende Kalender-Apps erwünscht.
+*Sozial/Organisatorisch:* Der akademische Kalender (Vorlesungszeit vs. Prüfungszeit) bestimmt den Lebensrhythmus. Hoher Erwartungsdruck; Nutzung erfolgt oft diskret zwischendurch.
+|===
+
+=== Aktuelle Situation (ohne das Produkt)
+
+_Wie lösen die Nutzenden ihr Problem heute? Diese Beschreibung zeigt, was das Produkt
+verbessern soll — und macht den Mehrwert explizit._
+
+[Beschreibe den heutigen Ablauf in 3–5 Sätzen oder als kurze Schrittfolge. Beispiel: „Heute fragt Maria an der Infotheke nach freien Räumen, erhält eine Liste per E-Mail, und stellt beim Ankommen fest, dass der Raum bereits belegt ist.
+Der Prozess kostet sie im Schnitt 20 Minuten pro Tag."]
+
+=== Nutzungshürden & Risiken
+
+_Was könnte die Akzeptanz oder Nutzung des Produkts beeinträchtigen?_
+
+[cols="2,2", options="header"]
+|===
+| Hürde / Risiko | Mögliche Reaktion im Design
+
+| **Hohe Frustration bei Abbruch von "Streaks"** (Gefahr des Alles-oder-Nichts-Denkens nach einem verpassten Tag).
+| Implementierung eines **"Recovery-Mode"**: Nutzer können Ziele temporär reduzieren oder "Joker-Tage" nutzen, um die Motivation trotz Rückschlägen aufrechtzuerhalten.
+
+| **Datenschutzbedenken** bei der Erfassung sensibler Gewohnheiten (z. B. mentale Gesundheit, Hygiene).
+| **Privacy by Design**: Optionale lokale Speicherung der Daten, Verzicht auf Klarnamenpflicht und klare Kommunikation darüber, welche Daten synchronisiert werden.
+
+| **Überforderung durch zu viele neue Gewohnheiten** am Anfang des Prozesses.
+| **Progressives Onboarding**: Empfehlung, mit maximal 1-3 Mikro-Gewohnheiten zu starten. Warnhinweise im Interface, wenn das System als "zu voll" erkannt wird.
+
+| **Vergessen des "Check-ins"** in hektischen Phasen oder bei fehlender Internetverbindung.
+| **Offline-First-Ansatz**: Alle Einträge können offline vorgenommen werden. Unterstützung von **Habit Stacking** durch Vorschläge für Trigger (z. B. "Nach der Vorlesung").
+
+| **Mangelnde Langzeitmotivation** nach der ersten Euphorie (bevor die 66 Tage erreicht sind).
+| **Gamification & Belohnungssystem**: Visuelles Feedback durch Fortschrittsbalken, kleine Meilenstein-Feiern und wissenschaftlich fundierte Fakten zur Gewohnheitsbildung als Motivations-Push.
+|===
+== Systemweite Interaktionsflüsse
+
+_Dieser Abschnitt beschreibt Abläufe, die mehrere Features oder Bereiche des Produkts
+umfassen. Einzelne Feature-Wireframes werden in den jeweiligen User Stories gepflegt.
+Hier dokumentieren wir nur Flüsse auf Systemebene, z.B. mit UML-Aktivitätsdiagrammen._
+
+=== [Flussname, z. B. Onboarding-Flow]
+
+_Beschreibe kurz, was dieser Fluss abdeckt und welche Personas er betrifft._
+
+[plantuml, onboarding-flow, svg]
+....
+@startuml
+skinparam monochrome true
+skinparam defaultFontSize 13
+
+start
+:App öffnen;
+if (Bereits registriert?) then (ja)
+  :Login;
+else (nein)
+  :Registrierung;
+  :Bestätigungs-E-Mail;
+  :E-Mail bestätigen;
+endif
+:Startseite;
+stop
+
+@enduml
+....
+
+[cols="1,1,2", options="header"]
+|===
+| Schritt | Beteiligte Persona | Anmerkung
+
+| App öffnen
+| Maria (Studierende)
+| Erster Einstiegspunkt; muss sofort orientieren
+
+| Login / Registrierung
+| Alle Personas
+| Registrierung nur beim ersten Besuch; danach automatischer Login
+
+| Startseite
+| Alle Personas
+| Zeigt direkt die wichtigste Funktion — keine unnötige Zwischenseite
+|===
+
+---
+
+=== [Weiterer Fluss, z. B. Buchungsabbruch & Fehlerbehandlung]
+
+_Beschreibe den Fluss und ergänze ein Diagramm nach demselben Muster._
+
+[plantuml, error-flow, svg]
+....
+@startuml
+skinparam monochrome true
+
+start
+:Buchung starten;
+if (Raum noch verfügbar?) then (ja)
+  :Buchung bestätigen;
+  :Bestätigung anzeigen;
+else (nein)
+  :Fehlermeldung anzeigen;
+  :Alternative Räume vorschlagen;
+endif
+stop
+
+@enduml
+....
+
+== Designsystem & Interaktionsprinzipien
+
+_Dieser Abschnitt dokumentiert systemweite Design- und Interaktionsentscheidungen,
+die konsistent über alle Features hinweg gelten. Sie bilden die Basis für alle
+Wireframes und UI-Implementierungen._
+
+=== Visuelle Sprache
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Entscheidung & Begründung
+
+| Farbpalette
+| [z. B. Primärfarbe: Hochschulblau #003D6E; Akzent: #E87722;
+  Begründung: Corporate Identity der Hochschule]
+
+| Typografie
+| [z. B. Fließtext: Inter 16px; Überschriften: Inter Bold;
+  Begründung: Hohe Lesbarkeit auf kleinen Bildschirmen]
+
+| Ikonografie
+| [z. B. Material Icons; konsistentes Icon-Set im gesamten Produkt]
+
+| Bildsprache
+| [z. B. Keine Stock-Fotos; Illustrationen im Flat-Design-Stil]
+|===
+
+=== Interaktionsprinzipien
+
+_Vereinbarte UX-Regeln, die für das gesamte Produkt gelten. Jede Entscheidung
+wird begründet, damit sie nicht aus Unwissenheit verletzt wird._
+
+[cols="2,3", options="header"]
+|===
+| Prinzip | Beschreibung & Begründung
+
+| Destruktive Aktionen werden immer bestätigt.
+| Lösch- oder Stornieraktionen erfordern eine explizite Bestätigung durch die Nutzenden.
+  Verhindert unbeabsichtigte Datenverluste.
+
+| Leerzustände erklären sich und schlagen eine Aktion vor.
+| Wenn eine Liste leer ist, zeigen wir eine kurze Erklärung und einen Call-to-Action —
+  niemals nur eine leere Fläche. Reduziert Orientierungslosigkeit.
+
+| Fehlermeldungen sind verständlich und handlungsorientiert.
+| Fehlermeldungen nennen die Ursache in einfacher Sprache und schlagen einen
+  nächsten Schritt vor. Kein technischer Jargon für Endnutzer:innen.
+
+| Kernfunktionen sind mit einer Hand erreichbar.
+| Primäre Aktionen befinden sich im unteren Bildschirmbereich (Daumenzone).
+  Optimiert für einhändige Smartphone-Nutzung.
+
+| [Weiteres Prinzip]
+| [Beschreibung & Begründung]
+|===
+
+=== Barrierefreiheit
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Anforderung
+
+| Kontrastverhältnis
+| Mindestens WCAG 2.1 Level AA (Kontrast ≥ 4,5:1 für Fließtext)
+
+| Tastaturnavigation
+| Alle Kernfunktionen sind per Tastatur bedienbar
+
+| Screenreader
+| Alle interaktiven Elemente haben sinnvolle ARIA-Labels
+
+| Schriftgröße
+| Keine Schrift unter 14px; Nutzer:innen können Systemschriftgröße nutzen
+
+| [Weiterer Aspekt]
+| [Anforderung]
+|===
+
+
+_Dieses Dokument wird kontinuierlich weiterentwickelt — insbesondere nach Nutzerinterviews,
+Usability-Tests oder wesentlichen Designentscheidungen. Individuelle Feature-Wireframes
+werden nicht hier, sondern direkt in den User Stories im Product Backlog gepflegt._
+
+_Der Zweck dieses Dokuments ist es, die wesentlichen Bedarfe und Funktionalitäten des Systems {project-system-name} überblicksartig zu beschreiben. Der Fokus liegt auf den Fähigkeiten, die von Stakeholdern und adressierten Nutzern benötigt werden, und der Begründung dieser Bedarfe. Die Details, wie das System {project-system-name} diese Bedarfe erfüllt, werden durch User Stories im Product Backlog sowie dem UX-Konzept beschrieben._
+</file>
+
+</files>
