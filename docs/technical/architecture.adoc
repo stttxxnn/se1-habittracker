@@ -197,7 +197,33 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 *Nachteile:* Erhöhter Initialaufwand durch das Schreiben von Interfaces und Daten-Mappern zwischen DB-Entities und Domain-Models.
 |===
 
-=== ADR-002: Wahl von Vue 3 (Composition API) und TypeScript
+=== ADR-002: [Spring Boot als Backend]
+
+[cols="1,3"]
+|===
+| *Status*
+| Abgelehnt
+
+| *Datum*
+| 22.05.2026
+
+| *Kontext*
+| Für die entwicklung unseres Habittracker bruachten wir ein Backend das ein API   Schnittstelle bereitstellt, um die Daten der Nutzer zu speichern und aufrufen zu können. Durch die entscheidung eine Hexagonale Architektur zu verwenden, stieg der Boilerplate aufwand enorm an. Da in unserem Team nur vereinzelt Erfahrung mit Spring Boot vorhanden ist, hat das Team beschlossen eine andere Alternative zu benutzen.
+
+  [Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
+
+| *Entscheidung*
+| Wir verwenden Spring Boot als Backend Framework nicht, weil es zu viel Boilerplate Code erfordert, um die Hexagonale Architektur umzusetzen und der Zeitaufwand für die Einarbeitung in das Framework zu hoch ist. Stattdessen werden wir eine leichtgewichtigere Lösung in Betracht ziehen, die besser zu unserem Team und den Anforderungen des Projekts passt.
+
+| *Alternativen*
+| [Als Alternative wurde Supabase in Betracht gezogen.]
+
+| *Konsequenzen*
+| Die Entwicklungsgeschwindigkeit erhöht sich, weil mit Spring Boot viel Einarbeitungszeit verbunden ist und der Boilerplate Code viel zeit in Anpruch nehmen würde.
+|===
+
+
+=== ADR-003: Wahl von Vue 3 (Composition API) und TypeScript
 
 [cols="1,3"]
 |===
@@ -220,7 +246,7 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 | Typfehler werden bereits beim Kompilieren abgefangen. Das Team muss sich diszipliniert an die Aufteilung von UI (Vue) und Business-Zustand (Pinia/Domain) halten.
 |===
 
-=== ADR-003: Supabase als serverlose Backend-Infrastruktur mit PostgreSQL
+=== ADR-004: Supabase als serverlose Backend-Infrastruktur mit PostgreSQL
 
 [cols="1,3"]
 |===
@@ -244,7 +270,7 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 *Nachteile:* Geschäftslogik muss konsequent im Client-Core gehalten werden und darf nicht in SQL-Prozeduren abwandern, um die hexagonale Struktur nicht zu verletzen.
 |===
 
-=== ADR-004: Offline-First Strategie via Vite PWA
+=== ADR-005: Offline-First Strategie via Vite PWA
 
 [cols="1,3"]
 |===
