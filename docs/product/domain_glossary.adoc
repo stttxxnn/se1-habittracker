@@ -65,28 +65,90 @@ Es beschreibt die Realität des Problemraums, nicht die Datenbankstruktur._
 [plantuml, domain-model, svg]
 ....
 @startuml
-' Beispiel — bitte durch das echte Domänenmodell ersetzen
+left to right direction
+hide methods
+hide attributes
+skinparam classAttributeIconSize 0
 
-entity Nutzer {
-  Name
-  E-Mail
-}
+' =========================
+' Benutzer & soziale Interaktion
+' =========================
 
-entity Bestellung {
-  Bestellnummer
-  Datum
-  Status
-}
+class Nutzer
+class Freundschaft
+class Benachrichtigung
 
-entity Produkt {
-  Bezeichnung
-  Preis
-}
+' =========================
+' Habit-System
+' =========================
 
-Nutzer "1" --> "0..*" Bestellung : gibt auf
-Bestellung "1" --> "1..*" Produkt : enthält
+class Gewohnheit
+class Gewohnheitsvorlage
+class Gewohnheitsabschluss
+class Routineanker
+class Planung
+
+' =========================
+' Fortschritt & Motivation
+' =========================
+
+class Streak
+class Meilenstein
+class Statistik
+class Dashboard
+
+' =========================
+' Skilltree / Gamification
+' =========================
+
+class Skilltree
+class Skillknoten
+class Kategorie
+
+' =========================
+' Beziehungen
+' =========================
+
+Nutzer "1" -- "0..*" Gewohnheit : besitzt >
+
+Gewohnheitsvorlage "1" -- "0..*" Gewohnheit : basiert auf >
+
+Gewohnheit "1" -- "0..*" Gewohnheitsabschluss : wird dokumentiert durch >
+
+Gewohnheit "1" -- "0..*" Planung : wird eingeplant in >
+
+Gewohnheit "0..1" -- "1" Routineanker : orientiert sich an >
+
+Nutzer "1" -- "1" Dashboard : besitzt >
+
+Dashboard "1" -- "0..*" Gewohnheit : zeigt >
+
+Dashboard "1" -- "0..1" Statistik : visualisiert >
+
+Nutzer "1" -- "1" Streak : besitzt >
+
+Gewohnheit "1" -- "0..*" Meilenstein : definiert >
+
+Meilenstein "1" -- "0..*" Benachrichtigung : löst aus >
+
+Nutzer "1" -- "0..*" Benachrichtigung : erhält >
+
+Nutzer "1" -- "0..*" Freundschaft : initiiert >
+
+Nutzer "1" -- "0..*" Freundschaft : empfängt >
+
+Nutzer "1" -- "1" Skilltree : besitzt >
+
+Skilltree "1" *-- "1..*" Skillknoten
+
+Kategorie "1" -- "0..*" Gewohnheit : klassifiziert >
+
+Kategorie "1" -- "0..*" Skillknoten : strukturiert >
+
+Skillknoten "0..*" --> "0..*" Skillknoten : schaltet frei >
 
 @enduml
+
 ....
 
 NOTE: Das Domänenmodell wird im Laufe des Projekts weiterentwickelt.
