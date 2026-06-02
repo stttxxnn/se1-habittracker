@@ -123,7 +123,7 @@ Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
 | Entität | Beschreibung
 
 | Benachrichtigung
-| Informiert Nutzer über wichtige Ereignisse innerhalb der Anwendung, beispielsweise Erinnerungen, Meilensteine oder soziale Aktivitäten. 
+| Informiert Nutzer über wichtige Ereignisse innerhalb der Anwendung, beispielsweise Erinnerungen, Meilensteine oder soziale Aktivitäten.
 
 | Freundschaft
 | Beschreibt die soziale Verbindung zwischen zwei Nutzern innerhalb der Anwendung zum Teilen von Erfolgen und gegenseitiger Motivation.

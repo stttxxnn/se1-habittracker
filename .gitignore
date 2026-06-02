@@ -4,3 +4,6 @@
 .DS_Store
 *~
 .vscode
+# Lokale Umgebungsvariablen absichern
+.env
+.env.local
