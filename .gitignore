@@ -4,6 +4,14 @@
 .DS_Store
 *~
 .vscode
+
 # Lokale Umgebungsvariablen absichern
-.env
 .env.local
+
+# Lokale Geheimnisse und Umgebungsvariablen
+.env
+.env.*
+
+# Kontrolldatei
+repomix-output.xml
+
