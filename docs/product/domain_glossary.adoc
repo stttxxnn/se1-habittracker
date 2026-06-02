@@ -40,7 +40,7 @@ Technische Implementierungsdetails gehören nicht hierher!
 | Synchronisation, Anbindung
 
 | Recovery-Mode
-| Modus zur temporären Anpassung von Anforderungen in stressigen Phasen, um Nutzer:innen beim Wiedereinstieg zu unterstützen. Bildet sich im Domänenmodell als RecoveryPhase ab.
+| Modus zur temporären Anpassung von Anforderungen in stressigen Phasen, um Nutzer:innen beim Wiedereinstieg zu unterstützen. Bildet sich im Domänenmodell als Recovery-Mode ab.
 | Anpassungsmodus
 
 | Rückschlag
@@ -79,12 +79,12 @@ class Streak
 class Meilenstein
 class Benachrichtigung
 class Statistik
-class Freundschaft
-class Skilltree
-class Skillknoten
+class Freundschaft (zukunft)
+class Skilltree (zukunft)
+class Skillknoten (zukunft)
 class Kategorie
 class Tagebucheintrag
-class RecoveryPhase
+class Recovery-Mode
 
 Nutzer "1" -- "0..*" Gewohnheit : erstellt
 Gewohnheitsvorlage "1" -- "0..*" Gewohnheit : dient als Vorlage für
@@ -105,7 +105,7 @@ Kategorie "0..1" -- "0..*" Kategorie : enthält Unterkategorien
 Skillknoten "0..*" -- "0..*" Skillknoten : setzt voraus
 
 Nutzer "1" -- "0..*" Tagebucheintrag : verfasst
-Nutzer "1" -- "0..*" RecoveryPhase : legt ein
+Nutzer "1" -- "0..*" Recovery-Mode : legt ein
 Nutzer "1" -- "0..1" Statistik : analysiert Fortschritt mit
 
 @enduml
@@ -149,8 +149,8 @@ Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
 | Planung
 | Enthält Informationen zur zeitlichen Organisation und Wiederholung von Gewohnheiten (Startzeiten, Endzeiten, Intervalle).
 
-| RecoveryPhase
-| Repräsentiert einen Zeitraum (Recovery-Mode), in dem der Nutzer temporär verminderte Anforderungen hat, um in stressigen Phasen Rückschläge bei Streaks abzufedern.
+| Recovery-Mode
+| Repräsentiert einen Zeitraum (Regenerationsphase), in dem der Nutzer temporär verminderte Anforderungen hat, um in stressigen Phasen Rückschläge bei Streaks abzufedern.
 
 | Skillknoten
 | Einzelne Bestandteile des Skilltrees, die bestimmte Fähigkeiten, Fortschrittsstufen oder Belohnungen repräsentieren.
@@ -262,9 +262,9 @@ Beschreibung der wichtigsten Beziehungen zwischen den Entitäten, sofern diese b
 | Ein Nutzer kann beliebig viele Tagebucheinträge zur Reflexion verfassen.
 
 | Nutzer
-| RecoveryPhase
+| Recovery-Mode
 | 1 zu 0..*
-| Ein Nutzer kann in Belastungsphasen Recovery-Phasen einlegen, die sich auf das Tracking auswirken.
+| Ein Nutzer kann in Belastungsphasen Recovery-Modes einlegen, die sich auf das Tracking auswirken.
 
 | Nutzer
 | Statistik

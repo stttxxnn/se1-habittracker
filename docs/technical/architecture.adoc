@@ -1,4 +1,4 @@
-= Architekturdokument: Habit-Tracker
+= Architekturdokument: HabitTracker
 Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Ben Frank Loritz <s88887@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne Mathis Tesch <s88618@htw-dresden.de>
 {localdatetime}
 include::../_includes/default-attributes.inc.adoc[]
@@ -31,12 +31,12 @@ Der Systemkontext zeigt das System als Ganzes in seiner Umgebung: welche externe
 
 LAYOUT_WITH_LEGEND()
 
-title System Context Diagram – Habit-Tracker
+title System Context Diagram – HabitTracker
 
-Person(user, "Nutzer:in", "Verwendet den Habit-Tracker über den Webbrowser (PWA)")
+Person(user, "Nutzer:in", "Verwendet den HabitTracker über den Webbrowser (PWA)")
 Person(admin, "Administrator:in", "Überwacht das System und verwaltet globale Konfigurationen")
 
-System(system, "Habit-Tracker PWA", "Kernanwendung: Bietet dem Nutzer die UI, berechnet lokale Streaks und zeigt reaktive Visualisierungen")
+System(system, "HabitTracker PWA", "Kernanwendung: Bietet dem Nutzer die UI, berechnet lokale Erfolgsketten und zeigt reaktive Visualisierungen")
 
 System_Ext(supabase, "Supabase (BaaS)", "Übernimmt die Nutzerauthentifizierung, die relationale Datenhaltung (PostgreSQL) und Echtzeit-Synchronisation via WebSockets")
 
@@ -67,7 +67,7 @@ Die interne Struktur des Systems ist im Designdokument beschrieben.
 
 | PWA-Client (Browser)
 | Menschlicher Akteur
-| Zugriff auf den Habit-Tracker über Desktop oder Mobile Endgeräte
+| Zugriff auf den HabitTracker über Desktop oder Mobile Endgeräte
 | HTTPS / HTML5
 |===
 
@@ -81,19 +81,19 @@ Die interne Struktur des Systems ist im Designdokument beschrieben.
 
 LAYOUT_WITH_LEGEND()
 
-title Container Diagram – Habit-Tracker
+title Container Diagram – HabitTracker
 
 Person(user, "Nutzer:in", "Nutzt die App auf dem Smartphone/Desktop")
 
 System_Boundary(client_pwa, "Client-Seitige PWA (Browser)") {
     Container(ui, "Vue 3 View Layer", "Vue 3 (Composition API)", "Rendert die UI mit Soft-UI/Glassmorphism-Effekten und fängt Interaktionen ab")
     Container(state, "Pinia State Management", "JavaScript / Pinia", "Hält den aktuellen Anwendungsstatus im Speicher für reaktive UI-Updates")
-    Container(domain, "Domain Core (Business Logic)", "Pure TypeScript", "Enthält die reine, framework-unabhängige Logik (z.B. Berechnung von Streaks)")
+    Container(domain, "Domain Core (Business Logic)", "Pure TypeScript", "Enthält die reine, framework-unabhängige Logik (z.B. Berechnung von Erfolgsketten)")
     Container(adapters, "Infrastructure Adapters", "TypeScript", "Implementiert die Repository-Interfaces und isoliert den Supabase-Client")
 }
 
 System_Boundary(backend_supabase, "Supabase Cloud Plattform") {
-    ContainerDb(postgres, "PostgreSQL Datenbank", "Postgres / RLS", "Persistiert Habits und Log-Einträge; sichert Daten per Row Level Security")
+    ContainerDb(postgres, "PostgreSQL Datenbank", "Postgres / RLS", "Persistiert Gewohnheiten, Ausführungen und Tagebucheinträge; sichert Daten per Row Level Security")
     Container(edge, "Supabase Edge Functions", "Deno / TypeScript", "Berechnet im Hintergrund asynchrone Korrelationen für die AI-Insights")
 }
 
@@ -134,12 +134,12 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 
 | Backend / Datenbank
 | Supabase (PostgreSQL)
-| Liefert relationale Datenstrukturen für komplexe Habit-Logs, Benutzerverwaltung und Echtzeit-WebSockets out-of-the-box.
+| Liefert relationale Datenstrukturen für komplexe Gewohnheiten und Ausführungen, Benutzerverwaltung und Echtzeit-WebSockets out-of-the-box.
 | ADR-003
 
 | Anwendungsarchitektur
 | Hexagonale Architektur (Ports & Adapters)
-| Verhindert die direkte Kopplung des Supabase-Clients an die Vue-Komponenten. Schützt die Kernlogik (Streaks) und erlaubt einfaches Mocking.
+| Verhindert die direkte Kopplung des Supabase-Clients an die Vue-Komponenten. Schützt die Kernlogik (Erfolgsketten) und erlaubt einfaches Mocking.
 | ADR-001
 
 | PWA & Build-Tool
@@ -148,7 +148,7 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 | ADR-004
 |===
 
-== Architekturrelevante Anforderungen/Archritekturtreiber
+== Architekturrelevante Anforderungen und Architekturtreiber
 
 [cols="2,3,2", options="header"]
 |===
@@ -163,7 +163,7 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 | ADR-001, ADR-004
 
 | Strikte Datentrennung (DSGVO)
-| Nutzer dürfen nur Zugriff auf die eigenen Habit-Einträge besitzen. Absicherung darf nicht nur im Client, sondern muss auf Datenbank-Ebene erfolgen.
+| Nutzer dürfen nur Zugriff auf die eigenen Einträge besitzen. Absicherung darf nicht nur im Client, sondern muss auf Datenbank-Ebene erfolgen.
 | ADR-003
 
 | Schnelle Bereitstellung des MVP
@@ -173,7 +173,7 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 
 == Architekturentscheidungen
 
-=== ADR-001: Einsatz der Hexagonalen Architektur im Client-Setup
+=== ADR-001: Einsatz der Hexagonalen Architektur (Ports & Adapters) im Client
 
 [cols="1,3"]
 |===
@@ -184,20 +184,28 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 | 28. Mai 2026
 
 | *Kontext*
-| Wir nutzen Supabase als Backend-as-a-Service. Um nicht in einen unumkehrbaren "Vendor Lock-in" zu geraten und den Supabase-SDK-Code über das gesamte Frontend zu verteilen (was Unit-Tests der Streak-Berechnung erschwert), muss die Kern-Logik isoliert werden.
+| Das System benötigt eine hohe Client-Ausfallsicherheit (Offline-First) und muss komplexe Berechnungen (z. B. der `Erfolgskette` oder die Reduktionslogik im `RecoveryModus`) transparent ausführen. Da wir ein externes Backend-as-a-Service (Supabase) nutzen, besteht das Risiko eines "Vendor Lock-in". Würde der SDK-spezifische Code von Supabase direkt in den UI-Komponenten aufgerufen, wäre die Kernlogik nicht isoliert testbar und die Offline-Fähigkeit extrem schwer zu implementieren.
+
+| *Abwägungen & Alternativen*
+| *Wofür wir uns entschieden haben:* Hexagonale Architektur direkt im Frontend-Client. Der fachliche Kern (`/domain`) ist vollständig isoliert und frei von Framework-Abhängigkeiten. Er kommuniziert nach außen nur über Interfaces (*Ports*). Die technischen Details (Supabase-Client, `IndexedDB`) werden in *Adaptern* gekapselt.
+
+*Wogegen wir uns entschieden haben (Alternative):*
+Direktaufruf des Backends aus den Vue-Komponenten (traditionelle Smart-Component-Architektur). Dies wurde verworfen, da es zu "Spaghetti-Code" führt, die Domänenlogik mit UI-Lifecycle-Events vermischt, Unit-Tests verunmöglicht und das Abfangen von Netzwerkausfällen im Cache-Layer unüberschaubar komplex macht.
 
 | *Entscheidung*
-| Wir verwenden eine Hexagonale Architektur (Ports & Adapters) direkt innerhalb unserer TypeScript-Struktur im Frontend. Der Core (`/domain`) enthält reine mathematische Regeln (z.B. `calculateStreak()`) und arbeitet nur mit Interfaces wie `HabitRepository`. Die konkrete Implementierung `SupabaseHabitRepository` liegt im Infrastruktur-Layer.
-
-| *Alternativen*
-| Direktaufruf von Supabase in Vue-Komponenten (verworfen, da es zu Spaghetti-Code führt und Offline-Logik unmöglich macht).
+| Wir isolieren die gesamte Geschäftslogik in einem puren TypeScript-Domain-Core. Datenzugriffe erfolgen ausschließlich über abstrakte Repositories (z. B. `HabitRepository`), die zur Laufzeit per Dependency Injection mit dem konkreten `SupabaseHabitRepository` oder einem lokalen Mock gekoppelt werden.
 
 | *Konsequenzen*
-| *Vorteile:* Die Kernlogik ist unabhängig von Supabase testbar. Ein Wechsel auf ein anderes Backend oder eine lokale IndexedDB erfordert nur den Austausch des Adapters.
-*Nachteile:* Erhöhter Initialaufwand durch das Schreiben von Interfaces und Daten-Mappern zwischen DB-Entities und Domain-Models.
+| *Vorteile:*
+1. Maximale Testbarkeit: Die Berechnung von Erfolgsketten kann mit einfachen Jest-/Vitest-Unit-Tests ohne Datenbank oder Browser-Umgebung validiert werden.
+2. Austauschbarkeit: Sollte Supabase ersetzt werden müssen, betrifft dies ausschließlich den Infrastruktur-Layer; die Domäne bleibt unangetastet.
+3. Offline-Entkopplung: Der Cache- und Synchronisations-Mechanismus lässt sich elegant in den Adaptern verbergen.
++
+*Nachteile:*
+Erhöhter Initialaufwand (Boilerplate) durch das explizite Schreiben von Interfaces sowie Daten-Mappern, die zwischen den Datenbank-Entities (Datenbank-Sicht) und den Domain-Models (Fach-Sicht) übersetzen.
 |===
 
-=== ADR-002: Wahl von Vue 3 (Composition API) und TypeScript
+=== ADR-002: Wahl von Vue 3 (Composition API) und TypeScript gegenüber React
 
 [cols="1,3"]
 |===
@@ -208,16 +216,25 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 | 28. Mai 2026
 
 | *Kontext*
-| Für die Analytics-Seite und die Micro-Interactions (Dribbble-Trend) wird ein Framework benötigt, das reaktive Zustände performant verwaltet und eine saubere Strukturierung bietet.
+| Für die interaktiven Dashboards (Heatmaps, dichte Graphen) und die reaktiven Micro-Interactions (Delightful Animations) wird ein performantes Web-Framework benötigt. Da mehrere Entwickler parallel an den komplexen Schichten der hexagonalen Architektur arbeiten, muss zudem die Datenkonsistenz über den gesamten Datenfluss hinweg sichergestellt sein.
+
+| *Abwägungen & Alternativen*
+| *Wofür wir uns entschieden haben:*
+Vue 3 (Composition API) mit TypeScript und Pinia für das State-Management.
++
+*Wogegen wir uns entschieden haben (Alternative):*
+React 18 mit nativem JavaScript. React wurde aus zwei Gründen verworfen: Zum einen neigt das render-basierte Hook-System von React bei der Anbindung externer, zustandsbehafteter Domain-Klassen (aus der hexagonalen Struktur) zu komplexen Nebeneffekten und unkontrollierten Re-Renders. Zum anderen sorgt die reingewachsene Reaktivität von Vue 3 (`ref`, `reactive` via JS-Proxies) für eine flachere Lernkurve im Team, was bei der knappen Zeit des studentischen Projekts geschäftskritisch ist. Reines JavaScript wurde aufgrund mangelnder Typsicherheit an den Schichtgrenzen der Architektur ausgeschlossen.
 
 | *Entscheidung*
-| Wir verwenden Vue 3 mit der *Composition API* und TypeScript. Pinia dient als zentraler State-Store.
-
-| *Alternativen*
-| React 18 (verworfen, da das reaktive System von Vue (Reactivity API) intuitiver mit dem Hexagonalen Domain-State harmoniert und weniger Re-Renders erzeugt).
+| Wir setzen auf Vue 3 im Frontend. Die Schichten werden durch striktes TypeScript typisiert, um Fehler bereits zur Compilezeit (im CI/CD-Prozess) abzufangen. Pinia dient als dünner, reaktiver Kleber zwischen den hexagonalen Ports und dem UI-Rendering-Layer.
 
 | *Konsequenzen*
-| Typfehler werden bereits beim Kompilieren abgefangen. Das Team muss sich diszipliniert an die Aufteilung von UI (Vue) und Business-Zustand (Pinia/Domain) halten.
+| *Vorteile:*
+1. Hohe Performance: Feingranulare Updates der UI ohne virtuelles DOM-Overhead bei jeder State-Änderung.
+2. Hohe Softwarequalität: Typsichere Übergabe von Domänenobjekten von den Adaptern bis in die Vue-Views.
++
+*Nachteile:*
+Das Team muss sich diszipliniert an die Konventionen halten und darf keine reaktiven Vue-Reaktivitäten (`ref`) tief in den puren TypeScript-Domain-Core einschleppen, um die hexagonale Trennung sauber zu halten.
 |===
 
 === ADR-003: Supabase als serverlose Backend-Infrastruktur mit PostgreSQL
@@ -231,20 +248,20 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 | 28. Mai 2026
 
 | *Kontext*
-| Die App benötigt ein relationales Datenmodell (Nutzer -> Habits -> Logs), Benutzer-Authentifizierung und Echtzeit-Fähigkeiten. Ein eigenes Java/Spring-Boot Backend würde die Entwicklungszeit für dieses fokussierte Projekt verdoppeln.
+| Die App benötigt ein relationales Datenmodell (Nutzer -> Gewohnheiten -> Ausführungen), Benutzer-Authentifizierung und Echtzeit-Fähigkeiten. Ein eigenständiges Backend würde die Entwicklungszeit für dieses fokussierte Projekt verdoppeln.
 
 | *Entscheidung*
 | Wir nutzen Supabase als Backend-as-a-Service. Zur Absicherung der Daten nutzen wir PostgreSQL *Row Level Security (RLS)*, wodurch Abfragen direkt auf Datenbankebene anhand der Nutzer-ID isoliert werden.
 
 | *Alternativen*
-| Firebase (verworfen, da NoSQL-Strukturen relationale Auswertungen für komplexe AI-Trends und Korrelationen erschweren).
+| Firebase (verworfen, da NoSQL-Strukturen relationale Auswertungen für komplexe Trends und Korrelationen erschweren).
 
 | *Konsequenzen*
 | *Vorteile:* Extrem schnelle Bereitstellung von Auth und DB. Echtzeit-Updates über WebSockets funktionieren out-of-the-box.
 *Nachteile:* Geschäftslogik muss konsequent im Client-Core gehalten werden und darf nicht in SQL-Prozeduren abwandern, um die hexagonale Struktur nicht zu verletzen.
 |===
 
-=== ADR-004: Offline-First Strategie via Vite PWA
+=== ADR-004: Offline-First-Strategie via Vite PWA und IndexedDB
 
 [cols="1,3"]
 |===
@@ -255,16 +272,25 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 | 28. Mai 2026
 
 | *Kontext*
-| Ein Habit-Tracker wird oft in Situationen genutzt, in denen die Internetverbindung instabil ist (z.B. im Gym oder unterwegs). Die App muss jederzeit benutzbar sein.
+| Der Nutzungskontext zeigt, dass die Hauptzielgruppe (Studierende) die App "on the go" (z. B. in der Mensa oder im ÖPNV) und explizit in Funklöchern auf dem Campus (Kellerbereiche der Bibliothek oder dicke Hörsaalwände) nutzt. Um nachhaltig Routinen aufzubauen (66-Tage-Phase), darf ein fehlendes Netz niemals dazu führen, dass eine *Ausführung* nicht protokolliert werden kann oder die App abstürzt, da dies die Frustration maximiert.
+
+| *Abwägungen & Alternativen*
+| *Wofür wir uns entschieden haben:*
+Eine konsequente Offline-First-Architektur. Statische Assets werden über einen Service Worker (`vite-plugin-pwa`) im Browser-Cache hinterlegt. Daten-Einträge werden sofort blockierungsfrei in der lokalen `IndexedDB` gespeichert und asynchron bei Netzwiederkehr abgeglichen.
++
+*Wogegen wir uns entschieden haben (Alternative):*
+Eine klassische Online-Web-App (Online-First). Hierbei blockiert jeder Klick das UI mit einem Lade-Spinner, bis der Server antwortet. Bei Netzausfall bricht die Aktion mit einem Fehler ab. Dies wurde verworfen, da es der im UX-Konzept geforderten "Zuverlässigkeit und Reaktionsschnelligkeit" fundamental widerspricht.
 
 | *Entscheidung*
-| Wir setzen auf das `vite-plugin-pwa` zur Generierung eines robusten Service Workers. Der Infrastruktur-Adapter fängt Netzwerkausfälle ab und speichert anstehende Synchronisationen temporär lokal ab.
+| Die App wird als Progressive Web App (PWA) gebaut. Der Infrastruktur-Adapter fängt im Offline-Zustand fehlschlagende HTTP-Anfragen ab, markiert die Datensätze in der lokalen `IndexedDB` mit dem Status `pending_sync` und stößt die Synchronisation automatisch über das `online`-Event des Browsers an.
 
-| *Alternativen*
-| Reine Online-Web-App (verworfen, da mangelnde Zuverlässigkeit die Retention-Rate der Nutzer massiv gefährdet).
-
-| *Konsequences*
-| Erhöhte Komplexität im Adapter-Layer bei der Auflösung von Datenkonflikten (wenn lokal und remote unterschiedliche Stände existieren).
+| *Konsequenzen*
+| *Vorteile:*
+1. Die App startet und funktioniert im Keller der Bibliothek genauso schnell wie im Heimnetzwerk.
+2. Micro-Interactions fühlen sich "instant" an, da keine Netzwerklatenz das UI blockiert.
++
+*Nachteile:*
+Erhöhte logische Komplexität im Synchronisations-Layer. Bei der Netzwiederkehr muss ein Konfliktlösungs-Algorithmus greifen. Für den MVP-Stand definieren wir hierfür pragmatisch eine deterministische "Last-Write-Wins"-Strategie.
 |===
 
 == Risiken & technische Schulden
@@ -278,7 +304,7 @@ Die Anwendung wird als statische Webanwendung (PWA) über ein Content Delivery N
 | *Logic Leakage* (Geschäftslogik rutscht in Supabase-Datenbank ab)
 | Hoch
 | Mittel
-| Code-Reviews forcieren, dass Berechnungen (z.B. Streaks) ausschließlich im TypeScript Domain-Core ausgeführt werden.
+| Code-Reviews forcieren, dass Berechnungen (z.B. Erfolgsketten) ausschließlich im TypeScript Domain-Core ausgeführt werden.
 
 | *Sync-Konflikte im Offline-Modus*
 | Mittel
