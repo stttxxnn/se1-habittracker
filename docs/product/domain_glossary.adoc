@@ -79,9 +79,9 @@ class Streak
 class Meilenstein
 class Benachrichtigung
 class Statistik
-class Freundschaft (zukunft)
-class Skilltree (zukunft)
-class Skillknoten (zukunft)
+class Freundschaft 
+class Skilltree 
+class Skillknoten 
 class Kategorie
 class Tagebucheintrag
 class Recovery-Mode
