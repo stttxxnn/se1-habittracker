@@ -109,6 +109,7 @@ Nutzer "1" -- "0..*" Recovery-Mode : legt ein
 Nutzer "1" -- "0..1" Statistik : analysiert Fortschritt mit
 
 @enduml
+
 ....
 
 NOTE: Das Domänenmodell wird im Laufe des Projekts weiterentwickelt.

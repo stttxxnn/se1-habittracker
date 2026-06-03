@@ -237,7 +237,7 @@ React 18 mit nativem JavaScript. React wurde aus zwei Gründen verworfen: Zum ei
 Das Team muss sich diszipliniert an die Konventionen halten und darf keine reaktiven Vue-Reaktivitäten (`ref`) tief in den puren TypeScript-Domain-Core einschleppen, um die hexagonale Trennung sauber zu halten.
 |===
 
-=== ADR-003: Supabase als serverlose Backend-Infrastruktur mit PostgreSQL
+=== ADR-004: Supabase als serverlose Backend-Infrastruktur mit PostgreSQL
 
 [cols="1,3"]
 |===
