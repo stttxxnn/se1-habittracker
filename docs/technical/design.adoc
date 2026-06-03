@@ -1,8 +1,7 @@
-= Softwaredesign: {project-name}
-Vorname Nachname <email@domain.org>; Vorname2 Nachname2 <email2@domain.org>; Vorname3 Nachname3 <email3@domain.org>
+= Softwaredesign: HabitTracker
+Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Ben Frank Loritz <s88887@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne Mathis Tesch <s88618@htw-dresden.de>
 {localdatetime}
 include::../_includes/default-attributes.inc.adoc[]
-// Platzhalter für weitere Dokumenten-Attribute
 
 _Dieses Dokument beschreibt die interne Struktur des Systems, wie der Code organisiert ist,
 aus welchen Komponenten das System besteht, wie diese zusammenarbeiten, und welche
@@ -13,73 +12,70 @@ link:architecture.adoc[Architekturdokument] (`architecture.adoc`) beschrieben. D
 
 ---
 
-== Systemübersicht & Schichtenarchitektur
+== Systemübersicht & Hexagonale Architektur (Ports & Adapters)
 
-_Dieser Abschnitt beschreibt, in welche Schichten oder Bereiche das System aufgeteilt ist
-und welche Verantwortung jede Schicht trägt. Eine klare Schichtentrennung verhindert,
-dass Geschäftslogik, Datenzugriff und Präsentation unkontrolliert vermischt werden._
+_Dieser Abschnitt beschreibt die hexagonale Struktur unseres PWA-Clients. Um die Geschäftslogik (Berechnung von Erfolgsketten, Recovery-Modus) vollständig von externen Frameworks und dem Backend-as-a-Service (Supabase) zu entkoppeln, wird das System in einen framework-freien *Fachlichen Kern* (Domain Core), abstrakte Schnittstellen (*Ports*) und technische Implementierungen (*Adapter*) aufgeteilt._
 
-=== Schichtendiagramm
+=== Architektur-Diagramm (Hexagonal)
 
-[plantuml, layer-diagram, svg]
+[plantuml, hexagonal-architecture-diagram, svg]
 ....
 @startuml
 skinparam monochrome true
 skinparam defaultFontSize 13
 skinparam rectangleBorderThickness 1
 
-rectangle "Präsentationsschicht\n(Frontend / API-Controller)" as presentation
-rectangle "Anwendungsschicht\n(Services / Use Cases)" as application
-rectangle "Domänenschicht\n(Entitäten / Geschäftslogik)" as domain
-rectangle "Persistenzschicht\n(Repositories / Datenbank)" as persistence
+rectangle "Infrastruktur- & Adapterschicht (Außen)" {
+  rectangle "Inbound / Driving Adapters\n(Vue 3 Views / Pinia Stores)" as driving
+  rectangle "Outbound / Driven Adapters\n(Supabase SDK / IndexedDB)" as driven
+}
 
-presentation -down-> application : ruft auf
-application -down-> domain : verwendet
-application -down-> persistence : liest / schreibt
-domain -[hidden]down- persistence
+rectangle "Fachlicher Kern (Innen)" as core {
+  rectangle "Inbound Ports\n(Use Case Interfaces)" as in_ports
+  rectangle "Outbound Ports\n(Repository Interfaces)" as out_ports
+  rectangle "Domäne & Geschäftslogik\n(Pure TypeScript)" as domain
+}
 
-note right of presentation : HTTP-Anfragen,\nSerialisierung, Routing
-note right of application : Koordination,\nTransaktionen
-note right of domain : Fachliche Regeln,\nValidierung
-note right of persistence : Datenbankzugriff,\nMapping
+' Daten- und Kontrollflüsse
+driving -down-> in_ports : ruft auf / steuert
+in_ports -down-> domain : delegiert an
+domain -down-> out_ports : nutzt für I/O
+out_ports -down-> driven : wird implementiert durch
 
+note right of driving : Übersetzt UI-Interaktionen\n(Klicks) in Fachbefehle
+note right of domain : Berechnet Erfolgsketten,\nprüft Skilltree-Invarianten
+note right of driven : Handhabt SQL-Abfragen,\nOffline-Synchronisation
 @enduml
 ....
 
-=== Beschreibung der Schichten
+=== Beschreibung der Architekturbereiche
 
 [cols="1,2,2", options="header"]
 |===
-| Schicht | Verantwortung | Darf abhängen von
+| Bereich | Verantwortung | Darf abhängen von
 
-| Präsentationsschicht
-| HTTP-Anfragen entgegennehmen und beantworten;
-  Eingaben validieren; Antworten serialisieren;
-  Routing und Fehlerbehandlung auf API-Ebene
-| Anwendungsschicht
+| *Driving Adapters* (Inbound)
+| Nimmt Benutzerinteraktionen aus der Vue-Oberfläche entgegen, verwaltet den reaktiven App-Zustand in Pinia und stößt fachliche Use Cases über die Inbound-Ports an.
+| Inbound Ports, Domänen-Models
 
-| Anwendungsschicht
-| Fachliche Abläufe koordinieren (Use Cases);
-  Transaktionen verwalten; externe Dienste aufrufen;
-  zwischen Schichten vermitteln
-| Domänenschicht, Persistenzschicht
+| *Inbound Ports* (API)
+| Definiert die Einstiegspunkte und ausführbaren Anwendungsfälle (Use Cases) des Systems als abstrakte TypeScript-Interfaces.
+| Domänen-Models
 
-| Domänenschicht
-| Fachliche Entitäten und Regeln kapseln;
-  Invarianten sicherstellen;
-  Kernlogik unabhängig von Infrastruktur halten
-| Keine äußeren Schichten
+| *Fachlicher Kern* (Domain)
+| Enthält die reinen Datenstrukturen (`Gewohnheit`, `Ausführung`) und die verhaltenspsychologische Logik. Vollständig isoliert von Datenbank- und UI-Bibliotheken.
+| Keine äußeren Schichten (Absolut unabhängig)
 
-| Persistenzschicht
-| Datenbankzugriff abstrahieren;
-  Entitäten auf Datenbankstrukturen mappen;
-  Abfragelogik kapseln
-| Domänenschicht (Entitäten)
+| *Outbound Ports* (SPI)
+| Definiert die Anforderungen der Domäne an die Infrastruktur (z. B. Datenspeicherung) in Form von Interfaces (z. B. `HabitRepository`).
+| Domänen-Models
+
+| *Driven Adapters* (Outbound)
+| Implementiert die Outbound-Ports. Enthält den konkreten Code für die Verbindung zu Supabase (PostgREST) sowie das lokale Caching in der Browser-Datenbank (`IndexedDB`).
+| Outbound Ports, Domänen-Models
 |===
 
-NOTE: Die Domänenschicht darf *nicht* von Persistenz- oder Präsentationsschicht
-abhängen. Diese Regel ist der häufigste Architekturverstoss in Studentenprojekten
-und sollte in Code Reviews explizit geprüft werden.
+NOTE: Klassen innerhalb des *Fachlichen Kerns* dürfen zu keinem Zeitpunkt Frameworks wie Vue oder das Supabase-SDK importieren. Diese strikte Entkopplung stellt sicher, dass die Kernlogik in isolierten Unit-Tests validiert und die Infrastruktur bei Bedarf ausgetauscht werden kann.
 
 == Komponentenübersicht
 
@@ -89,51 +85,35 @@ zusammengehörige Einheit von Code mit einer klar definierten Aufgabe._
 
 === Komponentendiagramm
 
-//Beipielhaftes Komponentendiagramm, das die Hauptkomponenten und ihre Schnittstellen zeigt
-//Die tatsächlichen Komponenten müssen auf das konkrete Projekt zugeschnitten sein
 [plantuml, component-diagram, svg]
 ....
 @startuml
 
-' source: https://github.com/plantuml-stdlib/C4-PlantUML
-' C4 Model
 !include <c4/C4_Component.puml>
 
 LAYOUT_WITH_LEGEND()
 
-title Component Diagram – [Systemname]
+title Component Diagram – HabitTracker Client & Backend
 
-Container_Boundary(frontend, "Frontend") {
-  Component(booking_ui, "Buchungskomponente", "z. B. React / Angular", "Ermöglicht Nutzern das Erstellen und Verwalten von Buchungen")
-  Component(auth_ui, "Authentifizierungskomponente", "z. B. React / Angular", "Handhabt Login, Logout und Session-Management")
-  Component(shared_ui, "Gemeinsame UI-Komponenten", "z. B. Design System", "Wiederverwendbare UI-Elemente wie Buttons, Formulare, Navigation")
+Container_Boundary(client_pwa, "Client-Seitige PWA (Browser)") {
+  Component(ui_comp, "Dashboard & Analytics UI", "Vue 3 Components", "Rendert die Gewohnheitsübersichten, Heatmaps und den Skilltree")
+  Component(store_comp, "Habit Store", "Pinia Store", "Hält den reaktiven Zustand der Gewohnheiten und steuert UI-Updates")
+  Component(domain_core, "Habit Domain Core", "Pure TypeScript", "Berechnet Erfolgsketten, validiert Einträge und verwaltet die Recovery-Logik")
+  Component(adapter_comp, "Supabase Sync Adapter", "TypeScript / Ports", "Implementiert Repositories; steuert den IndexedDB-Offline-Cache")
 }
 
-Container_Boundary(backend, "Backend") {
-  Component(booking_ctrl, "Buchungs-Controller", "z. B. REST Controller", "Nimmt eingehende Buchungsanfragen entgegen und delegiert an den Service")
-  Component(booking_svc, "Buchungs-Service", "z. B. Spring Service", "Enthält die Buchungslogik und orchestriert Repository und Benachrichtigung")
-  Component(user_svc, "Nutzer-Service", "z. B. Spring Service", "Verwaltung von Nutzerdaten und Authentifizierungslogik")
-  Component(notification_svc, "Benachrichtigungs-Service", "z. B. Spring Service", "Erstellt und versendet Benachrichtigungen an Nutzer:innen")
+Container_Boundary(backend_supabase, "Supabase Cloud Plattform") {
+  Component(auth_svc, "Supabase Auth", "GoTrue Service", "Handhabt Registrierung, Login, Passworthashing und JWT-Ausstellung")
+  Component(edge_func, "Analysis Edge Functions", "Deno / TypeScript", "Berechnet im Hintergrund asynchrone Korrelationen für AI-Insights")
+  ContainerDb(db, "PostgreSQL Datenbank", "Postgres / RLS", "Persistiert Gewohnheiten, Ausführungen und Tagebucheinträge gesichert durch Row Level Security")
 }
 
-Container_Boundary(persistence, "Persistenz") {
-  Component(booking_repo, "Buchungs-Repository", "z. B. JPA Repository", "Datenzugriff für Buchungsentitäten")
-  Component(user_repo, "Nutzer-Repository", "z. B. JPA Repository", "Datenzugriff für Nutzerentitäten")
-  ContainerDb(db, "Datenbank", "z. B. PostgreSQL", "Persistente Datenhaltung für alle Entitäten")
-}
-
-System_Ext(ext, "Externer E-Mail-Dienst", "Zustellung von E-Mail-Benachrichtigungen, z. B. via SMTP")
-
-Rel(booking_ui, booking_ctrl, "sendet Buchungsanfragen", "REST / HTTPS")
-Rel(auth_ui, user_svc, "authentifiziert Nutzer:in", "REST / HTTPS")
-Rel(booking_ctrl, booking_svc, "delegiert an", "Java API")
-Rel(booking_svc, booking_repo, "liest / schreibt Buchungen", "JPA")
-Rel(booking_svc, notification_svc, "löst Benachrichtigung aus", "Java API")
-Rel(user_svc, user_repo, "liest / schreibt Nutzerdaten", "JPA")
-Rel(booking_repo, db, "persistiert Daten", "SQL")
-Rel(user_repo, db, "persistiert Daten", "SQL")
-Rel(notification_svc, ext, "sendet E-Mails über", "SMTP")
-
+Rel(ui_comp, store_comp, "liest / triggert Aktionen")
+Rel(store_comp, domain_core, "nutzt Geschäftsregeln")
+Rel(store_comp, adapter_comp, "ruft Datenoperationen auf")
+Rel(adapter_comp, auth_svc, "verifiziert Session via", "HTTPS / JWT")
+Rel(adapter_comp, db, "liest / schreibt Daten via", "PostgREST / WebSockets")
+Rel(adapter_comp, edge_func, "triggert komplexe Analysen via", "HTTPS / REST")
 @enduml
 ....
 
@@ -143,115 +123,114 @@ Rel(notification_svc, ext, "sendet E-Mails über", "SMTP")
 |===
 | Komponente | Verantwortung | Schnittstellen
 
-| [z. B. Buchungs-Controller]
-| HTTP-Anfragen für Buchungsvorgänge entgegennehmen;
-  Eingaben validieren; Antworten zurückgeben
-| REST-API (eingehend); Buchungs-Service (ausgehend)
+| Dashboard & Analytics UI
+| Rendert die Benutzeroberfläche mit Soft-UI/Glassmorphism-Effekten; visualisiert Fortschritte (Heatmaps, Graphen).
+| Pinia Store (eingehend)
 
-| [z. B. Buchungs-Service]
-| Buchungslogik koordinieren; Verfügbarkeit prüfen;
-  Transaktionen verwalten; Benachrichtigungen auslösen
-| Buchungs-Repository; Benachrichtigungs-Service
+| Habit Store (Pinia)
+| Verwaltet den reaktiven Client-Zustand im RAM; stellt Methoden für UI-Komponenten bereit; stößt Hintergrund-Synchronisationen über Ports an.
+| Vue-UI (eingehend); Domain Core & Ports (ausgehend)
 
-| [z. B. Buchungs-Repository]
-| Buchungsdaten lesen und schreiben;
-  Datenbankabfragen kapseln
-| Datenbank (JPA / SQL)
+| Habit Domain Core
+| Enthält die framework-freie Business-Logik; berechnet mathematisch exakt die Erfolgsketten und steuert Invarianten des Skilltrees.
+| Pinia Store / Ports (eingehend)
 
-| [z. B. Benachrichtigungs-Service]
-| E-Mail-Benachrichtigungen versenden;
-  Vorlagen verwalten
-| Externer SMTP-Dienst
+| Supabase Sync Adapter
+| Implementiert die Repository-Ports; fängt Verbindungsabbrüche ab; speichert Daten offline in der `IndexedDB` und markiert sie als `pending_sync`.
+| Pinia Store (eingehend); Supabase-API / IndexedDB (ausgehend)
 
-| [Weitere Komponente]
-| [Verantwortung]
-| [Schnittstellen]
+| PostgreSQL Datenbank
+| Persistente relationale Speicherung aller Entitäten; Durchsetzung von Zugriffsbeschränkungen über Row Level Security (RLS).
+| PostgREST-Schnittstelle von Supabase
 |===
 
 ---
 
 == Wichtige Interaktionsflüsse
 
-Sequenzdiagramme zeigen, wie Komponenten bei typischen Abläufen zusammenarbeiten.
-Dokumentiert werden hier nur die wichtigsten und komplexesten Flüsse —
-nicht jede einfache CRUD-Operation.
+Sequenzdiagramme zeigen, wie Komponenten bei typischen Abläufen zusammenarbeiten. Dokumentiert werden hier die geschäftskritischen Abläufe unter Berücksichtigung der Offline-First-Strategie (ADR-004).
 
-=== [Flussname, z. B. Raum buchen]
+=== Ausführung protokollieren (Online-Erfolgsfall)
 
-_Beschreibe kurz, was dieser Ablauf zeigt und warum er dokumentiert wird._
+_Dieser Fluss zeigt den Standardfall, wenn ein Nutzer eine Gewohnheit im Dashboard als erledigt markiert und eine stabile Internetverbindung besteht._
 
-//Beispielhaftes Sequenzdiagramm für den Buchungsprozess
-//Die tatsächlichen Flüsse müssen auf das konkrete Projekt zugeschnitten sein
-
-[plantuml, sequence-booking, svg]
+[plantuml, sequence-logging-online, svg]
 ....
 @startuml
 skinparam monochrome true
 skinparam defaultFontSize 12
 
 actor "Nutzer:in" as user
-participant "Buchungs-\nController" as ctrl
-participant "Buchungs-\nService" as svc
-participant "Buchungs-\nRepository" as repo
-participant "Benachrichtigungs-\nService" as notify
+participant "Dashboard UI\n(Vue 3)" as ui
+participant "Habit Store\n(Pinia / Driving)" as store
+participant "Domain Core\n(TypeScript / Kern)" as domain
+participant "Supabase Adapter\n(Infrastruktur / Driven)" as adapter
+database "PostgreSQL\n(Supabase DB)" as db
 
-user -> ctrl : POST /buchungen\n{raumId, zeitraum}
-ctrl -> ctrl : Eingabe validieren
-ctrl -> svc : buchungErstellen(raumId, zeitraum, nutzerId)
-svc -> repo : istVerfuegbar(raumId, zeitraum)
-repo --> svc : true
-svc -> repo : buchungSpeichern(buchung)
-repo --> svc : gespeicherteBuchung
-svc -> notify : bestaetigungSenden(buchung)
-notify --> svc : OK
-svc --> ctrl : buchung
-ctrl --> user : 201 Created\n{buchungsId, details}
+user -> ui : Klickt "Erledigt" auf Gewohnheit
+ui -> store : loggeAusfuehrung(gewohnheitId)
+store -> domain : berechneErfolgskette(gewohnheit, neueAusfuehrung)
+domain --> store : aktualisierteErfolgskette
+store -> adapter : speichereAusfuehrung(neueAusfuehrung)
+activate adapter
+adapter -> db : INSERT INTO ausfuehrung (gewohnheit_id, datum)
+db --> adapter : 201 Created (Bestätigung)
+adapter --> store : Synchronisation erfolgreich
+deactivate adapter
+store --> ui : Zustand aktualisiert (Reaktives UI-Update)
+ui --> user : Zeigt "Delightful Animation" (Erfolg gefeiert)
 
 @enduml
 ....
 
 ---
 
-=== [Weiterer Fluss, z. B. Fehlerfall: Raum nicht verfügbar]
+=== Ausführung protokollieren (Offline-Fall mit lokalem Cache)
 
-[plantuml, sequence-conflict, svg]
+_Dieser Fluss zeigt, wie das System reagiert, wenn der Nutzer sich in einem Funkloch befindet (z. B. Hörsaal/Bibliothekskeller). Das UI bleibt dank der Offline-First-Architektur blockierungsfrei._
+
+[plantuml, sequence-logging-offline, svg]
 ....
 @startuml
 skinparam monochrome true
 skinparam defaultFontSize 12
 
 actor "Nutzer:in" as user
-participant "Buchungs-\nController" as ctrl
-participant "Buchungs-\nService" as svc
-participant "Buchungs-\nRepository" as repo
+participant "Dashboard UI\n(Vue 3)" as ui
+participant "Habit Store\n(Pinia / Driving)" as store
+participant "Domain Core\n(TypeScript / Kern)" as domain
+participant "Supabase Adapter\n(Infrastruktur / Driven)" as adapter
+database "IndexedDB\n(Lokaler Cache)" as cache
+database "PostgreSQL\n(Supabase DB)" as db
 
-user -> ctrl : POST /buchungen\n{raumId, zeitraum}
-ctrl -> svc : buchungErstellen(raumId, zeitraum, nutzerId)
-svc -> repo : istVerfuegbar(raumId, zeitraum)
-repo --> svc : false
-svc --> ctrl : RaumNichtVerfuegbarException
-ctrl --> user : 409 Conflict\n{message, alternativen}
+user -> ui : Klickt "Erledigt" auf Gewohnheit
+ui -> store : loggeAusfuehrung(gewohnheitId)
+store -> domain : berechneErfolgskette(gewohnheit, neueAusfuehrung)
+domain --> store : aktualisierteErfolgskette
+store -> adapter : speichereAusfuehrung(neueAusfuehrung)
+activate adapter
+adapter -> db : INSERT INTO ausfuehrung ... (Netzwerkaufruf)
+note over adapter, db : Netzwerkfehler / Zeitüberschreitung (Offline)
+db --X adapter : Verbindung gegenwärtig fehlgeschlagen
+adapter -> cache : speichereLokal(ausfuehrung, status='pending_sync')
+cache --> adapter : OK
+adapter --> store : Lokal gespeichert (Offline-Modus aktiv)
+deactivate adapter
+store --> ui : Zustand reaktiv aktualisiert (Offline-Indikator)
+ui --> user : Zeigt Erfolg lokal an (Kein Lade-Spinner)
 
 @enduml
 ....
-
-NOTE: Flussnamen im Diagramm sollten identisch mit den Methodennamen im Code sein.
-Das macht es einfacher, vom Diagramm zum Code zu navigieren und umgekehrt.
 
 ---
 
 == Datenmodell
 
-_Dieser Abschnitt beschreibt die technische Datenbankstruktur: Tabellen, Spalten,
-Datentypen und Beziehungen. Er beantwortet die Frage: Wie werden die Daten gespeichert?_
+_Dieser Abschnitt beschreibt die technische Datenbankstruktur innerhalb von Supabase (PostgreSQL): Tabellen, Spalten, Datentypen und Beziehungen. Er beantwortet die Frage: Wie werden die Daten gespeichert?_
 
-NOTE: Die *fachliche* Bedeutung der Entitäten — was sie repräsentieren und wie sie sich zueinander verhalten — ist im Domänenmodell (`domain_glossary.adoc`) beschrieben.
-Dieses Dokument zeigt ausschließlich die technische Persistenzstruktur.
+NOTE: Die *fachliche* Bedeutung der Entitäten ist im Domänenmodell (`domain_glossary.adoc`) beschrieben. Dieses Dokument zeigt ausschließlich die technische Persistenzstruktur und die Absicherung über Row Level Security (RLS).
 
 === Datenbankmodell
-
-//beispielhaftes ER-Diagramm für das Datenmodell
-//Die tatsächlichen Tabellen und Spalten müssen auf das konkrete Projekt zugeschnitten sein
 
 [plantuml, data-model, svg]
 ....
@@ -259,35 +238,54 @@ Dieses Dokument zeigt ausschließlich die technische Persistenzstruktur.
 skinparam monochrome true
 skinparam defaultFontSize 12
 
-entity "nutzer" as user {
+entity "nutzer (auth.users)" as user {
   * id : UUID <<PK>>
   --
   * email : VARCHAR(255) <<UNIQUE>>
-  * name : VARCHAR(100)
-  * erstellt_am : TIMESTAMP
+  * encrypted_password : VARCHAR(255)
 }
 
-entity "raum" as room {
-  * id : UUID <<PK>>
-  --
-  * bezeichnung : VARCHAR(100)
-  * kapazitaet : INTEGER
-  * standort : VARCHAR(100)
-}
-
-entity "buchung" as booking {
+entity "gewohnheit" as habit {
   * id : UUID <<PK>>
   --
   * nutzer_id : UUID <<FK>>
-  * raum_id : UUID <<FK>>
-  * beginn : TIMESTAMP
-  * ende : TIMESTAMP
-  * status : VARCHAR(20)
+  * name : VARCHAR(100)
+  * beschreibung : TEXT
+  * haeufigkeit : VARCHAR(50)
+  * aktuelle_erfolgskette : INTEGER
   * erstellt_am : TIMESTAMP
 }
 
-user ||--o{ booking : "gibt auf"
-room ||--o{ booking : "ist Gegenstand von"
+entity "ausfuehrung" as execution {
+  * id : UUID <<PK>>
+  --
+  * gewohnheit_id : UUID <<FK>>
+  * datum : TIMESTAMP
+  * status : VARCHAR(20)
+}
+
+entity "tagebucheintrag" as journal {
+  * id : UUID <<PK>>
+  --
+  * nutzer_id : UUID <<FK>>
+  * datum : TIMESTAMP
+  * text : TEXT
+  * stimmung : INTEGER
+}
+
+entity "recovery_phase" as recovery {
+  * id : UUID <<PK>>
+  --
+  * nutzer_id : UUID <<FK>>
+  * start_datum : TIMESTAMP
+  * end_datum : TIMESTAMP
+  * status : VARCHAR(20)
+}
+
+user ||--o{ habit : "definiert"
+habit ||--o{ execution : "besitzt"
+user ||--o{ journal : "verfasst"
+user ||--o{ recovery : "aktiviert"
 
 @enduml
 ....
@@ -298,50 +296,53 @@ room ||--o{ booking : "ist Gegenstand von"
 |===
 | Tabelle | Spalte | Beschreibung & Besonderheiten
 
-.4+| nutzer
-| id | UUID als Primärschlüssel; wird vom System generiert
-| email | Eindeutig; wird für Login und Benachrichtigungen verwendet
-| name | Anzeigename; kein Pflichtfeld nach DSGVO-Anforderung
-| erstellt_am | Automatisch gesetzt; nicht änderbar
+.3+| nutzer
+| id | UUID als Primärschlüssel; wird automatisch über Supabase Auth (Schema `auth.users`) generiert.
+| email | Eindeutige E-Mail-Adresse für das Login-Verfahren.
+| encrypted_password | Mit `bcrypt` gesichertes Passwort auf der Datenbank-Ebene.
 
-.4+| buchung
-| id | UUID als Primärschlüssel
-| status | Enum-Werte: `AKTIV`, `STORNIERT`, `ABGELAUFEN`
-| beginn / ende | Beide Zeitpunkte inklusive; keine Überschneidung per DB-Constraint
-| nutzer_id / raum_id | Fremdschlüssel; kein Cascade Delete — Buchungen bleiben erhalten
+.6+| gewohnheit
+| id | UUID als Primärschlüssel.
+| nutzer_id | Fremdschlüssel auf den Besitzer; RLS-Policy greift hierüber: `auth.uid() == nutzer_id`.
+| name / beschreibung | Textbezeichner der Gewohnheit sowie optionale Ausführungsdetails.
+| haeufigkeit | Speicherwert für Intervalle (z. B. `DAILY`, `WEEKLY`).
+| aktuelle_erfolgskette | Zwischengespeicherter Integer-Wert zur performanten Abfrage im UI ohne Live-Neuberechnung.
 
-| [Weitere Tabelle]
-| [Spalte]
-| [Beschreibung]
+.3+| ausfuehrung
+| id | UUID als Primärschlüssel.
+| gewohnheit_id | Fremdschlüssel auf die zugehörige Gewohnheit. Kaskadierendes Löschen (`ON DELETE CASCADE`).
+| datum / status | Exakter Erfassungszeitpunkt; Status-Enum: `ERLEDIGT`, `VERPASST`.
+
+.4+| tagebucheintrag
+| id | UUID als Primärschlüssel.
+| nutzer_id | Fremdschlüssel zur filterbasierten RLS-Absicherung des Tagebuchs.
+| text / stimmung | Freitext zur Reflexion; Stimmungswert (Skala 1–5) für spätere Trendanalysen.
 |===
 
 === Datenbankmigrationen
 
-_Schemaänderungen werden nicht manuell durchgeführt, sondern über Migrationsskripte
-versioniert. So ist der Datenbankzustand jederzeit reproduzierbar._
+_Schemaänderungen werden im Supabase-Infrastruktur-Setup über versionierte SQL-Migrationsdateien innerhalb der Supabase CLI verwaltet, um eine identische lokale Docker-Entwicklungsumgebung zu gewährleisten._
 
 [cols="1,3", options="header"]
 |===
 | Aspekt | Beschreibung
 
 | Werkzeug
-| [z. B. Flyway / Liquibase]
+| Supabase CLI (Migrations-Engine basierend auf nativen PostgreSQL-Skripten)
 
 | Speicherort
-| [z. B. `src/main/resources/db/migration/`]
+| `/supabase/migrations/`
 
 | Namenskonvention
-| [z. B. `V001__initiales_schema.sql`, `V002__buchung_status_spalte.sql`]
+| `<timestamp>_initial_schema.sql`, `<timestamp>_add_recovery_mode.sql`
 
 | Regel
-| Bestehende Migrationsskripte werden *nie* verändert — nur neue hinzugefügt
+| Einmal auf die Remote-Infrastruktur gepushte Migrationsskripte sind unveränderlich (Immutable). Korrekturen erfolgen ausschließlich über neue Migrationsdateien.
 |===
 
 == Eingesetzte Muster & Konventionen
 
-_Dieser Abschnitt dokumentiert übergreifende Designmuster und Konventionen, die im
-gesamten Codebase gelten. Das verhindert, dass verschiedene Teammitglieder dasselbe
-Problem auf unterschiedliche Weise lösen._
+_Dieser Abschnitt dokumentiert übergreifende Designmuster und Konventionen, die in der Codebasis gelten, um die Wartbarkeit des Systems sicherzustellen._
 
 === Designmuster
 
@@ -349,69 +350,49 @@ Problem auf unterschiedliche Weise lösen._
 |===
 | Muster | Wo eingesetzt | Begründung
 
-| Repository Pattern
-| Persistenzschicht: alle Datenbankzugriffe
-| Datenbanklogik von Geschäftslogik trennen;
-  einfacher austauschbar und testbar
+| Ports & Adapters (Hexagonal)
+| Client-Architektur (`/src/domain` vs. `/src/infrastructure`)
+| Entkopplung der Kernlogik von Supabase; nahtlose Integration des Offline-Caches (`IndexedDB`).
 
-| DTO (Data Transfer Object)
-| Schnittstelle zwischen Controller und Service
-| Interne Domänenobjekte nicht direkt exponieren;
-  API-Struktur unabhängig vom Datenbankmodell
+| State Management Pattern
+| Pinia-Stores (`/src/stores`)
+| Zentralisiert den veränderlichen Zustand der App; stellt sicher, dass alle Vue-Komponenten synchron auf Datenänderungen reagieren.
 
-| Service Layer
-| Anwendungsschicht: alle Use Cases
-| Geschäftslogik zentralisieren;
-  Controller schlank halten
-
-| [Weiteres Muster]
-| [Wo eingesetzt]
-| [Begründung]
+| Data Mapper Pattern
+| Infrastruktur-Adapter (`/src/infrastructure/mappers`)
+| Übersetzt flache Datenbankzeilen (PostgreSQL DTOs) in reiche, objektorientierte Domänenmodelle der TypeScript-Schicht.
 |===
 
-=== Fehlerbehandlung
+=== Fehlerbehandlung & Offline-Konflikte
 
 [cols="1,3", options="header"]
 |===
 | Aspekt | Konvention
 
 | Fachliche Fehler
-| Als eigene Exception-Klassen modellieren
-  (z. B. `RaumNichtVerfuegbarException`, `BuchungNichtGefundenException`)
+| Werden im Domain-Core über dedizierte TypeScript-Fehlerklassen abgebildet (z. B. `UngueltigesIntervallException`, `PhaseUeberschneidungException`).
 
-| HTTP-Fehlercodes
-| 400 für Validierungsfehler; 404 für nicht gefundene Ressourcen;
-  409 für Konflikte; 500 nur für unerwartete Systemfehler
+| Offline-Abfangung
+| Tritt beim Aufruf des Supabase-Clients ein Netzwerkfehler ein, fängt der Infrastruktur-Adapter diesen geräuschlos ab, speichert die Daten in der `IndexedDB` und setzt die App in den Offline-Modus.
 
-| Fehlermeldungen
-| Immer strukturiert zurückgeben:
-  `{ "fehler": "...", "details": "..." }` — kein Stack Trace an den Client
-
-| Logging
-| Fachliche Fehler als WARN; unerwartete Fehler als ERROR;
-  keine personenbezogenen Daten in Log-Ausgaben (DSGVO)
+| Synchronisationskonflikte
+| Bei der Wiederkehr des Netzwerks greift für den MVP-Stand eine deterministische **Last-Write-Wins (LWW)**-Strategie. Der aktuellere lokale Timestamp überschreibt bei Konflikten den Remote-Stand.
 |===
 
-=== API-Konventionen
+=== API & WebSocket-Konventionen
 
 [cols="1,3", options="header"]
 |===
 | Aspekt | Konvention
 
-| URL-Struktur
-| Ressourcenorientiert im Plural: `/buchungen`, `/raeume`, `/nutzer`
+| Datenabfragen
+| Erfolgen über das PostgREST-Interface des Supabase-SDKs. Abfragen sind durch RLS-Regeln implizit auf den authentifizierten Nutzer eingeschränkt.
 
-| HTTP-Methoden
-| GET = lesen; POST = erstellen; PUT = ersetzen; PATCH = teilweise ändern;
-  DELETE = löschen
+| Echtzeit-Updates
+| Für Live-Visualisierungen (z. B. sofortige Synchronisation zwischen Desktop-Browser und Smartphone) wird der Supabase-Realtime-Kanal via WebSockets abonniert.
 
-| Antwortformat
-| JSON in allen Fällen; Datumsformat ISO 8601: `2024-06-01T09:00:00Z`
-
-| Versionierung
-| [z. B. URL-Präfix `/api/v1/` - Version nur erhöhen bei Breaking Changes]
+| Datumsformat
+| Einheitlich im ISO-8601-Format mit Zeitzone (`YYYY-MM-DDTHH:mm:ssZ`), um fehlerfreie Berechnungen der Erfolgsketten über Zeitzorengrenzen hinweg zu garantieren.
 |===
 
-_Diagramme in diesem Dokument sollten den aktuellen Stand des Codes widerspiegeln.
-Bei größeren Refactorings oder neuen Komponenten ist dieses Dokument im selben
-Pull Request zu aktualisieren._
+_Diagramme in diesem Dokument sollten den aktuellen Stand des Codes widerspiegeln. Bei größeren Refactorings oder Anpassungen des Datenmodells ist dieses Dokument im selben Pull Request zu aktualisieren._

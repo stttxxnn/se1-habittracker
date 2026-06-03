@@ -153,7 +153,7 @@ Konkrete Aufgaben:
 
 | Umgebung
 | *Physisch:* Nutzung erfolgt mobil in der Mensa, Bibliothek, ÖPNV oder zu Hause. Oft schwierige Lichtverhältnisse (Sonne draußen vs. dunkler Hörsaal) und Lärmablenkung.
-*Technisch:* Mobile Plattformen; Integration in bestehende Kalender-Apps erwünscht.
+*Technisch:* Mobile Web-Plattform (PWA); nahtlose Speicherung in der lokalen Client-Datenbank; Integration in bestehende Kalender-Apps erwünscht.
 *Sozial/Organisatorisch:* Der akademische Kalender (Vorlesungszeit vs. Prüfungszeit) bestimmt den Lebensrhythmus. Hoher Erwartungsdruck; Nutzung erfolgt oft diskret zwischendurch.
 |===
 
@@ -162,8 +162,7 @@ Konkrete Aufgaben:
 _Wie lösen die Nutzenden ihr Problem heute? Diese Beschreibung zeigt, was das Produkt
 verbessern soll — und macht den Mehrwert explizit._
 
-[Beschreibe den heutigen Ablauf in 3–5 Sätzen oder als kurze Schrittfolge. Beispiel: „Heute fragt Maria an der Infotheke nach freien Räumen, erhält eine Liste per E-Mail, und stellt beim Ankommen fest, dass der Raum bereits belegt ist.
-Der Prozess kostet sie im Schnitt 20 Minuten pro Tag."]
+Bisher versuchen unsere Personas, ihre Routinen über analoge Papierkalender oder einfache, statische To-Do-Listen-Apps zu verwalten. Vergisst Laura M. an einem stressigen Unitag das manuelle Eintragen, reißt ihre visuelle Erfolgskette ab. Diese unschuldige Lücke führt durch das "Alles-oder-Nichts-Denken" meist zum kompletten Abbruch der Gewohnheit. Bestehende Tools bieten keine Möglichkeit, das tägliche Soll-Pensum flexibel an dichte Prüfungsphasen anzupassen, wodurch der Wiedereinstieg nach einer Pause psychologisch massiv erschwert wird.
 
 === Nutzungshürden & Risiken
 
@@ -194,28 +193,31 @@ _Dieser Abschnitt beschreibt Abläufe, die mehrere Features oder Bereiche des Pr
 umfassen. Einzelne Feature-Wireframes werden in den jeweiligen User Stories gepflegt.
 Hier dokumentieren wir nur Flüsse auf Systemebene, z.B. mit UML-Aktivitätsdiagrammen._
 
-=== [Flussname, z. B. Onboarding-Flow]
+=== Offline-Tracking & Background-Synchronisation (Walking Skeleton Flow)
+Dieser Fluss beschreibt die absolute Kerninteraktion der Anwendung: Das schnelle Offline-Abhaken einer Gewohnheit durch die Persona Laura M. und die anschließende asynchrone Synchronisation mit dem PostgreSQL-Server bei Netzwiederkehr.
 
-_Beschreibe kurz, was dieser Fluss abdeckt und welche Personas er betrifft._
-
-[plantuml, onboarding-flow, svg]
+[plantuml, sync-flow, svg]
 ....
 @startuml
 skinparam monochrome true
 skinparam defaultFontSize 13
 
 start
-:App öffnen;
-if (Bereits registriert?) then (ja)
-  :Login;
-else (nein)
-  :Registrierung;
-  :Bestätigungs-E-Mail;
-  :E-Mail bestätigen;
-endif
-:Startseite;
-stop
+:Dashboard aufrufen;
+:Checkbox einer Gewohnheit anklicken;
+:Ausführung mit Zeitstempel lokal in IndexedDB speichern;
+:UI aktualisiert sich sofort visuell (Häkchen gesetzt);
 
+if (Internetverbindung aktiv?) then (ja)
+  :syncService sendet POST-Request an /api/v1/executions;
+  :Backend persistiert Ausführung in PostgreSQL;
+  :Lokaler Sync-Status wird auf 'synced' gesetzt;
+else (nein)
+  :Client wartet im Hintergrund auf 'online'-Event;
+  :Netzwiederkehr registriert;
+  :Inkrementeller Datenabgleich via Last-Write-Wins;
+endif
+stop
 @enduml
 ....
 
@@ -223,41 +225,37 @@ stop
 |===
 | Schritt | Beteiligte Persona | Anmerkung
 
-| App öffnen
-| Maria (Studierende)
-| Erster Einstiegspunkt; muss sofort orientieren
+| Checkbox anklicken
+| Laura M.
+| Muss mit einer einzigen Berührung (Tap) auf dem Smartphone-Bildschirm ausführbar sein.
 
-| Login / Registrierung
-| Alle Personas
-| Registrierung nur beim ersten Besuch; danach automatischer Login
+| Lokale Speicherung
+| System (Client)
+| Findet blockierungsfrei in der `IndexedDB` statt. Gewährleistet die geforderte Zuverlässigkeit.
 
-| Startseite
-| Alle Personas
-| Zeigt direkt die wichtigste Funktion — keine unnötige Zwischenseite
+| Inkrementeller Sync
+| System (Background)
+| Erfolgt vollkommen transparent für den Nutzer, sobald der Browser wieder Netz signalisiert.
 |===
 
 ---
 
-=== [Weiterer Fluss, z. B. Buchungsabbruch & Fehlerbehandlung]
+=== Aktivierung des RecoveryModus
+Dieser Fluss zeigt, wie ein Nutzer (z. B. Franz K.) bei akutem Stress in der Prüfungsphase das System in den resilienten Schutzmodus versetzt, um seine aufgebauten Gewohnheiten zu schützen.
 
-_Beschreibe den Fluss und ergänze ein Diagramm nach demselben Muster._
-
-[plantuml, error-flow, svg]
+[plantuml, recovery-flow, svg]
 ....
 @startuml
 skinparam monochrome true
+skinparam defaultFontSize 13
 
 start
-:Buchung starten;
-if (Raum noch verfügbar?) then (ja)
-  :Buchung bestätigen;
-  :Bestätigung anzeigen;
-else (nein)
-  :Fehlermeldung anzeigen;
-  :Alternative Räume vorschlagen;
-endif
+:Profil-/Einstellungen aufrufen;
+:Schalter 'RecoveryModus' aktivieren;
+:System setzt Feld 'istImRecoveryModus' auf true;
+:Soll-Parameter aller aktiven Gewohnheiten werden reduziert;
+:Dashboard signalisiert visuell den aktiven Schutzmodus;
 stop
-
 @enduml
 ....
 
@@ -274,47 +272,38 @@ Wireframes und UI-Implementierungen._
 | Aspekt | Entscheidung & Begründung
 
 | Farbpalette
-| [z. B. Primärfarbe: Hochschulblau #003D6E; Akzent: #E87722;
-  Begründung: Corporate Identity der Hochschule]
+| *Primärfarbe:* Tiefblau (#1A365D) für Ruhe und Struktur. +
+*Akzentfarbe:* Vitales Grün (#2ECC71) für erfolgreiche Ausführungen. +
+*Recovery-Farbe:* Warmes Amber (#F39C12) zur Signalisierung des aktiven RecoveryModus.
 
 | Typografie
-| [z. B. Fließtext: Inter 16px; Überschriften: Inter Bold;
-  Begründung: Hohe Lesbarkeit auf kleinen Bildschirmen]
+| *Fließtext:* Inter (16px) für optimale digitale Lesbarkeit. +
+*Überschriften:* Inter Bold. Kontraststarke Darstellung auf mobilen Displays.
 
 | Ikonografie
-| [z. B. Material Icons; konsistentes Icon-Set im gesamten Produkt]
+| Minimalistisches, konsistentes Set aus *Lucide-React / Material Icons*. Klare Metaphern (z. B. Haken für Ausführung, Buch für Tagebucheintrag).
 
 | Bildsprache
-| [z. B. Keine Stock-Fotos; Illustrationen im Flat-Design-Stil]
+| Vollständiger Verzicht auf ablenkende Stockfotos. Verwendung von funktionalen, flachen Vektorgrafiken zur visuellen Unterstützung von Leerzuständen.
 |===
 
 === Interaktionsprinzipien
-
-_Vereinbarte UX-Regeln, die für das gesamte Produkt gelten. Jede Entscheidung
-wird begründet, damit sie nicht aus Unwissenheit verletzt wird._
 
 [cols="2,3", options="header"]
 |===
 | Prinzip | Beschreibung & Begründung
 
-| Destruktive Aktionen werden immer bestätigt.
-| Lösch- oder Stornieraktionen erfordern eine explizite Bestätigung durch die Nutzenden.
-  Verhindert unbeabsichtigte Datenverluste.
+| Mobile-First & Daumenzonen-Optimierung
+| Alle primären Klick-Elemente (wie das Abhaken auf dem Dashboard) befinden sich im unteren Drittel des Bildschirms. Ermöglicht die komfortable einhändige Nutzung im ÖPNV.
 
-| Leerzustände erklären sich und schlagen eine Aktion vor.
-| Wenn eine Liste leer ist, zeigen wir eine kurze Erklärung und einen Call-to-Action —
-  niemals nur eine leere Fläche. Reduziert Orientierungslosigkeit.
+| Sofortige UI-Reaktivität
+| Bei Klicks auf Checkboxen wartet das Interface niemals auf die Server-Antwort. Der Zustand wird sofort lokal gesetzt und visualisiert, um Latenzen zu eliminieren.
 
-| Fehlermeldungen sind verständlich und handlungsorientiert.
-| Fehlermeldungen nennen die Ursache in einfacher Sprache und schlagen einen
-  nächsten Schritt vor. Kein technischer Jargon für Endnutzer:innen.
+| Konstruktive Leerzustände (Empty States)
+| Wenn am Semesteranfang noch keine Gewohnheit angelegt ist, zeigt das Dashboard keine gähnende Leere, sondern eine motivierende Anleitung mit einem direkten Erstellungs-Button.
 
-| Kernfunktionen sind mit einer Hand erreichbar.
-| Primäre Aktionen befinden sich im unteren Bildschirmbereich (Daumenzone).
-  Optimiert für einhändige Smartphone-Nutzung.
-
-| [Weiteres Prinzip]
-| [Beschreibung & Begründung]
+| Verständliche Fehlermeldungen
+| Anstelle von technischen Stacktraces (z. B. "Fetch failed") melden wir verständlich: „Du bist offline. Deine Daten wurden lokal gesichert und werden synchronisiert, sobald du wieder Netz hast.“
 |===
 
 === Barrierefreiheit
@@ -324,19 +313,16 @@ wird begründet, damit sie nicht aus Unwissenheit verletzt wird._
 | Aspekt | Anforderung
 
 | Kontrastverhältnis
-| Mindestens WCAG 2.1 Level AA (Kontrast ≥ 4,5:1 für Fließtext)
+| Konsequente Einhaltung der Richtlinie *WCAG 2.1 Level AA*. Ein Kontrastverhältnis von mindestens 4,5:1 für alle Textelemente ist Standard.
 
 | Tastaturnavigation
-| Alle Kernfunktionen sind per Tastatur bedienbar
+| Für die optionale Desktop-Nutzung sind alle Schaltflächen über die Tabulatortaste erreichbar und besitzen einen deutlich sichtbaren Fokus-Rahmen.
 
-| Screenreader
-| Alle interaktiven Elemente haben sinnvolle ARIA-Labels
+| Screenreader-Support
+| Alle interaktiven Icons und Checkboxen sind mit eindeutigen, semantischen `aria-label`-Attributen versehen (z. B. `aria-label="Gewohnheit als erledigt markieren"`).
 
-| Schriftgröße
-| Keine Schrift unter 14px; Nutzer:innen können Systemschriftgröße nutzen
-
-| [Weiterer Aspekt]
-| [Anforderung]
+| Skalierbarkeit
+| Das Layout ist vollständig responsiv aufgebaut und bricht auch bei einer systemweit vergrößerten Schriftart des Smartphones nicht auf unlesbare Weise um.
 |===
 
 
