@@ -9,8 +9,13 @@ export const useHabitStore = defineStore('habit', () => {
   const isLoading = ref<boolean>(false)
   const error = ref<string | null>(null)
 
-  const habitAdapter = new SupabaseHabitAdapter()
-  const habitService = new GetHabitService(habitAdapter)
+  let habitAdapter = new SupabaseHabitAdapter()
+  let habitService = new GetHabitService(habitAdapter)
+
+  function setAdapter(customAdapter: any) {
+    habitAdapter = customAdapter
+    habitService = new GetHabitService(customAdapter)
+  }
 
   async function loadHabit(id: string) {
     isLoading.value = true
@@ -39,6 +44,7 @@ export const useHabitStore = defineStore('habit', () => {
     isLoading,
     error,
     loadHabit,
-    setHabits
+    setHabits,
+    setAdapter
   }
 })
