@@ -297,37 +297,69 @@ Erhöhte logische Komplexität im Synchronisations-Layer. Bei der Netzwiederkehr
 
 === Technische Risiken
 
-[cols="2,1,2,2", options="header"]
+[cols="1,2,1,1,2,2", options="header"]
 |===
-| Risiko | Auswirkung | Wahrscheinlichkeit | Maßnahme
+| ID | Risiko | Auswirkung | Wahrscheinlichkeit | Gegenmaßnahme | Hinweis
 
-| *Logic Leakage* (Geschäftslogik rutscht in Supabase-Datenbank ab)
+| R-01
+| *Logic Leakage* — Geschäftslogik wandert in Supabase-Queries, SQL-Funktionen oder Adapter ab
 | Hoch
 | Mittel
-| Code-Reviews forcieren, dass Berechnungen (z.B. Erfolgsketten) ausschließlich im TypeScript Domain-Core ausgeführt werden.
+| Fachliche Berechnungen, z. B. Erfolgsketten, Streak-Regeln oder Recovery-Logik, ausschließlich im TypeScript Domain-Core halten; Code-Reviews auf Schichttrennung fokussieren
+| Kritisch für Wartbarkeit und Testbarkeit
 
-| *Sync-Konflikte im Offline-Modus*
+| R-02
+| *Sync-Konflikte im Offline-Modus* — mehrere Änderungen entstehen vor der Synchronisation
+| Hoch
 | Mittel
-| Mittel
-| Einführen einer "Last-Write-Wins"-Strategie im Adapter-Layer für den MVP-Stand.
+| Für den MVP eine einfache, dokumentierte *Last-Write-Wins*-Strategie im Adapter-Layer verwenden; Konflikte später separat behandeln
+| Besonders relevant bei paralleler Nutzung auf mehreren Geräten
 
-| *Erhöhter Latenz-Overhead durch Mapping*
-| Niedrig
+| R-03
+| *Latenz- und Mapping-Overhead* — unnötig komplexe Mapper oder zu viele Zwischenschichten verlangsamen die UI
 | Mittel
-| Einsatz von leichtgewichtigen, nativen JS-Mapping-Funktionen innerhalb der Infrastruktur-Adapter.
+| Mittel
+| Leichtgewichtige Mapper einsetzen, Datenmodelle bewusst klein halten und nur die tatsächlich benötigten Felder laden
+| Vor allem bei reaktiven Listen und Dashboard-Ansichten relevant
+
+| R-04
+| *Lock-in durch Plattformkopplung* — Supabase-spezifische Details sickern in UI oder Domäne ein
+| Mittel
+| Mittel
+| Supabase vollständig über Repositories/Ports kapseln und keine direkten SDK-Aufrufe in Vue-Komponenten zulassen
+| Erleichtert spätere Austauschbarkeit der Infrastruktur
+
+| R-05
+| *Unklare fachliche Begriffe* — z. B. Habit, Streak, Completion, Template werden uneinheitlich verwendet
+| Mittel
+| Mittel
+| Begriffe im Glossar verbindlich pflegen und in Issues, Code und Dokumentation konsequent daran ausrichten
+| Vermeidet Missverständnisse zwischen Frontend, Domäne und Backend
 |===
 
 === Technische Schulden
 
-[cols="2,2,1", options="header"]
+[cols="1,2,2,2"]
 |===
-| Beschreibung | Begründung für Kompromiss | Backlog-Eintrag
+| ID | Beschreibung | Begründung | Geplante Behandlung
 
+| T-01
 | Manuelle Definition der TypeScript-Typen für DB-Entitäten
-| Automatische CLI-Generierung aus Supabase wird aus Zeitgründen erst in Sprint 3 eingerichtet.
-| TECH-01
+| Automatische Generierung wurde zugunsten eines schnelleren Sprint-Fortschritts zunächst zurückgestellt
+| In einem Folge-Sprint durch eine saubere Generierung oder ein gemeinsames Typmodell ersetzen
 
-| Verzicht auf komplexe Konfliktlösungs-Algorithmen bei Offline-Sync
-| MVP-Fokus: Datenkonsistenz wird für den Single-User-Betrieb zunächst einfach gehalten.
-| TECH-02
+| T-02
+| Vereinfachte Konfliktlösung beim Offline-Sync
+| MVP-Fokus: funktionierende Synchronisation ist wichtiger als perfekte Konsistenz
+| Nach dem MVP mit differenzierter Konfliktstrategie und Tests verbessern
+
+| T-03
+| Noch nicht vollständig standardisierte Mapper zwischen DB, DTO und Domain
+| Aktuell ist Geschwindigkeit wichtiger als vollständige Abstraktion
+| Mapper in einem späteren Refactor vereinheitlichen und zentralisieren
+
+| T-04
+| Teilweise noch technische Sprache in der Architektur-Doku
+| Einige Passagen beschreiben Lösungen sehr implementierungsnah statt konsequent entscheidungsorientiert
+| Sprachlich und inhaltlich auf „Warum“ statt „Wie“ nachschärfen
 |===
