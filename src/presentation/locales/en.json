@@ -1,0 +1,79 @@
+{
+    "home": {
+        "morningGreeting": "Good morning,",
+        "afternoonGreeting": "Good afternoon,",
+        "eveningGreeting": "Good evening,",
+        "nightGreeting": "Good night,",
+        "streak": "Days",
+        "habits": "Habits",
+        "vices": "Vices",
+        "todayPlan": "Today's Plan:",
+        "calendar": "Calendar",
+        "habitManagement": "Habit Management",
+        "createHabit": "Create a new Habit",
+        "editHabit": "Editing an existing Habit"
+    },
+    "weekdays": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+    },
+    "navigation": {
+        "analytics": "Analytics",
+        "home": "Home",
+        "social": "Social"
+    },
+    "calendar": {
+        "title": "Calendar",
+        "createItem": "Create an Item",
+        "day": "D",
+        "week": "W",
+        "month": "M",
+        "year": "J"
+    },
+    "settings": {
+        "title": "Settings",
+        "account": "Account",
+        "notifications": "Notifications"
+    },
+    "habitCreate": {
+        "title": "Create a new Habit",
+        "habitTab": "Habit",
+        "viceTab": "Vice",
+        "habitLabel": "Habit:",
+        "namePlaceholder": "name",
+        "iconLabel": "Icon:",
+        "chooseIcon": "choose an icon",
+        "colorLabel": "Color:",
+        "chooseColor": "choose an color",
+        "periodicityLabel": "Periodicity:",
+        "periodicityPlaceholder": "daily/weekly/monthly",
+        "executionLabel": "Execution per unit of time",
+        "executionPlaceholder": "e.g. [1] time a [day]",
+        "durationLabel": "Duration:",
+        "durationPlaceholder": "e.g. 60 min",
+        "reasonLabel": "Why do you want to start?:",
+        "reasonPlaceholder": "Reason",
+        "bindingLabel": "Binding to another habit:",
+        "bindingPlaceholder": "after/before I go to sleep",
+        "locationLabel": "Where?:",
+        "locationPlaceholder": "Location",
+        "difficultyLabel": "Level of difficulty?:",
+        "difficultyPlaceholder": "e.g. Hard",
+        "notesLabel": "Notes:",
+        "firstGoalLabel": "1st Goal:",
+        "repetitions": "repetitions",
+        "create": "Create"
+    },
+    "analytics": {
+        "currentStreak": "Current Streak",
+        "newRecord": "New Record",
+        "habits": "Habits",
+        "correlations": "Correlations",
+        "streakDays": "Days"
+    }
+}
