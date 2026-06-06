@@ -1,0 +1,175 @@
+/* Globales Box-Modell: Padding und Border werden in die Breite eingerechnet */
+* {
+    box-sizing: border-box;
+}
+
+/* Entfernt Standardabstände des Browsers und stellt die volle Höhe sicher */
+html,
+body,
+#app {
+    margin: 0;
+    min-height: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* Allgemeiner Screen-Container für mobile Ansichten */
+.app-screen {
+    max-width: 390px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 28px 24px 100px;
+    background: #ffffff;
+    font-family: Arial, sans-serif;
+    color: #1f1f1f;
+}
+
+/* Graue Kartenbereiche wie in den Wireframes */
+.app-card {
+    background: #e7e7e7;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 18px;
+}
+
+/* Weiße Innenbereiche innerhalb grauer Karten */
+.app-white-box {
+    background: #ffffff;
+    border-radius: 14px;
+}
+
+/* Einheitlicher Seitenkopf mit Zurück-Button und Seitentitel */
+.app-page-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+/* Titel für Unterseiten wie Settings, Calendar oder Habit Creation */
+.app-page-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Titel innerhalb einzelner Inhaltsbereiche */
+.app-section-title {
+    margin: 0 0 14px;
+    font-size: 20px;
+}
+
+/* Kleiner runder Zurück-Button auf Unterseiten */
+.app-back-button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: #f0f0f0;
+}
+
+/* Weiße Aktionsbuttons innerhalb grauer Karten */
+.app-action-button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #ffffff;
+    font-weight: bold;
+}
+
+/* Grüner Button Create */
+.app-create-button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: #5fd57d;
+    color: #ffffff;
+}
+
+/* Einheitliches Grid-Layout für Formulare */
+.app-form {
+    display: grid;
+    gap: 14px;
+}
+
+/* Label mit Abstand zwischen Beschriftung und Eingabefeld */
+.app-label {
+    display: grid;
+    gap: 6px;
+    font-size: 12px;
+    color: #555555;
+}
+
+/* Zwei Formularfelder nebeneinander */
+.app-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* Gemeinsames Styling für Eingabefelder, Selects und Textareas */
+.app-input,
+.app-select,
+.app-textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 20px;
+    border: 1px solid #cccccc;
+    background: #ffffff;
+    font-size: 12px;
+}
+
+.app-select {
+    padding-right: 40px;
+}
+
+/* Mehrzeiliges Eingabefeld für Notizen */
+.app-textarea {
+    min-height: 78px;
+    resize: none;
+}
+
+.app-small-button {
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 20px;
+    background: #ffffff;
+    font-size: 11px;
+}
+
+/* Umschalter, z. B. zwischen Habit und Vice */
+.app-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #e7e7e7;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    padding: 4px;
+}
+
+/* Einzelner Tab innerhalb des Umschalters */
+.app-tab {
+    border: none;
+    border-radius: 10px;
+    padding: 8px;
+    background: transparent;
+    color: #777777;
+}
+
+/* Aktiver Tab mit heller Hervorhebung */
+.app-tab.active {
+    background: #f5f5f5;
+    color: #555555;
+}
