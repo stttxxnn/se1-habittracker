@@ -96,10 +96,15 @@ LAYOUT_WITH_LEGEND()
 title Component Diagram – HabitTracker Client & Backend
 
 Container_Boundary(client_pwa, "Client-Seitige PWA (Browser)") {
-  Component(ui_comp, "Dashboard & Analytics UI", "Vue 3 Components", "Rendert die Gewohnheitsübersichten, Heatmaps und den Skilltree")
+  Component(app_vue, "App.vue", "Vue 3 / TypeScript", "Zentraler Einstiegspunkt der Frontend-Anwendung; steuert aktuell die angezeigte View über einen einfachen View-State")
+  Component(ui_comp, "Views / UI Screens", "Vue 3 Components", "Enthält HomeView, CalendarView, AnalyticsView, SettingsView und HabitCreateView als grobes Layout-Skeleton der Wireframes")
+  Component(bottom_nav, "BottomNav.vue", "Vue 3 Component", "Wiederverwendbare untere Navigation für die Hauptbereiche der App")
   Component(store_comp, "Habit Store", "Pinia Store", "Hält den reaktiven Zustand der Gewohnheiten und steuert UI-Updates")
   Component(domain_core, "Habit Domain Core", "Pure TypeScript", "Berechnet Erfolgsketten, validiert Einträge und verwaltet die Recovery-Logik")
   Component(adapter_comp, "Supabase Sync Adapter", "TypeScript / Ports", "Implementiert Repositories; steuert den IndexedDB-Offline-Cache")
+  Component(design_system, "design-system.css", "CSS", "Gemeinsame Styles für Screens, Cards, Buttons, Formulare und Tabs")
+  Component(labels_json, "en.json", "JSON", "Zentrale UI-Texte zur Vorbereitung späterer Mehrsprachigkeit")
+
 }
 
 Container_Boundary(backend_supabase, "Supabase Cloud Plattform") {
@@ -108,7 +113,12 @@ Container_Boundary(backend_supabase, "Supabase Cloud Plattform") {
   ContainerDb(db, "PostgreSQL Datenbank", "Postgres / RLS", "Persistiert Gewohnheiten, Ausführungen und Tagebucheinträge gesichert durch Row Level Security")
 }
 
+Rel(app_vue, ui_comp, "zeigt abhängig vom aktuellen View-State")
+Rel(ui_comp, bottom_nav, "verwendet")
+Rel(ui_comp, design_system, "verwendet gemeinsame Styles")
+Rel(ui_comp, labels_json, "liest UI-Texte")
 Rel(ui_comp, store_comp, "liest / triggert Aktionen")
+
 Rel(store_comp, domain_core, "nutzt Geschäftsregeln")
 Rel(store_comp, adapter_comp, "ruft Datenoperationen auf")
 Rel(adapter_comp, auth_svc, "verifiziert Session via", "HTTPS / JWT")
@@ -123,13 +133,21 @@ Rel(adapter_comp, edge_func, "triggert komplexe Analysen via", "HTTPS / REST")
 |===
 | Komponente | Verantwortung | Schnittstellen
 
-| Dashboard & Analytics UI
-| Rendert die Benutzeroberfläche mit Soft-UI/Glassmorphism-Effekten; visualisiert Fortschritte (Heatmaps, Graphen).
-| Pinia Store (eingehend)
+| App.vue
+| Zentraler Einstiegspunkt der Vue-Anwendung. Verwaltet aktuell den einfachen View-State und entscheidet, welche View angezeigt wird.
+| Vue Runtime (eingehend); Views (ausgehend)
+
+| Views / UI Screens
+| Bilden die Wireframes aus Sprint 1 als grobes Layout-Skeleton ab. Dazu gehören Home Screen, Calendar, Analytics, Settings und Habit Creation. Die HomeView zeigt zusätzlich eine Test-Habit aus dem Backend-Durchstich an.
+| App.vue (eingehend); BottomNav.vue, Habit Store (Pinia), en.json, design-system.css (ausgehend)
+
+| BottomNav.vue
+| Wiederverwendbare untere Navigation für die Hauptbereiche der App.
+| Views (eingehend); `changeView`-Event an App.vue (ausgehend)
 
 | Habit Store (Pinia)
 | Verwaltet den reaktiven Client-Zustand im RAM; stellt Methoden für UI-Komponenten bereit; stößt Hintergrund-Synchronisationen über Ports an.
-| Vue-UI (eingehend); Domain Core & Ports (ausgehend)
+| Views / UI Screens (eingehend); Domain Core & Ports (ausgehend)
 
 | Habit Domain Core
 | Enthält die framework-freie Business-Logik; berechnet mathematisch exakt die Erfolgsketten und steuert Invarianten des Skilltrees.
@@ -142,6 +160,15 @@ Rel(adapter_comp, edge_func, "triggert komplexe Analysen via", "HTTPS / REST")
 | PostgreSQL Datenbank
 | Persistente relationale Speicherung aller Entitäten; Durchsetzung von Zugriffsbeschränkungen über Row Level Security (RLS).
 | PostgREST-Schnittstelle von Supabase
+
+| design-system.css
+| Enthält gemeinsame Basis-Styles für Screens, Cards, Buttons, Formulare, Tabs und wiederverwendbare Layout-Elemente.
+| Views und Komponenten (eingehend); keine ausgehenden Schnittstellen
+
+| en.json
+| Zentrale Sammlung der UI-Texte. Dadurch werden Texte nicht direkt in den Vue-Komponenten hart codiert.
+| Views und Komponenten (eingehend); keine ausgehenden Schnittstellen
+
 |===
 
 ---
