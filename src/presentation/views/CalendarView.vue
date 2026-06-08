@@ -1,100 +1,55 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import labels from '@/presentation/locales/en.json'
+import CalendarGrid from '@/presentation/components/CalendarGrid.vue'
 import BottomNav from '@/presentation/components/BottomNav.vue'
 
-// Event zum Wechseln zwischen Views
+interface CalendarEvent {
+  id: string
+  title: string
+  date: string
+  color: string
+}
+
 defineEmits<{
   changeView: [view: string]
 }>()
 
-// Typ für einzelne Felder im Monatskalender
-type CalendarDay = {
-  id: string
-  dayNumber: number | null
-  isToday: boolean
-}
-
-// Aktuell angezeigter Monat
 const selectedDate = ref<Date>(new Date())
 
-// Wochentage aus der zentralen Label-Datei
-const calendarWeekdays = [
-  labels.weekdays.sun,
-  labels.weekdays.mon,
-  labels.weekdays.tue,
-  labels.weekdays.wed,
-  labels.weekdays.thu,
-  labels.weekdays.fri,
-  labels.weekdays.sat
-]
+const calendarEvents = ref<CalendarEvent[]>([
+  {
+    id: 'event-1',
+    title: 'Morning workout',
+    date: new Date().toISOString().slice(0, 10),
+    color: '#5fd57d'
+  },
+  {
+    id: 'event-2',
+    title: 'Read a chapter',
+    date: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().slice(0, 10),
+    color: '#2f80ed'
+  },
+  {
+    id: 'event-3',
+    title: 'Habit review',
+    date: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().slice(0, 10),
+    color: '#f2994a'
+  }
+])
 
-const currentYear = computed<number>(() => {
-  return selectedDate.value.getFullYear()
+const selectedDayEvents = computed(() => {
+  const selectedKey = selectedDate.value.toISOString().slice(0, 10)
+  return calendarEvents.value.filter((event) => event.date === selectedKey)
 })
 
-const currentMonth = computed<number>(() => {
-  return selectedDate.value.getMonth()
-})
-
-const currentMonthName = computed<string>(() => {
-  return selectedDate.value.toLocaleString('en-US', { month: 'long' })
-})
-
-// Berechnet leere Felder am Monatsanfang und alle Tage des Monats
-const calendarDays = computed<CalendarDay[]>(() => {
-  const year = currentYear.value
-  const month = currentMonth.value
-
-  const firstDayOfMonth = new Date(year, month, 1).getDay()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-
-  const today = new Date()
-
-  const emptyDays: CalendarDay[] = Array.from(
-    { length: firstDayOfMonth },
-    (_, index) => ({
-      id: `empty-${index}`,
-      dayNumber: null,
-      isToday: false
-    })
-  )
-
-  const days: CalendarDay[] = Array.from(
-    { length: daysInMonth },
-    (_, index) => {
-      const dayNumber = index + 1
-
-      const isToday =
-        dayNumber === today.getDate() &&
-        month === today.getMonth() &&
-        year === today.getFullYear()
-
-      return {
-        id: `day-${dayNumber}`,
-        dayNumber,
-        isToday
-      }
-    }
-  )
-
-  return [...emptyDays, ...days]
-})
-
-// Einen Monat zurück wechseln
-function goToPreviousMonth() {
-  selectedDate.value = new Date(currentYear.value, currentMonth.value - 1, 1)
-}
-
-// Einen Monat nach vorne wechseln
-function goToNextMonth() {
-  selectedDate.value = new Date(currentYear.value, currentMonth.value + 1, 1)
+function handleDayClick(date: Date) {
+  selectedDate.value = date
 }
 </script>
 
 <template>
   <main class="app-screen">
-    <!-- Seitenkopf mit Zurück-Button -->
     <header class="app-page-header">
       <button
         class="app-back-button"
@@ -107,60 +62,37 @@ function goToNextMonth() {
       <h1 class="app-page-title">{{ labels.calendar.title }}</h1>
     </header>
 
-    <!-- Obere Shortcut-Kacheln aus dem Wireframe -->
     <section class="calendar-shortcuts">
       <button class="calendar-create-item" type="button">
         <span class="plus">+</span>
         <span>{{ labels.calendar.createItem }}</span>
       </button>
-
       <div class="calendar-shortcut"></div>
       <div class="calendar-shortcut"></div>
       <div class="calendar-shortcut"></div>
     </section>
 
-    <!-- Monatskalender als grobes Layout-Skeleton -->
-    <section class="app-card calendar-card">
-      <div class="calendar-periods">
-        <button type="button">{{ labels.calendar.day }}</button>
-        <button type="button">{{ labels.calendar.week }}</button>
-        <button class="active" type="button">{{ labels.calendar.month }}</button>
-        <button type="button">{{ labels.calendar.year }}</button>
+    <CalendarGrid
+      v-model="selectedDate"
+      :events="calendarEvents"
+      @dayClick="handleDayClick"
+    />
+
+    <section class="app-card calendar-events-card">
+      <h2 class="app-section-title">Events on {{ selectedDate.toDateString() }}</h2>
+
+      <div v-if="selectedDayEvents.length === 0" class="calendar-empty">
+        {{ labels.calendar.noEvents }}
       </div>
 
-      <div class="calendar-month-box">
-        <div class="calendar-month-header">
-          <div class="calendar-arrows">
-            <button type="button" @click="goToPreviousMonth">‹</button>
-            <button type="button" @click="goToNextMonth">›</button>
-          </div>
-
-          <strong class="calendar-month-name">{{ currentMonthName }}</strong>
-          <strong class="calendar-year">{{ currentYear }}</strong>
-        </div>
-
-        <div class="calendar-weekdays">
-          <span
-            v-for="weekday in calendarWeekdays"
-            :key="weekday"
-          >
-            {{ weekday }}
-          </span>
-        </div>
-
-        <div class="calendar-days">
-          <span
-            v-for="day in calendarDays"
-            :key="day.id"
-            :class="{ active: day.isToday }"
-          >
-            {{ day.dayNumber }}
-          </span>
-        </div>
-      </div>
+      <ul v-else class="calendar-event-list">
+        <li v-for="event in selectedDayEvents" :key="event.id" class="calendar-event-item">
+          <span class="calendar-event-marker" :style="{ background: event.color }"></span>
+          <span>{{ event.title }}</span>
+        </li>
+      </ul>
     </section>
 
-    <!-- Untere Navigation -->
     <BottomNav @changeView="$emit('changeView', $event)" />
   </main>
 </template>

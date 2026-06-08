@@ -33,7 +33,8 @@
         "day": "D",
         "week": "W",
         "month": "M",
-        "year": "J"
+        "year": "Y",
+        "noEvents": "No events for this day"
     },
     "settings": {
         "title": "Settings",
