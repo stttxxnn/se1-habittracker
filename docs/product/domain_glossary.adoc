@@ -79,12 +79,12 @@ class Streak
 class Meilenstein
 class Benachrichtigung
 class Statistik
-class Freundschaft 
-class Skilltree 
-class Skillknoten 
+class Freundschaft
+class Skilltree
+class Skillknoten
 class Kategorie
 class Tagebucheintrag
-class Recovery-Mode
+class RecoveryMode
 
 Nutzer "1" -- "0..*" Gewohnheit : erstellt
 Gewohnheitsvorlage "1" -- "0..*" Gewohnheit : dient als Vorlage für
