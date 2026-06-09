@@ -20,7 +20,7 @@ type CalendarDay = {
 const props = defineProps<{
   modelValue: Date
   events: CalendarEvent[]
-}>
+}>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: Date): void
