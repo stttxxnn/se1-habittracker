@@ -277,7 +277,7 @@ entity "gewohnheit" as habit {
   * nutzer_id : UUID <<FK>>
   * name : VARCHAR(100)
   * beschreibung : TEXT
-  * haeufigkeit : VARCHAR(50)
+  * haeufigkeit : INTEGER
   * aktuelle_erfolgskette : INTEGER
   * erstellt_am : TIMESTAMP
 }
@@ -331,7 +331,7 @@ user ||--o{ recovery : "aktiviert"
 | id | UUID als Primärschlüssel.
 | nutzer_id | Fremdschlüssel auf den Besitzer; RLS-Policy greift hierüber: `auth.uid() == nutzer_id`.
 | name / beschreibung | Textbezeichner der Gewohnheit sowie optionale Ausführungsdetails.
-| haeufigkeit | Speicherwert für Intervalle (z. B. `DAILY`, `WEEKLY`).
+| haeufigkeit | Speicherwert für Intervalle in Tagen (z.B. 1 entspricht 'daily', 7 - 'weekly').
 | aktuelle_erfolgskette | Zwischengespeicherter Integer-Wert zur performanten Abfrage im UI ohne Live-Neuberechnung.
 
 .3+| ausfuehrung
