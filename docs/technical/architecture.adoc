@@ -261,7 +261,7 @@ Das Team muss sich diszipliniert an die Konventionen halten und darf keine reakt
 *Nachteile:* Geschäftslogik muss konsequent im Client-Core gehalten werden und darf nicht in SQL-Prozeduren abwandern, um die hexagonale Struktur nicht zu verletzen.
 |===
 
-=== ADR-004: Offline-First-Strategie via Vite PWA und IndexedDB
+=== ADR-005: Offline-First-Strategie via Vite PWA und IndexedDB
 
 [cols="1,3"]
 |===
