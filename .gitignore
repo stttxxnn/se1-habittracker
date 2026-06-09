@@ -15,3 +15,6 @@
 # Kontrolldatei
 repomix-output.xml
 
+
+node_modules/
+.vite/
