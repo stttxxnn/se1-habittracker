@@ -73,8 +73,9 @@ function handleDayClick(date: Date) {
     </section>
 
     <CalendarGrid
-      v-model="selectedDate"
+      :modelValue="selectedDate"
       :events="calendarEvents"
+      @update:modelValue="selectedDate = $event"
       @dayClick="handleDayClick"
     />
 
