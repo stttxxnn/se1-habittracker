@@ -105,7 +105,7 @@ Kategorie "0..1" -- "0..*" Kategorie : enthält Unterkategorien
 Skillknoten "0..*" -- "0..*" Skillknoten : setzt voraus
 
 Nutzer "1" -- "0..*" Tagebucheintrag : verfasst
-Nutzer "1" -- "0..*" Recovery-Mode : legt ein
+Nutzer "1" -- "0..*" RecoveryMode : legt ein
 Nutzer "1" -- "0..1" Statistik : analysiert Fortschritt mit
 
 @enduml
