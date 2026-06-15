@@ -21,7 +21,7 @@ Unsere Vision ist es, eine benutzerfreundliche HabitTracker-App zu entwickeln, d
 | Rolle | Person
 
 | Product Owner
-| Ben Frank Loritz, Etienne Mathis Tesch
+| Etienne Mathis Tesch
 
 | Scrum Master
 | Hannes Lutz Ullmann
@@ -30,7 +30,7 @@ Unsere Vision ist es, eine benutzerfreundliche HabitTracker-App zu entwickeln, d
 | /
 
 | Entwickler:innen
-| Stan Schwerdtfeger, Olha Kochui, Daniel Andreas Menzel, Rohullah Sediqi, Sofiia Khaleeva
+| Stan Schwerdtfeger, Olha Kochui, Daniel Andreas Menzel, Rohullah Sediqi, Sofiia Khaleeva, Ben Frank Loritz
 
 | Stakeholder (Hauptansprechpartner)
 | /
