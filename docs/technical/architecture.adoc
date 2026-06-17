@@ -245,7 +245,7 @@ Das Team muss sich diszipliniert an die Konventionen halten und darf keine reakt
 | Abgelehnt
 
 | *Datum*
-| [22.05.2026]
+| 22.05.2026
 
 | *Kontext*
 | Für die entwicklung unseres Habittracker bruachten wir ein Backend das ein API   Schnittstelle bereitstellt, um die Daten der Nutzer zu speichern und aufrufen zu können. Durch die entscheidung eine Hexagonale Architektur zu verwenden, stieg der Boilerplate aufwand enorm an. Da in unserem Team nur vereinzelt Erfahrung mit Spring Boot vorhanden ist, hat das Team beschlossen eine andere Alternative zu benutzen.
@@ -254,10 +254,10 @@ Das Team muss sich diszipliniert an die Konventionen halten und darf keine reakt
 | Wir verwenden Spring Boot als Backend Framework nicht, weil es zu viel Boilerplate Code erfordert, um die Hexagonale Architektur umzusetzen und der Zeitaufwand für die Einarbeitung in das Framework zu hoch ist. Stattdessen werden wir eine leichtgewichtigere Lösung in Betracht ziehen, die besser zu unserem Team und den Anforderungen des Projekts passt.
 
 | *Alternativen*
-| [Als Alternative wurde Supabase in Betracht gezogen.]
+| Als Alternative wurde eine Backend-as-a-Service Lösung wie Supabase in Kombination mit TypeScript in betracht gezogen.
 
 | *Konsequenzen*
-| [Die Entwicklungsgeschwindigkeit erhöht sich, weil mit Spring Boot viel Einarbeitungszeit verbunden ist und der Boilerplate Code viel zeit in Anpruch nehmen würde.]
+| Die Entwicklungsgeschwindigkeit erhöht sich, weil mit Spring Boot viel Einarbeitungszeit verbunden ist.
 |===
 
 === ADR-004: Supabase als serverlose Backend-Infrastruktur mit PostgreSQL
