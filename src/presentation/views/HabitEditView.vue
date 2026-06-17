@@ -38,7 +38,7 @@ async function handleUpdate() {
         ←
       </button>
 
-      <h1 class="app-page-title">{{ labels.habitCreate.title }}</h1>
+      <h1 class="app-page-title">{{ labels.habitEdit.title }}</h1>
     </header>
 
     <!-- Formular mit vorausgefülltem Namen -->
@@ -59,13 +59,21 @@ async function handleUpdate() {
           @click="handleUpdate"
           :disabled="habitStore.isLoading"
         >
-          {{ habitStore.isLoading ? 'Speichern...' : 'Änderungen speichern' }}
+          {{ habitStore.isLoading ? labels.habitEdit.saving : labels.habitEdit.save }}
         </button>
 
-        <p v-if="habitStore.error" style="color: #b00020; font-size: 13px; margin-top: 8px;">
+        <p v-if="habitStore.error" class="edit-error">
           {{ habitStore.error }}
         </p>
       </form>
     </section>
   </main>
 </template>
+
+<style scoped> 
+/* Fehlermeldung beim Bearbeiten eines Habits */ 
+.edit-error { 
+  color: #b00020; 
+  font-size: 13px; 
+  margin-top: 8px; } 
+</style>

@@ -69,6 +69,11 @@
         "repetitions": "repetitions",
         "create": "Create"
     },
+    "habitEdit": {
+        "title": "Edit Habit",
+        "save": "Save changes",
+        "saving": "Saving..."
+    },
     "analytics": {
         "currentStreak": "Current Streak",
         "newRecord": "New Record",
