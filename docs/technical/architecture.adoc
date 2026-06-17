@@ -237,7 +237,7 @@ React 18 mit nativem JavaScript. React wurde aus zwei Gründen verworfen: Zum ei
 Das Team muss sich diszipliniert an die Konventionen halten und darf keine reaktiven Vue-Reaktivitäten (`ref`) tief in den puren TypeScript-Domain-Core einschleppen, um die hexagonale Trennung sauber zu halten.
 |===
 
-=== ADR-003: [Spring Boot als Backend Framework]
+=== ADR-003: Spring Boot als Backend Framework
 
 [cols="1,3"]
 |===
@@ -248,7 +248,7 @@ Das Team muss sich diszipliniert an die Konventionen halten und darf keine reakt
 | 22.05.2026
 
 | *Kontext*
-| Für die entwicklung unseres Habittracker bruachten wir ein Backend das ein API   Schnittstelle bereitstellt, um die Daten der Nutzer zu speichern und aufrufen zu können. Durch die entscheidung eine Hexagonale Architektur zu verwenden, stieg der Boilerplate aufwand enorm an. Da in unserem Team nur vereinzelt Erfahrung mit Spring Boot vorhanden ist, hat das Team beschlossen eine andere Alternative zu benutzen.
+| Für die entwicklung unseres Habittracker bruachten wir ein Backend das ein API Schnittstelle bereitstellt, um die Daten der Nutzer zu speichern und aufrufen zu können. Durch die entscheidung eine Hexagonale Architektur zu verwenden, stieg der Boilerplate aufwand enorm an. Da in unserem Team nur vereinzelt Erfahrung mit Spring Boot vorhanden ist, hat das Team beschlossen eine andere Alternative zu benutzen.
 
 | *Entscheidung*
 | Wir verwenden Spring Boot als Backend Framework nicht, weil es zu viel Boilerplate Code erfordert, um die Hexagonale Architektur umzusetzen und der Zeitaufwand für die Einarbeitung in das Framework zu hoch ist. Stattdessen werden wir eine leichtgewichtigere Lösung in Betracht ziehen, die besser zu unserem Team und den Anforderungen des Projekts passt.
