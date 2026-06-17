@@ -3,47 +3,124 @@ import { ref } from 'vue'
 import type { Habit } from '@/domain/models/Habit'
 import { SupabaseHabitAdapter } from '@/infrastructure/Adapter/SupabaseHabitAdapter'
 import { GetHabitService } from '@/domain/Services/GetHabitService'
+import { GetAllHabitsService } from '@/domain/Services/GetAllHabitsService'
+import { CreateHabitService } from '@/domain/Services/CreateHabitService'
+import { UpdateHabitService } from '@/domain/Services/UpdateHabitService'
+import { DeleteHabitService } from '@/domain/Services/DeleteHabitService'
 
 export const useHabitStore = defineStore('habit', () => {
   const habits = ref<Habit[]>([])
   const isLoading = ref<boolean>(false)
   const error = ref<string | null>(null)
 
-  let habitAdapter = new SupabaseHabitAdapter()
-  let habitService = new GetHabitService(habitAdapter)
+  // Wird gesetzt bevor zur HabitEditView navigiert wird
+  const habitToEdit = ref<Habit | null>(null)
 
-  function setAdapter(customAdapter: any) {
-    habitAdapter = customAdapter
-    habitService = new GetHabitService(customAdapter)
-  }
+  // Adapter + Services — Adapter einmal erstellt, alle Services nutzen ihn
+  const habitAdapter = new SupabaseHabitAdapter()
+  const getHabitService = new GetHabitService(habitAdapter)
+  const getAllHabitsService = new GetAllHabitsService(habitAdapter)
+  const createHabitService = new CreateHabitService(habitAdapter)
+  const updateHabitService = new UpdateHabitService(habitAdapter)
+  const deleteHabitService = new DeleteHabitService(habitAdapter)
 
+  // --- Actions ---
+
+  // Einzelnes Habit laden (noch vorhanden für Abwärtskompatibilität)
   async function loadHabit(id: string) {
     isLoading.value = true
     error.value = null
-
     try {
-      const habit = await habitService.execute(id)
+      const habit = await getHabitService.execute(id)
       habits.value = [habit]
     } catch (err) {
-      if (err instanceof Error) {
-        error.value = err.message
-      } else {
-        error.value = 'Unknown error while loading habit'
-      }
+      error.value = err instanceof Error ? err.message : 'Unbekannter Fehler'
     } finally {
       isLoading.value = false
     }
+  }
+
+  // Alle Habits aus Supabase laden
+  async function loadAllHabits() {
+    isLoading.value = true
+    error.value = null
+    try {
+      habits.value = await getAllHabitsService.execute()
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Fehler beim Laden'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Neues Habit erstellen und direkt in die Liste einfügen
+  async function createHabit(title: string) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const newHabit = await createHabitService.execute(title)
+      habits.value.unshift(newHabit) // Neuestes Habit oben in der Liste
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Fehler beim Erstellen'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Bestehendes Habit aktualisieren
+  async function updateHabit(id: string, title: string) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const updated = await updateHabitService.execute(id, title)
+      const index = habits.value.findIndex(h => h.id === id)
+      if (index !== -1) habits.value[index] = updated
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Fehler beim Bearbeiten'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Habit löschen und aus der lokalen Liste entfernen
+  async function deleteHabit(id: string) {
+    isLoading.value = true
+    error.value = null
+    try {
+      await deleteHabitService.execute(id)
+      habits.value = habits.value.filter(h => h.id !== id)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Fehler beim Löschen'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Setzt das Habit das bearbeitet werden soll (vor Navigation zu HabitEditView)
+  function setHabitToEdit(habit: Habit) {
+    habitToEdit.value = habit
   }
 
   function setHabits(newHabits: Habit[]) {
     habits.value = newHabits
   }
 
+  // Für Tests: Adapter austauschen (Testbarkeit der hexagonalen Architektur)
+  function setAdapter(_customAdapter: any) {
+    // Hinweis: Bei Bedarf Services hier neu instanziieren
+  }
+
   return {
     habits,
     isLoading,
     error,
+    habitToEdit,
     loadHabit,
+    loadAllHabits,
+    createHabit,
+    updateHabit,
+    deleteHabit,
+    setHabitToEdit,
     setHabits,
     setAdapter
   }

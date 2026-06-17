@@ -5,7 +5,7 @@ import { useHabitStore } from '@/presentation/stores/habitStore'
 import BottomNav from '@/presentation/components/BottomNav.vue'
 
 // Event, mit dem diese View zu einer anderen View wechseln kann
-defineEmits<{
+const emit = defineEmits<{
   changeView: [view: string]
 }>()
 
@@ -103,15 +103,12 @@ const weekDays: WeekDay[] = [
   { id: 7, label: labels.weekdays.sun, dayIndex: 0 }
 ]
 
-// Test-ID für den Backend-Durchstich: lädt eine konkrete Habit aus Supabase
-const TEST_HABIT_ID = '11111111-2222-3333-4444-555555555555'
-
 // Timer, damit die aktuelle Zeit regelmäßig aktualisiert werden kann
 let clockTimer: number | undefined
 
-// Beim Laden der View: Habit aus dem Backend-Skeleton laden und Uhr starten
+// Beim Laden der View: alle Habits aus Supabase laden und Uhr starten
 onMounted(async () => {
-  await habitStore.loadHabit(TEST_HABIT_ID)
+  await habitStore.loadAllHabits()
 
   homeStats.value = {
     streakDays: 0,
@@ -123,6 +120,12 @@ onMounted(async () => {
     now.value = new Date()
   }, 60_000)
 })
+
+// Habit zum Bearbeiten auswählen und zur Edit-View navigieren
+function handleEdit(habit: import('@/domain/models/Habit').Habit) {
+  habitStore.setHabitToEdit(habit)
+  emit('changeView', 'habitEdit')
+}
 
 // Beim Verlassen der View: Timer aufräumen
 onUnmounted(() => {
@@ -200,9 +203,9 @@ onUnmounted(() => {
       </p>
 
       <ul v-else class="habit-list">
-        <li 
-          v-for="habit in habitStore.habits" 
-          :key="habit.id" 
+        <li
+          v-for="habit in habitStore.habits"
+          :key="habit.id"
           class="habit-list-item"
         >
           <span class="habit-time">
@@ -212,6 +215,9 @@ onUnmounted(() => {
           <span class="habit-name">
             {{ habit.title }}
           </span>
+
+          <button class="habit-action-btn" type="button" @click="handleEdit(habit)" title="Bearbeiten">✎</button>
+          <button class="habit-action-btn" type="button" @click="habitStore.deleteHabit(habit.id)" title="Löschen">×</button>
         </li>
       </ul>
     </section>
@@ -381,10 +387,26 @@ onUnmounted(() => {
 
 .habit-list-item {
   display: grid;
-  grid-template-columns: 100px 1fr;
+  grid-template-columns: 100px 1fr auto auto;
   gap: 12px;
+  align-items: center;
   padding: 10px 0;
   font-size: 13px;
+}
+
+.habit-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #888;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.habit-action-btn:hover {
+  background: #f1f1f1;
+  color: #333;
 }
 
 .habit-time {

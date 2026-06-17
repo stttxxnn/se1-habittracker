@@ -2,6 +2,7 @@
 import { nextTick, ref } from 'vue'
 import HomeView from '@/presentation/views/HomeView.vue'
 import HabitCreateView from '@/presentation/views/HabitCreateView.vue'
+import HabitEditView from '@/presentation/views/HabitEditView.vue'
 import SettingsView from '@/presentation/views/SettingsView.vue'
 import CalendarView from '@/presentation/views/CalendarView.vue'
 import AnalyticsView from '@/presentation/views/AnalyticsView.vue'
@@ -29,6 +30,11 @@ async function changeView(view: string) {
 
   <HabitCreateView
     v-else-if="currentView === 'habitCreate'"
+    @changeView="changeView"
+  />
+
+  <HabitEditView
+    v-else-if="currentView === 'habitEdit'"
     @changeView="changeView"
   />
 

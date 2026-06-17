@@ -1,16 +1,31 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import labels from '@/presentation/locales/en.json'
+import { useHabitStore } from '@/presentation/stores/habitStore'
 
 // Event zum Wechseln zurück zur HomeView
-defineEmits<{
+const emit = defineEmits<{
   changeView: [view: string]
 }>()
+
+const habitStore = useHabitStore()
+
+// Eingabefeld für den Habit-Namen
+const newTitle = ref('')
 
 // Temporäre Werte für den Slider im Wireframe
 const minGoal = 7
 const maxGoal = 31
 const goal = ref(14)
+
+// Habit speichern und zurück zur HomeView navigieren
+async function handleCreate() {
+  if (!newTitle.value.trim()) return
+  await habitStore.createHabit(newTitle.value)
+  if (!habitStore.error) {
+    emit('changeView', 'home')
+  }
+}
 </script>
 
 <template>
@@ -41,6 +56,7 @@ const goal = ref(14)
         <label class="app-label">
           {{ labels.habitCreate.habitLabel }}
           <input
+            v-model="newTitle"
             class="app-input"
             :placeholder="labels.habitCreate.namePlaceholder"
           />
@@ -134,9 +150,13 @@ const goal = ref(14)
           />
         </label>
 
-        <button class="app-create-button" type="button">
-          {{ labels.habitCreate.create }}
+        <button class="app-create-button" type="button" @click="handleCreate" :disabled="habitStore.isLoading">
+          {{ habitStore.isLoading ? 'Speichern...' : labels.habitCreate.create }}
         </button>
+
+        <p v-if="habitStore.error" style="color: #b00020; font-size: 13px; margin-top: 8px;">
+          {{ habitStore.error }}
+        </p>
       </form>
     </section>
   </main>
