@@ -2,6 +2,11 @@
 import labels from '@/presentation/locales/en.json'
 import BottomNav from '@/presentation/components/BottomNav.vue'
 
+// Aktuell aktive View, um den passenden Tab in der Navigation hervorzuheben
+defineProps<{
+  currentView: string
+}>()
+
 // Event zum Wechseln zwischen Views
 defineEmits<{
   changeView: [view: string]
@@ -77,7 +82,7 @@ const heatmapDays = 56
     </section>
 
     <!-- Untere Navigation -->
-    <BottomNav @changeView="$emit('changeView', $event)" />
+    <BottomNav :current-view="currentView" @changeView="$emit('changeView', $event)" />
   </main>
 </template>
 
