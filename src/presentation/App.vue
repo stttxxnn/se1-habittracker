@@ -26,6 +26,7 @@ async function changeView(view: string) {
 <template>
   <HomeView
     v-if="currentView === 'home'"
+    :current-view="currentView"
     @changeView="changeView"
   />
 
@@ -46,16 +47,19 @@ async function changeView(view: string) {
 
   <SettingsView
     v-else-if="currentView === 'settings'"
+    :current-view="currentView"
     @changeView="changeView"
   />
 
   <CalendarView
     v-else-if="currentView === 'calendar'"
+    :current-view="currentView"
     @changeView="changeView"
   />
 
   <AnalyticsView
     v-else-if="currentView === 'analytics'"
+    :current-view="currentView"
     @changeView="changeView"
   />
 </template>

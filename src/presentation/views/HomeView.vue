@@ -4,6 +4,11 @@ import labels from '@/presentation/locales/en.json'
 import { useHabitStore } from '@/presentation/stores/habitStore'
 import BottomNav from '@/presentation/components/BottomNav.vue'
 
+// Aktuell aktive View, um den passenden Tab in der Navigation hervorzuheben
+defineProps<{
+  currentView: string
+}>()
+
 // Event, mit dem diese View zu einer anderen View wechseln kann
 const emit = defineEmits<{
   changeView: [view: string]
@@ -31,6 +36,27 @@ type HomeStats = {
 
 // Store: enthält Habits, Loading-State und Error-State
 const habitStore = useHabitStore()
+
+// IDs der heute bereits abgehakten Habits (nur lokaler Zustand, kein Backend)
+const completedHabitIds = ref<Set<string>>(new Set())
+
+// Prüft, ob ein Habit für heute als erledigt markiert ist
+function isHabitDone(id: string): boolean {
+  return completedHabitIds.value.has(id)
+}
+
+// Habit als erledigt/nicht erledigt umschalten
+function toggleHabitDone(id: string) {
+  const updated = new Set(completedHabitIds.value)
+
+  if (updated.has(id)) {
+    updated.delete(id)
+  } else {
+    updated.add(id)
+  }
+
+  completedHabitIds.value = updated
+}
 
 // Temporäre Statistikwerte für den oberen Statistikblock
 const homeStats = ref<HomeStats>({
@@ -207,6 +233,7 @@ onUnmounted(() => {
           v-for="habit in habitStore.habits"
           :key="habit.id"
           class="habit-list-item"
+          :class="{ done: isHabitDone(habit.id) }"
         >
           <span class="habit-time">
             {{ habit.createdAt.toLocaleDateString('de-DE') }}
@@ -218,6 +245,14 @@ onUnmounted(() => {
 
           <button class="habit-action-btn" type="button" @click="handleEdit(habit)" title="Bearbeiten">✎</button>
           <button class="habit-action-btn" type="button" @click="habitStore.deleteHabit(habit.id)" title="Löschen">×</button>
+
+          <input
+            type="checkbox"
+            class="habit-checkbox"
+            :checked="isHabitDone(habit.id)"
+            :aria-label="habit.title"
+            @change="toggleHabitDone(habit.id)"
+          />
         </li>
       </ul>
     </section>
@@ -258,7 +293,7 @@ onUnmounted(() => {
     </section>
 
     <!-- Wiederverwendbare untere Navigation -->
-    <BottomNav @changeView="$emit('changeView', $event)" />
+    <BottomNav :current-view="currentView" @changeView="$emit('changeView', $event)" />
   </main>
 </template>
 
@@ -391,7 +426,7 @@ onUnmounted(() => {
 
 .habit-list-item {
   display: grid;
-  grid-template-columns: 100px 1fr auto auto;
+  grid-template-columns: 100px 1fr auto auto auto;
   gap: 12px;
   align-items: center;
   padding: 10px 0;
@@ -419,6 +454,21 @@ onUnmounted(() => {
 
 .habit-name {
   color: #1f1f1f;
+}
+
+/* Checkbox zum Abhaken eines Habits */
+.habit-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #7437d8;
+  cursor: pointer;
+}
+
+/* Visuelles Feedback für erledigte Habits */
+.habit-list-item.done .habit-time,
+.habit-list-item.done .habit-name {
+  color: #aaaaaa;
+  text-decoration: line-through;
 }
 
 .habit-status,
