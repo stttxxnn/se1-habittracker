@@ -82,7 +82,11 @@
         "habitsLabel": "Habits:",
         "empty": "No habits to delete.",
         "delete": "Delete",
-        "deleting": "Deleting..."
+        "deleting": "Deleting...",
+        "confirmTitle": "Delete habits?",
+        "confirmText": "habit(s) will be permanently deleted. This cannot be undone.",
+        "confirmYes": "Yes, delete",
+        "confirmNo": "Cancel"
     },
     "analytics": {
         "currentStreak": "Current Streak",

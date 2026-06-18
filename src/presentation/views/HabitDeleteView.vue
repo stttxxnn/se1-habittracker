@@ -13,6 +13,9 @@ const habitStore = useHabitStore()
 // IDs der zum Löschen ausgewählten Habits
 const selectedIds = ref<Set<string>>(new Set())
 
+// Steuert die Sicherheitsabfrage vor dem endgültigen Löschen
+const showConfirm = ref<boolean>(false)
+
 // Beim Laden der View alle Habits aus Supabase holen
 onMounted(async () => {
   await habitStore.loadAllHabits()
@@ -36,10 +39,19 @@ function isSelected(id: string): boolean {
   return selectedIds.value.has(id)
 }
 
-// Ausgewählte Habits löschen und zurück zur HomeView navigieren
-async function handleDelete() {
+// Öffnet die Sicherheitsabfrage (statt direkt zu löschen)
+function requestDelete() {
   if (selectedIds.value.size === 0) return
+  showConfirm.value = true
+}
 
+// Bricht die Sicherheitsabfrage ab, Auswahl bleibt erhalten
+function cancelDelete() {
+  showConfirm.value = false
+}
+
+// Endgültiges Löschen nach Bestätigung; danach zurück zur HomeView
+async function confirmDelete() {
   // Kopie der IDs, da deleteHabit die Habit-Liste verändert
   const idsToDelete = Array.from(selectedIds.value)
 
@@ -47,10 +59,14 @@ async function handleDelete() {
     await habitStore.deleteHabit(id)
 
     // Bei einem Fehler abbrechen, damit der Nutzer ihn sieht
-    if (habitStore.error) return
+    if (habitStore.error) {
+      showConfirm.value = false
+      return
+    }
   }
 
   selectedIds.value = new Set()
+  showConfirm.value = false
   emit('changeView', 'home')
 }
 </script>
@@ -117,10 +133,36 @@ async function handleDelete() {
       class="delete-button"
       type="button"
       :disabled="selectedIds.size === 0 || habitStore.isLoading"
-      @click="handleDelete"
+      @click="requestDelete"
     >
       {{ habitStore.isLoading ? labels.habitDelete.deleting : labels.habitDelete.delete }}
     </button>
+
+    <!-- Sicherheitsabfrage vor dem endgültigen Löschen -->
+    <div v-if="showConfirm" class="confirm-overlay" @click.self="cancelDelete">
+      <div class="confirm-dialog" role="dialog" aria-modal="true">
+        <h2 class="confirm-title">{{ labels.habitDelete.confirmTitle }}</h2>
+
+        <p class="confirm-text">
+          {{ selectedIds.size }} {{ labels.habitDelete.confirmText }}
+        </p>
+
+        <div class="confirm-actions">
+          <button class="confirm-cancel" type="button" @click="cancelDelete">
+            {{ labels.habitDelete.confirmNo }}
+          </button>
+
+          <button
+            class="confirm-delete"
+            type="button"
+            :disabled="habitStore.isLoading"
+            @click="confirmDelete"
+          >
+            {{ habitStore.isLoading ? labels.habitDelete.deleting : labels.habitDelete.confirmYes }}
+          </button>
+        </div>
+      </div>
+    </div>
   </main>
 </template>
 
@@ -180,6 +222,69 @@ async function handleDelete() {
 }
 
 .delete-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Overlay der Sicherheitsabfrage */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  z-index: 100;
+}
+
+.confirm-dialog {
+  width: 100%;
+  max-width: 320px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px 20px;
+  text-align: center;
+}
+
+.confirm-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.confirm-text {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: #555555;
+}
+
+.confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.confirm-cancel,
+.confirm-delete {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm-cancel {
+  background: #e7e7e7;
+  color: #1f1f1f;
+}
+
+.confirm-delete {
+  background: #d9534f;
+  color: #ffffff;
+}
+
+.confirm-delete:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
