@@ -251,6 +251,10 @@ onUnmounted(() => {
       <button class="app-action-button" type="button">
         ✎ {{ labels.home.editHabit }}
       </button>
+
+      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitDelete')">
+        🗑 {{ labels.home.deleteHabit }}
+      </button>
     </section>
 
     <!-- Wiederverwendbare untere Navigation -->

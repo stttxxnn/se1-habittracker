@@ -11,7 +11,8 @@
         "calendar": "Calendar",
         "habitManagement": "Habit Management",
         "createHabit": "Create a new Habit",
-        "editHabit": "Editing an existing Habit"
+        "editHabit": "Editing an existing Habit",
+        "deleteHabit": "Delete an existing Habit"
     },
     "weekdays": {
         "mon": "Mon",
@@ -73,6 +74,15 @@
         "title": "Edit Habit",
         "save": "Save changes",
         "saving": "Saving..."
+    },
+    "habitDelete": {
+        "title": "Delete a Habit",
+        "habitTab": "Habit",
+        "viceTab": "Vice",
+        "habitsLabel": "Habits:",
+        "empty": "No habits to delete.",
+        "delete": "Delete",
+        "deleting": "Deleting..."
     },
     "analytics": {
         "currentStreak": "Current Streak",
