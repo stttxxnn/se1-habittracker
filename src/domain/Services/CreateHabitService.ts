@@ -6,13 +6,21 @@ export class CreateHabitService {
 
   async execute(
     title: string,
-    options?: { scheduledTime?: string; duration?: number; color?: string }
+    options?: {
+      periodicity?: string
+      weekdays?: string[]
+      scheduledTime?: string
+      duration?: number
+      color?: string
+    }
   ): Promise<Habit> {
     if (!title || title.trim() === '') {
       throw new Error('Der Titel eines Habits darf nicht leer sein.')
     }
     return await this.habitRepository.save({
       title: title.trim(),
+      periodicity: options?.periodicity,
+      weekdays: options?.weekdays,
       scheduledTime: options?.scheduledTime,
       duration: options?.duration,
       color: options?.color

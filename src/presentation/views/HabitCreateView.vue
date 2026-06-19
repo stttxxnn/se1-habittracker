@@ -120,13 +120,15 @@ function applyTemplate(template: HabitTemplate) {
   templateDialog.value?.close()
 }
 
-// FIXED: alle Felder werden jetzt an den Store übergeben
 async function handleCreate() {
   if (!validateForm()) return
 
   await habitStore.createHabit(
     newTitle.value.trim(),
     {
+      periodicity: selectedPeriodicity.value || undefined,
+      // weekdays nur übergeben wenn weekly gewählt
+      weekdays: selectedPeriodicity.value === 'weekly' ? selectedWeekdays.value : undefined,
       scheduledTime: selectedTime.value || undefined,
       duration: typeof duration.value === 'number' ? duration.value : undefined,
       color: selectedColor.value || undefined

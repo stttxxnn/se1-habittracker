@@ -1,17 +1,20 @@
 import { HabitRepositoryPort } from '../../domain/Ports/Out/HabitRepositoryPort'
-import { Habit } from '../../domain/models/Habit'
+import type { Habit, Periodicity, Weekday } from '../../domain/models/Habit'
 import { supabase } from '../supabase/supabaseClient'
 
 type HabitRow = {
   id: string
   title: string
   created_at: string
+  periodicity?: string | null
+  weekdays?: string[] | null
   scheduled_time?: string | null
   duration_minutes?: number | null
   color?: string | null
 }
 
-const SELECT_COLS = 'id, title, created_at, scheduled_time, duration_minutes, color'
+const SELECT_COLS =
+  'id, title, created_at, periodicity, weekdays, scheduled_time, duration_minutes, color'
 
 export class SupabaseHabitAdapter implements HabitRepositoryPort {
 
@@ -20,6 +23,8 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       id: data.id,
       title: data.title,
       createdAt: new Date(data.created_at),
+      periodicity: (data.periodicity as Periodicity) ?? undefined,
+      weekdays: (data.weekdays as Weekday[]) ?? undefined,
       scheduledTime: data.scheduled_time ?? undefined,
       duration: data.duration_minutes ?? undefined,
       color: data.color ?? undefined
@@ -32,7 +37,6 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       .select(SELECT_COLS)
       .eq('id', id)
       .single()
-
     if (error || !data) throw new Error(`Habit mit ID ${id} nicht gefunden.`)
     return this.mapToHabit(data as HabitRow)
   }
@@ -42,13 +46,14 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       .from('habits')
       .select(SELECT_COLS)
       .order('scheduled_time', { ascending: true, nullsFirst: false })
-
     if (error) throw new Error(`Fehler beim Laden: ${error.message}`)
     return (data ?? []).map(d => this.mapToHabit(d as HabitRow))
   }
 
   async save(habitData: {
     title: string
+    periodicity?: string
+    weekdays?: string[]
     scheduledTime?: string
     duration?: number
     color?: string
@@ -57,13 +62,14 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       .from('habits')
       .insert({
         title: habitData.title,
+        periodicity: habitData.periodicity ?? null,
+        weekdays: habitData.weekdays ?? null,
         scheduled_time: habitData.scheduledTime ?? null,
         duration_minutes: habitData.duration ?? null,
         color: habitData.color ?? null
       })
       .select(SELECT_COLS)
       .single()
-
     if (error || !data) throw new Error(`Fehler beim Speichern: ${error?.message}`)
     return this.mapToHabit(data as HabitRow)
   }
@@ -75,7 +81,6 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       .eq('id', id)
       .select(SELECT_COLS)
       .single()
-
     if (error || !data) throw new Error(`Fehler beim Aktualisieren: ${error?.message}`)
     return this.mapToHabit(data as HabitRow)
   }
@@ -85,7 +90,6 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       .from('habits')
       .delete()
       .eq('id', id)
-
     if (error) throw new Error(`Fehler beim Löschen: ${error.message}`)
   }
 }

@@ -4,13 +4,8 @@ import labels from '@/presentation/locales/en.json'
 import { useHabitStore } from '@/presentation/stores/habitStore'
 import BottomNav from '@/presentation/components/BottomNav.vue'
 
-defineProps<{
-  currentView: string
-}>()
-
-const emit = defineEmits<{
-  changeView: [view: string]
-}>()
+defineProps<{ currentView: string }>()
+const emit = defineEmits<{ changeView: [view: string] }>()
 
 type WeekDay = { id: number; label: string; dayIndex: number }
 type User = { id: number; name: string }
@@ -57,13 +52,24 @@ function formatTimeRange(time: string, duration: number | string): string {
   return `${normalizeTime(time)} – ${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
 }
 
-// Timeline-Labels mit korrekten prozentualen Positionen (Stunden / 24)
 const timelineLabels = [
   { text: '00:00', percent: 0 },
-  { text: '08:00', percent: (8 / 24) * 100 },   // 33.33 %
-  { text: '16:00', percent: (16 / 24) * 100 },  // 66.67 %
+  { text: '08:00', percent: (8 / 24) * 100 },
+  { text: '16:00', percent: (16 / 24) * 100 },
   { text: '24:00', percent: 100 },
 ]
+
+// ─── Wochentag-Mapping (JS getDay() → Habit-Weekday-String) ──────────────────
+// JS: 0=Sonntag, 1=Mo, ..., 6=Sa
+const JS_DAY_TO_WEEKDAY: Record<number, string> = {
+  0: 'sunday',
+  1: 'monday',
+  2: 'tuesday',
+  3: 'wednesday',
+  4: 'thursday',
+  5: 'friday',
+  6: 'saturday'
+}
 
 // ─── Wochenleiste ─────────────────────────────────────────────────────────
 const now = ref<Date>(new Date())
@@ -74,19 +80,25 @@ function selectDay(dayIndex: number) {
   emit('changeView', 'calendar')
 }
 
-// ─── Habit-Filter ──────────────────────────────────────────────────────────
-const todayString = computed<string>(() => {
-  const d = now.value
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-})
+// ─── Habit-Filter: nur Habits für den heutigen Wochentag ────────────────────
+const todayWeekday = computed<string>(() => JS_DAY_TO_WEEKDAY[now.value.getDay()])
 
 const todayHabits = computed(() =>
   habitStore.habits.filter(habit => {
-    if (!habit.createdAt) return true
-    const habitDate = habit.createdAt instanceof Date
-      ? habit.createdAt.toISOString().slice(0, 10)
-      : String(habit.createdAt).slice(0, 10)
-    return habitDate === todayString.value
+    const p = habit.periodicity
+
+    // Kein periodicity-Feld (alte Habits ohne Migration): immer anzeigen
+    if (!p) return true
+
+    if (p === 'daily') return true
+
+    if (p === 'weekly') {
+      // Nur anzeigen wenn heute in den gespeicherten Wochentagen ist
+      return (habit.weekdays ?? []).includes(todayWeekday.value)
+    }
+
+    // monthly: immer anzeigen (genaues Datum-Matching wäre ein eigenes Feature)
+    return true
   })
 )
 
@@ -210,7 +222,6 @@ onUnmounted(() => {
       <h2 class="app-section-title">{{ labels.home.todayPlan }}</h2>
 
       <div class="timeline-box">
-        <!-- Labels mit exakten prozentualen Positionen: 0 %, 33.33 %, 66.67 %, 100 % -->
         <div class="timeline-labels">
           <span
             v-for="lbl in timelineLabels"
@@ -219,21 +230,15 @@ onUnmounted(() => {
             :style="{ left: lbl.percent + '%' }"
           >{{ lbl.text }}</span>
         </div>
-
         <div class="timeline-main">
           <div class="timeline-progress" :style="{ width: currentDayProgress + '%' }"></div>
         </div>
-
         <div class="timeline-events">
           <div
             v-for="block in timelineBlocks"
             :key="block.id"
             class="timeline-habit-block"
-            :style="{
-              left: block.left + '%',
-              width: block.width + '%',
-              backgroundColor: block.color
-            }"
+            :style="{ left: block.left + '%', width: block.width + '%', backgroundColor: block.color }"
             :title="block.label"
           ></div>
         </div>
@@ -304,76 +309,37 @@ onUnmounted(() => {
 .home-greeting { margin:0; font-size:22px; font-weight:700; }
 .home-user-name { margin:0; color:#1f1f1f; font-size:16px; }
 .home-settings-button { width:48px; height:48px; border:none; border-radius:50%; background:#f1f1f1; font-size:22px; cursor:pointer; }
-
 .home-stats { display:flex; justify-content:space-around; background:#e7e7e7; border-radius:12px; padding:14px; margin-bottom:20px; }
 .home-stats div { text-align:center; }
 .home-stats b { display:block; margin-top:6px; color:#555; }
-
 .date { margin:0; color:#777; font-size:12px; font-weight:bold; }
-
 .timeline-box { background:white; border-radius:14px; padding:12px 14px 16px; margin-bottom:18px; }
-
-/* Labels: absolut positioniert, zentriert über ihrem Zeitpunkt */
-.timeline-labels {
-  position: relative;
-  height: 18px;
-  margin-bottom: 4px;
-}
-.timeline-label {
-  position: absolute;
-  transform: translateX(-50%);  /* Label-Mitte liegt exakt auf dem Prozent-Punkt */
-  font-size: 11px;
-  font-weight: 700;
-  color: #666;
-  white-space: nowrap;
-}
-/* Erstes und letztes Label nicht ausschneiden */
-.timeline-label:first-child { transform: translateX(0); }
-.timeline-label:last-child  { transform: translateX(-100%); }
-
+.timeline-labels { position:relative; height:18px; margin-bottom:4px; }
+.timeline-label { position:absolute; transform:translateX(-50%); font-size:11px; font-weight:700; color:#666; white-space:nowrap; }
+.timeline-label:first-child { transform:translateX(0); }
+.timeline-label:last-child  { transform:translateX(-100%); }
 .timeline-main { height:5px; background:#e7ddff; position:relative; margin-bottom:8px; border-radius:3px; }
 .timeline-progress { position:absolute; left:0; top:0; height:5px; background:#7437d8; border-radius:3px; }
-
 .timeline-events { position:relative; height:10px; background:#ebebeb; border-radius:5px; overflow:hidden; }
 .timeline-habit-block { position:absolute; top:0; height:100%; border-radius:3px; opacity:0.85; min-width:4px; }
-
 .habit-list { list-style:none; margin:0; padding:0; }
-.habit-list-item {
-  display:grid;
-  grid-template-columns: 10px 1fr auto auto auto auto;
-  gap:8px; align-items:center; padding:10px 0;
-  border-bottom:1px solid #f0f0f0;
-}
+.habit-list-item { display:grid; grid-template-columns:10px 1fr auto auto auto auto; gap:8px; align-items:center; padding:10px 0; border-bottom:1px solid #f0f0f0; }
 .habit-list-item:last-child { border-bottom:none; }
-
 .habit-color-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 .habit-time { font-weight:700; font-size:13px; white-space:nowrap; color:#5a3ec8; letter-spacing:0.02em; }
 .habit-name { color:#1f1f1f; font-size:14px; }
-
 .habit-action-btn { background:none; border:none; cursor:pointer; font-size:16px; color:#888; padding:2px 4px; border-radius:4px; }
 .habit-action-btn:hover { background:#f1f1f1; color:#333; }
-
 .habit-checkbox { width:20px; height:20px; accent-color:#7437d8; cursor:pointer; }
-
-.habit-list-item .habit-time,
-.habit-list-item .habit-name { transition:color 0.3s ease; }
-.habit-list-item.done .habit-time,
-.habit-list-item.done .habit-name { color:#aaaaaa; text-decoration:line-through; }
-
+.habit-list-item .habit-time, .habit-list-item .habit-name { transition:color 0.3s ease; }
+.habit-list-item.done .habit-time, .habit-list-item.done .habit-name { color:#aaaaaa; text-decoration:line-through; }
 .habit-fade-leave-active { transition:opacity 0.4s ease, transform 0.4s ease; }
 .habit-fade-leave-to { opacity:0; transform:translateX(24px); }
 .habit-fade-move { transition:transform 0.4s ease; }
-
 .habit-status, .habit-error { margin:0; font-size:13px; }
 .habit-error { color:#b00020; }
-
 .week { display:flex; justify-content:space-between; }
-.week-day {
-  width:38px; height:38px; border:none; border-radius:50%;
-  background:white; display:grid; place-items:center;
-  font-size:13px; color:#1f1f1f; cursor:pointer;
-  transition:background 0.2s ease, color 0.2s ease;
-}
+.week-day { width:38px; height:38px; border:none; border-radius:50%; background:white; display:grid; place-items:center; font-size:13px; color:#1f1f1f; cursor:pointer; transition:background 0.2s ease, color 0.2s ease; }
 .week-day:hover { background:#ede8ff; color:#7437d8; }
 .week-day.active { background:#7b4dff; color:white; }
 .week-day.today:not(.active) { outline:2px solid #7437d8; outline-offset:-2px; }

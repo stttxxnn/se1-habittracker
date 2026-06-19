@@ -46,10 +46,15 @@ export const useHabitStore = defineStore('habit', () => {
     }
   }
 
-  // Neues Habit erstellen — jetzt mit allen Formularfeldern
   async function createHabit(
     title: string,
-    options?: { scheduledTime?: string; duration?: number; color?: string }
+    options?: {
+      periodicity?: string
+      weekdays?: string[]
+      scheduledTime?: string
+      duration?: number
+      color?: string
+    }
   ) {
     isLoading.value = true
     error.value = null
@@ -90,28 +95,13 @@ export const useHabitStore = defineStore('habit', () => {
     }
   }
 
-  function setHabitToEdit(habit: Habit) {
-    habitToEdit.value = habit
-  }
-
-  function setHabits(newHabits: Habit[]) {
-    habits.value = newHabits
-  }
-
+  function setHabitToEdit(habit: Habit) { habitToEdit.value = habit }
+  function setHabits(newHabits: Habit[]) { habits.value = newHabits }
   function setAdapter(_customAdapter: any) {}
 
   return {
-    habits,
-    isLoading,
-    error,
-    habitToEdit,
-    loadHabit,
-    loadAllHabits,
-    createHabit,
-    updateHabit,
-    deleteHabit,
-    setHabitToEdit,
-    setHabits,
-    setAdapter
+    habits, isLoading, error, habitToEdit,
+    loadHabit, loadAllHabits, createHabit,
+    updateHabit, deleteHabit, setHabitToEdit, setHabits, setAdapter
   }
 })
