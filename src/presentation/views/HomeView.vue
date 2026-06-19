@@ -24,47 +24,30 @@ const REMOVAL_DELAY_MS = 2500
 
 // ─── Timeline-Hilfsfunktionen ──────────────────────────────────────────────
 
-// Kürzt 'HH:MM:SS' auf 'HH:MM' (Supabase liefert TIME als HH:MM:SS)
-function normalizeTime(time: string): string {
-  return time.slice(0, 5)
-}
+function normalizeTime(time: string): string { return time.slice(0, 5) }
 
-// 'HH:MM' oder 'HH:MM:SS' → Minuten seit Mitternacht
 function timeToMinutes(time: string): number {
   const [h, m] = normalizeTime(time).split(':').map(Number)
   return h * 60 + m
 }
 
-// Minuten → prozentualer Offset auf 24h-Timeline (0–100 %)
 function minutesToPercent(minutes: number): number {
   return (minutes / 1440) * 100
 }
 
-/**
- * Wandelt duration sicher in Minuten (number) um.
- * Supabase kann liefern:
- *   - number  → 15
- *   - string  → '15'
- *   - interval string → '00:15:00'
- */
 function parseDuration(raw: number | string | undefined | null): number {
   if (raw === undefined || raw === null) return 0
   if (typeof raw === 'number') return raw
-  // Interval-Format 'HH:MM:SS' oder 'HH:MM'
   if (typeof raw === 'string' && raw.includes(':')) {
     const parts = raw.split(':').map(Number)
-    // parts[0]=h, parts[1]=m → Minuten
     return parts[0] * 60 + (parts[1] ?? 0)
   }
-  // Reiner Zahlen-String '15'
   const n = Number(raw)
   return isNaN(n) ? 0 : n
 }
 
-// Mindestbreite damit kurze Habits auf der Timeline sichtbar bleiben
 const MIN_BLOCK_WIDTH_PERCENT = 2
 
-// 'HH:MM – HH:MM' für die Habitliste
 function formatTimeRange(time: string, duration: number | string): string {
   const dur = parseDuration(duration)
   const startMin = timeToMinutes(time)
@@ -73,6 +56,14 @@ function formatTimeRange(time: string, duration: number | string): string {
   const endM = endMin % 60
   return `${normalizeTime(time)} – ${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
 }
+
+// Timeline-Labels mit korrekten prozentualen Positionen (Stunden / 24)
+const timelineLabels = [
+  { text: '00:00', percent: 0 },
+  { text: '08:00', percent: (8 / 24) * 100 },   // 33.33 %
+  { text: '16:00', percent: (16 / 24) * 100 },  // 66.67 %
+  { text: '24:00', percent: 100 },
+]
 
 // ─── Wochenleiste ─────────────────────────────────────────────────────────
 const now = ref<Date>(new Date())
@@ -116,7 +107,6 @@ const timelineBlocks = computed(() =>
         id: h.id,
         label: h.title,
         color: h.color ?? '#7437d8',
-        // Block darf nicht über den rechten Rand hinausgehen
         left: Math.min(leftPct, 100 - MIN_BLOCK_WIDTH_PERCENT),
         width: widthPct
       }
@@ -158,13 +148,13 @@ const currentGreeting = computed<string>(() => {
 const currentDate = computed<string>(() => now.value.toLocaleDateString('de-DE'))
 
 const currentDayProgress = computed<number>(() => {
-  const { getHours: gh, getMinutes: gm, getSeconds: gs } = now.value
-  const passed = gh.call(now.value) * 60 + gm.call(now.value) + gs.call(now.value) / 60
-  return (passed / 1440) * 100
+  const h = now.value.getHours()
+  const m = now.value.getMinutes()
+  const s = now.value.getSeconds()
+  return ((h * 60 + m + s / 60) / 1440) * 100
 })
 
 const todayIndex = computed<number>(() => now.value.getDay())
-const timelineLabels = ['00:00', '08:00', '16:00', '00:00']
 
 const weekDays: WeekDay[] = [
   { id: 1, label: labels.weekdays.mon, dayIndex: 1 },
@@ -220,12 +210,20 @@ onUnmounted(() => {
       <h2 class="app-section-title">{{ labels.home.todayPlan }}</h2>
 
       <div class="timeline-box">
+        <!-- Labels mit exakten prozentualen Positionen: 0 %, 33.33 %, 66.67 %, 100 % -->
         <div class="timeline-labels">
-          <span v-for="(t, i) in timelineLabels" :key="i">{{ t }}</span>
+          <span
+            v-for="lbl in timelineLabels"
+            :key="lbl.text"
+            class="timeline-label"
+            :style="{ left: lbl.percent + '%' }"
+          >{{ lbl.text }}</span>
         </div>
+
         <div class="timeline-main">
           <div class="timeline-progress" :style="{ width: currentDayProgress + '%' }"></div>
         </div>
+
         <div class="timeline-events">
           <div
             v-for="block in timelineBlocks"
@@ -315,15 +313,23 @@ onUnmounted(() => {
 
 .timeline-box { background:white; border-radius:14px; padding:12px 14px 16px; margin-bottom:18px; }
 
+/* Labels: absolut positioniert, zentriert über ihrem Zeitpunkt */
 .timeline-labels {
-  display:grid;
-  grid-template-columns: repeat(4,1fr);
-  font-size:12px; font-weight:700; margin-bottom:6px;
+  position: relative;
+  height: 18px;
+  margin-bottom: 4px;
 }
-.timeline-labels span:nth-child(1) { text-align:left; }
-.timeline-labels span:nth-child(2),
-.timeline-labels span:nth-child(3) { text-align:center; }
-.timeline-labels span:nth-child(4) { text-align:right; }
+.timeline-label {
+  position: absolute;
+  transform: translateX(-50%);  /* Label-Mitte liegt exakt auf dem Prozent-Punkt */
+  font-size: 11px;
+  font-weight: 700;
+  color: #666;
+  white-space: nowrap;
+}
+/* Erstes und letztes Label nicht ausschneiden */
+.timeline-label:first-child { transform: translateX(0); }
+.timeline-label:last-child  { transform: translateX(-100%); }
 
 .timeline-main { height:5px; background:#e7ddff; position:relative; margin-bottom:8px; border-radius:3px; }
 .timeline-progress { position:absolute; left:0; top:0; height:5px; background:#7437d8; border-radius:3px; }
