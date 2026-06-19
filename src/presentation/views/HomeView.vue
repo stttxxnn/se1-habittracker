@@ -97,7 +97,7 @@ const homeStats = ref<HomeStats>({
 // Temporärer Benutzer, später durch echte User-Daten ersetzbar
 const user = ref<User>({
   id: 1,
-  name: 'Maria Lee'
+  name: 'Laura M.'
 })
 
 // Aktuelle Zeit, damit Begrüßung, Datum und Tagesfortschritt dynamisch sind
@@ -292,21 +292,19 @@ onUnmounted(() => {
       </TransitionGroup>
     </section>
 
-    <!-- Kleiner Kalenderblock; Klick öffnet die CalendarView -->
+    <!-- Kleiner Wochenüberblick ohne Navigation zur CalendarView -->
     <section class="app-card">
       <h2 class="app-section-title">{{ labels.home.calendar }}</h2>
 
       <div class="week">
-        <button
+        <span
           v-for="day in weekDays"
           :key="day.id"
-          type="button"
           class="week-day"
           :class="{ active: day.dayIndex === todayIndex }"
-          @click="$emit('changeView', 'calendar')"
         >
           {{ day.label }}
-        </button>
+        </span>
       </div>
     </section>
 
