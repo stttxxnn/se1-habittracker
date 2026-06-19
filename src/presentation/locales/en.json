@@ -132,6 +132,9 @@
     },
     "habitEdit": {
         "title": "Edit Habit",
+        "selectTitle": "Edit a Habit",
+        "empty": "No habits to edit.",
+        "edit": "Edit",
         "save": "Save changes",
         "saving": "Saving..."
     },
