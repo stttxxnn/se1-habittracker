@@ -38,21 +38,28 @@ const REMOVAL_DELAY_MS = 2500
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
-// 'HH:MM' → Minuten seit Mitternacht
 function timeToMinutes(time: string): number {
   const [h, m] = time.split(':').map(Number)
   return h * 60 + m
 }
 
-// Minuten seit Mitternacht → Prozentualer Offset auf der Timeline (0–100 %)
-// Timeline: 00:00–00:00 (24 h = 1440 min)
 function minutesToPercent(minutes: number): number {
   return (minutes / 1440) * 100
 }
 
-// ─── Filter: nur Habits mit scheduledTime = heute anzeigen ────────────────────
-// Fallback: Habits ohne scheduledTime werden ebenfalls gezeigt,
-// damit die App auch ohne abgeschlossene DB-Migration lauffähig bleibt.
+// ─── Ausgewählter Tag in der Wochenleiste ─────────────────────────────────────
+const now = ref<Date>(new Date())
+const selectedDayIndex = ref<number>(now.value.getDay())
+
+function selectDay(dayIndex: number) {
+  selectedDayIndex.value = dayIndex
+  // Klick auf Wochentag → Kalender öffnen
+  emit('changeView', 'calendar')
+}
+
+// ─── Filter: nur Habits anzeigen ──────────────────────────────────────────────
+// Habits ohne scheduledDate werden IMMER angezeigt (Abwärtskompatibilität).
+// Habits mit scheduledDate werden nur am passenden Tag angezeigt.
 const todayString = computed<string>(() => {
   const d = now.value
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -60,9 +67,10 @@ const todayString = computed<string>(() => {
 
 const todayHabits = computed(() => {
   return habitStore.habits.filter(habit => {
-    // Habit hat kein Datum → immer anzeigen (Abwärtskompatibilität)
     if (!habit.createdAt) return true
-    const habitDate = habit.createdAt.toISOString().slice(0, 10)
+    const habitDate = habit.createdAt instanceof Date
+      ? habit.createdAt.toISOString().slice(0, 10)
+      : String(habit.createdAt).slice(0, 10)
     return habitDate === todayString.value
   })
 })
@@ -71,7 +79,7 @@ const visibleHabits = computed(() => {
   return todayHabits.value.filter(habit => !hiddenHabitIds.value.has(habit.id))
 })
 
-// ─── Timeline-Blöcke: nur Habits mit Uhrzeit und Dauer ───────────────────────
+// ─── Timeline-Blöcke: farbig nach habit.color ────────────────────────────────
 const timelineBlocks = computed(() => {
   return visibleHabits.value
     .filter(h => h.scheduledTime && h.duration)
@@ -90,7 +98,6 @@ const timelineBlocks = computed(() => {
 
 // ─── Formatierungsfunktionen ──────────────────────────────────────────────────
 
-// Gibt 'HH:MM – HH:MM' zurück, z. B. '18:00 – 18:30'
 function formatTimeRange(time: string, duration: number): string {
   const startMin = timeToMinutes(time)
   const endMin = startMin + duration
@@ -135,8 +142,6 @@ const user = ref<User>({
   id: 1,
   name: 'Laura M.'
 })
-
-const now = ref<Date>(new Date())
 
 const currentGreeting = computed<string>(() => {
   const hour = now.value.getHours()
@@ -226,17 +231,14 @@ onUnmounted(() => {
       <h2 class="app-section-title">{{ labels.home.todayPlan }}</h2>
 
       <div class="timeline-box">
-        <!-- Zeitbeschriftungen -->
         <div class="timeline-labels">
           <span v-for="(time, index) in timelineLabels" :key="index">{{ time }}</span>
         </div>
 
-        <!-- Oberer Zeitstrahl: zeigt den Tagesfortschritt -->
         <div class="timeline-main">
           <div class="timeline-progress" :style="{ width: currentDayProgress + '%' }"></div>
         </div>
 
-        <!-- Unterer Zeitstrahl: farbige Habit-Blöcke laut Wireframe -->
         <div class="timeline-events">
           <div
             v-for="block in timelineBlocks"
@@ -262,13 +264,11 @@ onUnmounted(() => {
           class="habit-list-item"
           :class="{ done: isHabitDone(habit.id) }"
         >
-          <!-- Farbiger Dot aus der Habit-Farbe -->
           <span
             class="habit-color-dot"
             :style="{ backgroundColor: habit.color ?? '#7437d8' }"
           ></span>
 
-          <!-- Uhrzeit statt Datum: zeigt 'HH:MM – HH:MM' wenn beides vorhanden, sonst '–' -->
           <span class="habit-time">
             {{ (habit.scheduledTime && habit.duration)
               ? formatTimeRange(habit.scheduledTime, habit.duration)
@@ -291,17 +291,21 @@ onUnmounted(() => {
       </TransitionGroup>
     </section>
 
+    <!-- Wochenkalender: Klick auf Tag öffnet CalendarView -->
     <section class="app-card">
       <h2 class="app-section-title">{{ labels.home.calendar }}</h2>
       <div class="week">
-        <span
+        <button
           v-for="day in weekDays"
           :key="day.id"
           class="week-day"
-          :class="{ active: day.dayIndex === todayIndex }"
+          :class="{ active: day.dayIndex === selectedDayIndex, today: day.dayIndex === todayIndex }"
+          type="button"
+          :aria-label="day.label"
+          @click="selectDay(day.dayIndex)"
         >
           {{ day.label }}
-        </span>
+        </button>
       </div>
     </section>
 
@@ -383,7 +387,6 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
-/* ─── Timeline ─────────────────────────────────────────────── */
 .timeline-box {
   background: white;
   border-radius: 14px;
@@ -404,7 +407,6 @@ onUnmounted(() => {
 .timeline-labels span:nth-child(3) { text-align: center; }
 .timeline-labels span:nth-child(4) { text-align: right; }
 
-/* Oberer Strahl – Tagesfortschritt */
 .timeline-main {
   height: 5px;
   background: #e7ddff;
@@ -422,7 +424,6 @@ onUnmounted(() => {
   border-radius: 3px;
 }
 
-/* Unterer Strahl – farbige Habit-Blöcke */
 .timeline-events {
   position: relative;
   height: 10px;
@@ -440,7 +441,6 @@ onUnmounted(() => {
   min-width: 4px;
 }
 
-/* ─── Habit-Liste ──────────────────────────────────────────── */
 .habit-list {
   list-style: none;
   margin: 0;
@@ -456,7 +456,6 @@ onUnmounted(() => {
   font-size: 13px;
 }
 
-/* Farbiger Punkt links neben der Uhrzeit */
 .habit-color-dot {
   width: 10px;
   height: 10px;
@@ -533,6 +532,7 @@ onUnmounted(() => {
   justify-content: space-between;
 }
 
+/* week-day ist jetzt ein <button> → Cursor + Reset */
 .week-day {
   width: 38px;
   height: 38px;
@@ -543,10 +543,24 @@ onUnmounted(() => {
   place-items: center;
   font-size: 13px;
   color: #1f1f1f;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
+.week-day:hover {
+  background: #ede8ff;
+  color: #7437d8;
+}
+
+/* Heute-Marker: lila Hintergrund */
 .week-day.active {
   background: #7b4dff;
   color: white;
+}
+
+/* Ausgewählter Tag (nach Klick) wenn nicht heute: dunklerer Rand */
+.week-day.today:not(.active) {
+  outline: 2px solid #7437d8;
+  outline-offset: -2px;
 }
 </style>
