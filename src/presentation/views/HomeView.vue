@@ -40,6 +40,20 @@ const habitStore = useHabitStore()
 // IDs der heute bereits abgehakten Habits (nur lokaler Zustand, kein Backend)
 const completedHabitIds = ref<Set<string>>(new Set())
 
+// IDs der Habits, die nach dem Abhaken aus dem Tagesplan ausgeblendet wurden
+const hiddenHabitIds = ref<Set<string>>(new Set())
+
+// Laufende Ausblende-Timer pro Habit, damit sie abgebrochen werden können
+const removalTimers = new Map<string, number>()
+
+// Wartezeit, bevor ein abgehakter Habit aus der Liste verschwindet
+const REMOVAL_DELAY_MS = 2500
+
+// Nur Habits anzeigen, die noch nicht ausgeblendet wurden
+const visibleHabits = computed(() => {
+  return habitStore.habits.filter(habit => !hiddenHabitIds.value.has(habit.id))
+})
+
 // Prüft, ob ein Habit für heute als erledigt markiert ist
 function isHabitDone(id: string): boolean {
   return completedHabitIds.value.has(id)
@@ -50,9 +64,24 @@ function toggleHabitDone(id: string) {
   const updated = new Set(completedHabitIds.value)
 
   if (updated.has(id)) {
+    // Wieder abgewählt: Ausblenden abbrechen, falls noch nicht passiert
     updated.delete(id)
+
+    const timer = removalTimers.get(id)
+    if (timer !== undefined) {
+      clearTimeout(timer)
+      removalTimers.delete(id)
+    }
   } else {
+    // Abgehakt: kurz durchgestrichen anzeigen, dann sanft ausblenden
     updated.add(id)
+
+    const timer = window.setTimeout(() => {
+      hiddenHabitIds.value = new Set(hiddenHabitIds.value).add(id)
+      removalTimers.delete(id)
+    }, REMOVAL_DELAY_MS)
+
+    removalTimers.set(id, timer)
   }
 
   completedHabitIds.value = updated
@@ -158,6 +187,12 @@ onUnmounted(() => {
   if (clockTimer !== undefined) {
     clearInterval(clockTimer)
   }
+
+  // Offene Ausblende-Timer stoppen
+  for (const timer of removalTimers.values()) {
+    clearTimeout(timer)
+  }
+  removalTimers.clear()
 })
 </script>
 
@@ -228,9 +263,9 @@ onUnmounted(() => {
         {{ habitStore.error }}
       </p>
 
-      <ul v-else class="habit-list">
+      <TransitionGroup v-else tag="ul" name="habit-fade" class="habit-list">
         <li
-          v-for="habit in habitStore.habits"
+          v-for="habit in visibleHabits"
           :key="habit.id"
           class="habit-list-item"
           :class="{ done: isHabitDone(habit.id) }"
@@ -254,7 +289,7 @@ onUnmounted(() => {
             @change="toggleHabitDone(habit.id)"
           />
         </li>
-      </ul>
+      </TransitionGroup>
     </section>
 
     <!-- Kleiner Kalenderblock; Klick öffnet die CalendarView -->
@@ -285,6 +320,10 @@ onUnmounted(() => {
 
       <button class="app-action-button" type="button">
         ✎ {{ labels.home.editHabit }}
+      </button>
+
+      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitDelete')">
+        🗑 {{ labels.home.deleteHabit }}
       </button>
     </section>
 
@@ -460,11 +499,31 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-/* Visuelles Feedback für erledigte Habits */
+/* Visuelles Feedback für erledigte Habits (weicher Übergang zu grau/durchgestrichen) */
+.habit-list-item .habit-time,
+.habit-list-item .habit-name {
+  transition: color 0.3s ease;
+}
+
 .habit-list-item.done .habit-time,
 .habit-list-item.done .habit-name {
   color: #aaaaaa;
   text-decoration: line-through;
+}
+
+/* Sanftes Ausblenden, wenn ein abgehakter Habit aus dem Tagesplan verschwindet */
+.habit-fade-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.habit-fade-leave-to {
+  opacity: 0;
+  transform: translateX(24px);
+}
+
+/* Nachrückende Habits gleiten weich an ihre neue Position */
+.habit-fade-move {
+  transition: transform 0.4s ease;
 }
 
 .habit-status,
