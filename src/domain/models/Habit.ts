@@ -1,16 +1,9 @@
 export interface Habit {
   id: string;
-  //userId: string;
   title: string;
-  //streakCount: number;
   createdAt: Date;
+  // Optionale Felder – werden nach DB-Migration befüllt
+  scheduledTime?: string;      // Format: 'HH:MM' (z. B. '18:00')
+  duration?: number;           // Dauer in Minuten
+  color?: string;              // Hex-Farbe (z. B. '#3cb44b')
 }
-
-/*
-export function incrementStreak(habit: Habit): Habit {
-  return {
-    ...habit,
-    streakCount: habit.streakCount + 1
-  };
-}
-  */

@@ -4,150 +4,166 @@ import labels from '@/presentation/locales/en.json'
 import { useHabitStore } from '@/presentation/stores/habitStore'
 import BottomNav from '@/presentation/components/BottomNav.vue'
 
-// Aktuell aktive View, um den passenden Tab in der Navigation hervorzuheben
 defineProps<{
   currentView: string
 }>()
 
-// Event, mit dem diese View zu einer anderen View wechseln kann
 const emit = defineEmits<{
   changeView: [view: string]
 }>()
 
-// Typ für die Wochentage im kleinen Kalender auf dem Home Screen
 type WeekDay = {
   id: number
   label: string
   dayIndex: number
 }
 
-// Temporärer User-Typ, solange es noch keine Anmeldung gibt
 type User = {
   id: number
   name: string
 }
 
-// Typ für die Statistikwerte im oberen Statistikblock
 type HomeStats = {
   streakDays: number
   habitsCount: number
   vicesCount: number
 }
 
-// Store: enthält Habits, Loading-State und Error-State
 const habitStore = useHabitStore()
 
-// IDs der heute bereits abgehakten Habits (nur lokaler Zustand, kein Backend)
 const completedHabitIds = ref<Set<string>>(new Set())
-
-// IDs der Habits, die nach dem Abhaken aus dem Tagesplan ausgeblendet wurden
 const hiddenHabitIds = ref<Set<string>>(new Set())
-
-// Laufende Ausblende-Timer pro Habit, damit sie abgebrochen werden können
 const removalTimers = new Map<string, number>()
-
-// Wartezeit, bevor ein abgehakter Habit aus der Liste verschwindet
 const REMOVAL_DELAY_MS = 2500
 
-// Nur Habits anzeigen, die noch nicht ausgeblendet wurden
-const visibleHabits = computed(() => {
-  return habitStore.habits.filter(habit => !hiddenHabitIds.value.has(habit.id))
+// ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
+
+// 'HH:MM' → Minuten seit Mitternacht
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(':').map(Number)
+  return h * 60 + m
+}
+
+// Minuten seit Mitternacht → Prozentualer Offset auf der Timeline (0–100 %)
+// Timeline: 00:00–00:00 (24 h = 1440 min)
+function minutesToPercent(minutes: number): number {
+  return (minutes / 1440) * 100
+}
+
+// ─── Filter: nur Habits mit scheduledTime = heute anzeigen ────────────────────
+// Fallback: Habits ohne scheduledTime werden ebenfalls gezeigt,
+// damit die App auch ohne abgeschlossene DB-Migration lauffähig bleibt.
+const todayString = computed<string>(() => {
+  const d = now.value
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 })
 
-// Prüft, ob ein Habit für heute als erledigt markiert ist
+const todayHabits = computed(() => {
+  return habitStore.habits.filter(habit => {
+    // Habit hat kein Datum → immer anzeigen (Abwärtskompatibilität)
+    if (!habit.createdAt) return true
+    const habitDate = habit.createdAt.toISOString().slice(0, 10)
+    return habitDate === todayString.value
+  })
+})
+
+const visibleHabits = computed(() => {
+  return todayHabits.value.filter(habit => !hiddenHabitIds.value.has(habit.id))
+})
+
+// ─── Timeline-Blöcke: nur Habits mit Uhrzeit und Dauer ───────────────────────
+const timelineBlocks = computed(() => {
+  return visibleHabits.value
+    .filter(h => h.scheduledTime && h.duration)
+    .map(h => {
+      const startMin = timeToMinutes(h.scheduledTime!)
+      const endMin = startMin + h.duration!
+      return {
+        id: h.id,
+        label: h.title,
+        color: h.color ?? '#7437d8',
+        left: minutesToPercent(startMin),
+        width: minutesToPercent(h.duration!)
+      }
+    })
+})
+
+// ─── Formatierungsfunktionen ──────────────────────────────────────────────────
+
+// Gibt 'HH:MM – HH:MM' zurück, z. B. '18:00 – 18:30'
+function formatTimeRange(time: string, duration: number): string {
+  const startMin = timeToMinutes(time)
+  const endMin = startMin + duration
+  const endH = Math.floor(endMin / 60) % 24
+  const endM = endMin % 60
+  return `${time} – ${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
+}
+
 function isHabitDone(id: string): boolean {
   return completedHabitIds.value.has(id)
 }
 
-// Habit als erledigt/nicht erledigt umschalten
 function toggleHabitDone(id: string) {
   const updated = new Set(completedHabitIds.value)
 
   if (updated.has(id)) {
-    // Wieder abgewählt: Ausblenden abbrechen, falls noch nicht passiert
     updated.delete(id)
-
     const timer = removalTimers.get(id)
     if (timer !== undefined) {
       clearTimeout(timer)
       removalTimers.delete(id)
     }
   } else {
-    // Abgehakt: kurz durchgestrichen anzeigen, dann sanft ausblenden
     updated.add(id)
-
     const timer = window.setTimeout(() => {
       hiddenHabitIds.value = new Set(hiddenHabitIds.value).add(id)
       removalTimers.delete(id)
     }, REMOVAL_DELAY_MS)
-
     removalTimers.set(id, timer)
   }
 
   completedHabitIds.value = updated
 }
 
-// Temporäre Statistikwerte für den oberen Statistikblock
 const homeStats = ref<HomeStats>({
   streakDays: 0,
   habitsCount: 0,
   vicesCount: 0
 })
 
-// Temporärer Benutzer, später durch echte User-Daten ersetzbar
 const user = ref<User>({
   id: 1,
   name: 'Laura M.'
 })
 
-// Aktuelle Zeit, damit Begrüßung, Datum und Tagesfortschritt dynamisch sind
 const now = ref<Date>(new Date())
 
-// Begrüßung abhängig von der aktuellen Uhrzeit
 const currentGreeting = computed<string>(() => {
   const hour = now.value.getHours()
-
-  if (hour >= 5 && hour < 12) {
-    return labels.home.morningGreeting
-  }
-
-  if (hour >= 12 && hour < 18) {
-    return labels.home.afternoonGreeting
-  }
-
-  if (hour >= 18 && hour < 22) {
-    return labels.home.eveningGreeting
-  }
-
+  if (hour >= 5 && hour < 12) return labels.home.morningGreeting
+  if (hour >= 12 && hour < 18) return labels.home.afternoonGreeting
+  if (hour >= 18 && hour < 22) return labels.home.eveningGreeting
   return labels.home.nightGreeting
 })
 
-// Aktuelles Datum im deutschen Format
 const currentDate = computed<string>(() => {
   return now.value.toLocaleDateString('de-DE')
 })
 
-// Berechnet, wie viel Prozent des Tages bereits vergangen sind
 const currentDayProgress = computed<number>(() => {
   const hours = now.value.getHours()
   const minutes = now.value.getMinutes()
   const seconds = now.value.getSeconds()
-
   const passedMinutes = hours * 60 + minutes + seconds / 60
-  const minutesPerDay = 24 * 60
-
-  return (passedMinutes / minutesPerDay) * 100
+  return (passedMinutes / 1440) * 100
 })
 
-// Index des heutigen Wochentags für die Markierung im Kalender
 const todayIndex = computed<number>(() => {
   return now.value.getDay()
 })
 
-// Beschriftungen der Timeline im Tagesplan
 const timelineLabels: string[] = ['00:00', '08:00', '16:00', '00:00']
 
-// Wochentage für den kleinen Kalender auf dem Home Screen
 const weekDays: WeekDay[] = [
   { id: 1, label: labels.weekdays.mon, dayIndex: 1 },
   { id: 2, label: labels.weekdays.tue, dayIndex: 2 },
@@ -158,10 +174,8 @@ const weekDays: WeekDay[] = [
   { id: 7, label: labels.weekdays.sun, dayIndex: 0 }
 ]
 
-// Timer, damit die aktuelle Zeit regelmäßig aktualisiert werden kann
 let clockTimer: number | undefined
 
-// Beim Laden der View: alle Habits aus Supabase laden und Uhr starten
 onMounted(async () => {
   await habitStore.loadAllHabits()
 
@@ -176,92 +190,70 @@ onMounted(async () => {
   }, 60_000)
 })
 
-// Habit zum Bearbeiten auswählen und zur Edit-View navigieren
 function handleEdit(habit: import('@/domain/models/Habit').Habit) {
   habitStore.setHabitToEdit(habit)
   emit('changeView', 'habitEdit')
 }
 
-// Beim Verlassen der View: Timer aufräumen
 onUnmounted(() => {
-  if (clockTimer !== undefined) {
-    clearInterval(clockTimer)
-  }
-
-  // Offene Ausblende-Timer stoppen
-  for (const timer of removalTimers.values()) {
-    clearTimeout(timer)
-  }
+  if (clockTimer !== undefined) clearInterval(clockTimer)
+  for (const timer of removalTimers.values()) clearTimeout(timer)
   removalTimers.clear()
 })
 </script>
 
 <template>
   <main class="app-screen">
-    <!-- Header mit Profil, Begrüßung und Settings-Button -->
     <header class="home-header">
       <div class="home-profile">
         <div class="home-avatar"></div>
-
         <div>
           <h1 class="home-greeting">{{ currentGreeting }}</h1>
           <p class="home-user-name">{{ user.name }}</p>
         </div>
       </div>
-
-      <button class="home-settings-button" type="button" @click="$emit('changeView', 'settings')">
-        ⚙
-      </button>
+      <button class="home-settings-button" type="button" @click="$emit('changeView', 'settings')">⚙</button>
     </header>
 
-    <!-- Statistikblock mit Streak, Habits und Vices -->
     <section class="home-stats">
-      <div>
-        <span>🔥</span>
-        <b>{{ homeStats.streakDays }} {{ labels.home.streak }}</b>
-      </div>
-
-      <div>
-        <span>🎯</span>
-        <b>{{ homeStats.habitsCount }} {{ labels.home.habits }}</b>
-      </div>
-
-      <div>
-        <span>🚬</span>
-        <b>{{ homeStats.vicesCount }} {{ labels.home.vices }}</b>
-      </div>
+      <div><span>🔥</span><b>{{ homeStats.streakDays }} {{ labels.home.streak }}</b></div>
+      <div><span>🎯</span><b>{{ homeStats.habitsCount }} {{ labels.home.habits }}</b></div>
+      <div><span>🚬</span><b>{{ homeStats.vicesCount }} {{ labels.home.vices }}</b></div>
     </section>
 
-    <!-- Tagesplan mit Timeline und Habit-Liste aus dem Store -->
     <section class="app-card">
       <p class="date">{{ currentDate }}</p>
       <h2 class="app-section-title">{{ labels.home.todayPlan }}</h2>
 
       <div class="timeline-box">
+        <!-- Zeitbeschriftungen -->
         <div class="timeline-labels">
-          <span
-            v-for="(time, index) in timelineLabels"
-            :key="index"
-          >
-            {{ time }}
-          </span>
+          <span v-for="(time, index) in timelineLabels" :key="index">{{ time }}</span>
         </div>
 
+        <!-- Oberer Zeitstrahl: zeigt den Tagesfortschritt -->
         <div class="timeline-main">
           <div class="timeline-progress" :style="{ width: currentDayProgress + '%' }"></div>
         </div>
 
-        <div class="timeline-events"></div>
+        <!-- Unterer Zeitstrahl: farbige Habit-Blöcke laut Wireframe -->
+        <div class="timeline-events">
+          <div
+            v-for="block in timelineBlocks"
+            :key="block.id"
+            class="timeline-habit-block"
+            :style="{
+              left: block.left + '%',
+              width: block.width + '%',
+              backgroundColor: block.color
+            }"
+            :title="block.label"
+          ></div>
+        </div>
       </div>
-      
-      <!-- Ladezustand, Fehler oder geladene Habits anzeigen -->
-      <p v-if="habitStore.isLoading" class="habit-status">
-        Loading habits...
-      </p>
 
-      <p v-else-if="habitStore.error" class="habit-error">
-        {{ habitStore.error }}
-      </p>
+      <p v-if="habitStore.isLoading" class="habit-status">Loading habits...</p>
+      <p v-else-if="habitStore.error" class="habit-error">{{ habitStore.error }}</p>
 
       <TransitionGroup v-else tag="ul" name="habit-fade" class="habit-list">
         <li
@@ -270,13 +262,20 @@ onUnmounted(() => {
           class="habit-list-item"
           :class="{ done: isHabitDone(habit.id) }"
         >
+          <!-- Farbiger Dot aus der Habit-Farbe -->
+          <span
+            class="habit-color-dot"
+            :style="{ backgroundColor: habit.color ?? '#7437d8' }"
+          ></span>
+
+          <!-- Uhrzeit statt Datum: zeigt 'HH:MM – HH:MM' wenn beides vorhanden, sonst '–' -->
           <span class="habit-time">
-            {{ habit.createdAt.toLocaleDateString('de-DE') }}
+            {{ (habit.scheduledTime && habit.duration)
+              ? formatTimeRange(habit.scheduledTime, habit.duration)
+              : (habit.scheduledTime ?? '–') }}
           </span>
 
-          <span class="habit-name">
-            {{ habit.title }}
-          </span>
+          <span class="habit-name">{{ habit.title }}</span>
 
           <button class="habit-action-btn" type="button" @click="handleEdit(habit)" title="Bearbeiten">✎</button>
           <button class="habit-action-btn" type="button" @click="habitStore.deleteHabit(habit.id)" title="Löschen">×</button>
@@ -292,10 +291,8 @@ onUnmounted(() => {
       </TransitionGroup>
     </section>
 
-    <!-- Kleiner Wochenüberblick ohne Navigation zur CalendarView -->
     <section class="app-card">
       <h2 class="app-section-title">{{ labels.home.calendar }}</h2>
-
       <div class="week">
         <span
           v-for="day in weekDays"
@@ -308,30 +305,18 @@ onUnmounted(() => {
       </div>
     </section>
 
-    <!-- Verwaltungsbereich für Habit-Aktionen -->
     <section class="app-card">
       <h2 class="app-section-title">{{ labels.home.habitManagement }}</h2>
-
-      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitCreate')">
-        ⊞ {{ labels.home.createHabit }}
-      </button>
-
-      <button class="app-action-button" type="button">
-        ✎ {{ labels.home.editHabit }}
-      </button>
-
-      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitDelete')">
-        🗑 {{ labels.home.deleteHabit }}
-      </button>
+      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitCreate')">⊞ {{ labels.home.createHabit }}</button>
+      <button class="app-action-button" type="button">✎ {{ labels.home.editHabit }}</button>
+      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitDelete')">🗑 {{ labels.home.deleteHabit }}</button>
     </section>
 
-    <!-- Wiederverwendbare untere Navigation -->
     <BottomNav :current-view="currentView" @changeView="$emit('changeView', $event)" />
   </main>
 </template>
 
 <style scoped>
-/* Header-Bereich des Home Screens */
 .home-header {
   display: flex;
   justify-content: space-between;
@@ -374,7 +359,6 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-/* Statistikblock unter dem Header */
 .home-stats {
   display: flex;
   justify-content: space-around;
@@ -384,9 +368,7 @@ onUnmounted(() => {
   margin-bottom: 20px;
 }
 
-.home-stats div {
-  text-align: center;
-}
+.home-stats div { text-align: center; }
 
 .home-stats b {
   display: block;
@@ -401,7 +383,7 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
-/* Timeline im Tagesplan */
+/* ─── Timeline ─────────────────────────────────────────────── */
 .timeline-box {
   background: white;
   border-radius: 14px;
@@ -417,24 +399,18 @@ onUnmounted(() => {
   margin-bottom: 6px;
 }
 
-.timeline-labels span:nth-child(1) {
-  text-align: left;
-}
-
+.timeline-labels span:nth-child(1) { text-align: left; }
 .timeline-labels span:nth-child(2),
-.timeline-labels span:nth-child(3) {
-  text-align: center;
-}
+.timeline-labels span:nth-child(3) { text-align: center; }
+.timeline-labels span:nth-child(4) { text-align: right; }
 
-.timeline-labels span:nth-child(4) {
-  text-align: right;
-}
-
+/* Oberer Strahl – Tagesfortschritt */
 .timeline-main {
   height: 5px;
   background: #e7ddff;
   position: relative;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  border-radius: 3px;
 }
 
 .timeline-progress {
@@ -443,14 +419,28 @@ onUnmounted(() => {
   top: 0;
   height: 5px;
   background: #7437d8;
+  border-radius: 3px;
 }
 
+/* Unterer Strahl – farbige Habit-Blöcke */
 .timeline-events {
-  height: 5px;
-  background: #e3e3e3;
+  position: relative;
+  height: 10px;
+  background: #ebebeb;
+  border-radius: 5px;
+  overflow: hidden;
 }
 
-/* Liste der geladenen Habits */
+.timeline-habit-block {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 3px;
+  opacity: 0.85;
+  min-width: 4px;
+}
+
+/* ─── Habit-Liste ──────────────────────────────────────────── */
 .habit-list {
   list-style: none;
   margin: 0;
@@ -459,11 +449,29 @@ onUnmounted(() => {
 
 .habit-list-item {
   display: grid;
-  grid-template-columns: 100px 1fr auto auto auto;
-  gap: 12px;
+  grid-template-columns: 10px 90px 1fr auto auto auto;
+  gap: 10px;
   align-items: center;
   padding: 10px 0;
   font-size: 13px;
+}
+
+/* Farbiger Punkt links neben der Uhrzeit */
+.habit-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.habit-time {
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.habit-name {
+  color: #1f1f1f;
 }
 
 .habit-action-btn {
@@ -481,15 +489,6 @@ onUnmounted(() => {
   color: #333;
 }
 
-.habit-time {
-  font-weight: 700;
-}
-
-.habit-name {
-  color: #1f1f1f;
-}
-
-/* Checkbox zum Abhaken eines Habits */
 .habit-checkbox {
   width: 20px;
   height: 20px;
@@ -497,7 +496,6 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-/* Visuelles Feedback für erledigte Habits (weicher Übergang zu grau/durchgestrichen) */
 .habit-list-item .habit-time,
 .habit-list-item .habit-name {
   transition: color 0.3s ease;
@@ -509,7 +507,6 @@ onUnmounted(() => {
   text-decoration: line-through;
 }
 
-/* Sanftes Ausblenden, wenn ein abgehakter Habit aus dem Tagesplan verschwindet */
 .habit-fade-leave-active {
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
@@ -519,7 +516,6 @@ onUnmounted(() => {
   transform: translateX(24px);
 }
 
-/* Nachrückende Habits gleiten weich an ihre neue Position */
 .habit-fade-move {
   transition: transform 0.4s ease;
 }
@@ -530,11 +526,8 @@ onUnmounted(() => {
   font-size: 13px;
 }
 
-.habit-error {
-  color: #b00020;
-}
+.habit-error { color: #b00020; }
 
-/* Kleiner Wochenkalender */
 .week {
   display: flex;
   justify-content: space-between;
