@@ -38,13 +38,28 @@ const REMOVAL_DELAY_MS = 2500
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
+// Normiert einen Zeitstring auf 'HH:MM' – unabhängig ob DB 'HH:MM:SS' oder 'HH:MM' liefert
+function normalizeTime(time: string): string {
+  return time.slice(0, 5)
+}
+
 function timeToMinutes(time: string): number {
-  const [h, m] = time.split(':').map(Number)
+  const [h, m] = normalizeTime(time).split(':').map(Number)
   return h * 60 + m
 }
 
 function minutesToPercent(minutes: number): number {
   return (minutes / 1440) * 100
+}
+
+// Gibt 'HH:MM – HH:MM' zurück, z. B. '09:00 – 09:30'
+function formatTimeRange(time: string, duration: number): string {
+  const startMin = timeToMinutes(time)
+  const endMin = startMin + duration
+  const endH = Math.floor(endMin / 60) % 24
+  const endM = endMin % 60
+  const start = normalizeTime(time)
+  return `${start} – ${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
 }
 
 // ─── Ausgewählter Tag in der Wochenleiste ─────────────────────────────────────
@@ -53,13 +68,10 @@ const selectedDayIndex = ref<number>(now.value.getDay())
 
 function selectDay(dayIndex: number) {
   selectedDayIndex.value = dayIndex
-  // Klick auf Wochentag → Kalender öffnen
   emit('changeView', 'calendar')
 }
 
 // ─── Filter: nur Habits anzeigen ──────────────────────────────────────────────
-// Habits ohne scheduledDate werden IMMER angezeigt (Abwärtskompatibilität).
-// Habits mit scheduledDate werden nur am passenden Tag angezeigt.
 const todayString = computed<string>(() => {
   const d = now.value
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -79,7 +91,7 @@ const visibleHabits = computed(() => {
   return todayHabits.value.filter(habit => !hiddenHabitIds.value.has(habit.id))
 })
 
-// ─── Timeline-Blöcke: farbig nach habit.color ────────────────────────────────
+// ─── Timeline-Blöcke ──────────────────────────────────────────────────────
 const timelineBlocks = computed(() => {
   return visibleHabits.value
     .filter(h => h.scheduledTime && h.duration)
@@ -95,16 +107,6 @@ const timelineBlocks = computed(() => {
       }
     })
 })
-
-// ─── Formatierungsfunktionen ──────────────────────────────────────────────────
-
-function formatTimeRange(time: string, duration: number): string {
-  const startMin = timeToMinutes(time)
-  const endMin = startMin + duration
-  const endH = Math.floor(endMin / 60) % 24
-  const endM = endMin % 60
-  return `${time} – ${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
-}
 
 function isHabitDone(id: string): boolean {
   return completedHabitIds.value.has(id)
@@ -234,21 +236,15 @@ onUnmounted(() => {
         <div class="timeline-labels">
           <span v-for="(time, index) in timelineLabels" :key="index">{{ time }}</span>
         </div>
-
         <div class="timeline-main">
           <div class="timeline-progress" :style="{ width: currentDayProgress + '%' }"></div>
         </div>
-
         <div class="timeline-events">
           <div
             v-for="block in timelineBlocks"
             :key="block.id"
             class="timeline-habit-block"
-            :style="{
-              left: block.left + '%',
-              width: block.width + '%',
-              backgroundColor: block.color
-            }"
+            :style="{ left: block.left + '%', width: block.width + '%', backgroundColor: block.color }"
             :title="block.label"
           ></div>
         </div>
@@ -264,15 +260,12 @@ onUnmounted(() => {
           class="habit-list-item"
           :class="{ done: isHabitDone(habit.id) }"
         >
-          <span
-            class="habit-color-dot"
-            :style="{ backgroundColor: habit.color ?? '#7437d8' }"
-          ></span>
+          <span class="habit-color-dot" :style="{ backgroundColor: habit.color ?? '#7437d8' }"></span>
 
           <span class="habit-time">
             {{ (habit.scheduledTime && habit.duration)
               ? formatTimeRange(habit.scheduledTime, habit.duration)
-              : (habit.scheduledTime ?? '–') }}
+              : (habit.scheduledTime ? normalizeTime(habit.scheduledTime) : '–') }}
           </span>
 
           <span class="habit-name">{{ habit.title }}</span>
@@ -417,8 +410,7 @@ onUnmounted(() => {
 
 .timeline-progress {
   position: absolute;
-  left: 0;
-  top: 0;
+  left: 0; top: 0;
   height: 5px;
   background: #7437d8;
   border-radius: 3px;
@@ -449,11 +441,15 @@ onUnmounted(() => {
 
 .habit-list-item {
   display: grid;
-  grid-template-columns: 10px 90px 1fr auto auto auto;
-  gap: 10px;
+  grid-template-columns: 10px 1fr auto auto auto auto;
+  gap: 8px;
   align-items: center;
   padding: 10px 0;
-  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.habit-list-item:last-child {
+  border-bottom: none;
 }
 
 .habit-color-dot {
@@ -463,14 +459,18 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
+/* Zeitbereich klar lesbar: eigene Zeile optisch, fett, größer */
 .habit-time {
   font-weight: 700;
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
+  color: #5a3ec8;
+  letter-spacing: 0.02em;
 }
 
 .habit-name {
   color: #1f1f1f;
+  font-size: 14px;
 }
 
 .habit-action-btn {
@@ -519,12 +519,7 @@ onUnmounted(() => {
   transition: transform 0.4s ease;
 }
 
-.habit-status,
-.habit-error {
-  margin: 0;
-  font-size: 13px;
-}
-
+.habit-status, .habit-error { margin: 0; font-size: 13px; }
 .habit-error { color: #b00020; }
 
 .week {
@@ -532,7 +527,6 @@ onUnmounted(() => {
   justify-content: space-between;
 }
 
-/* week-day ist jetzt ein <button> → Cursor + Reset */
 .week-day {
   width: 38px;
   height: 38px;
@@ -552,13 +546,11 @@ onUnmounted(() => {
   color: #7437d8;
 }
 
-/* Heute-Marker: lila Hintergrund */
 .week-day.active {
   background: #7b4dff;
   color: white;
 }
 
-/* Ausgewählter Tag (nach Klick) wenn nicht heute: dunklerer Rand */
 .week-day.today:not(.active) {
   outline: 2px solid #7437d8;
   outline-offset: -2px;
