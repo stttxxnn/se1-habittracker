@@ -4,7 +4,7 @@ Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden
 include::../_includes/default-attributes.inc.adoc[]
 // Platzhalter für weitere Dokumenten-Attribute
 
-_Dieses Dokument beschreibt die wesentlichen fachlichen Begriffe und ihre  Beziehungen untereinander. Es bildet die gemeinsame Sprache des Teams und aller Stakeholder — unabhängig von technischen Umsetzungsentscheidungen.
+_Dieses Dokument beschreibt die wesentlichen fachlichen Begriffe und ihre Beziehungen untereinander. Es bildet die gemeinsame Sprache des Teams und aller Stakeholder — unabhängig von technischen Umsetzungsentscheidungen.
 Alle Begriffe in User Stories, Personas und Gesprächen mit Stakeholdern sollten hier definiert sein._
 
 ---
@@ -19,28 +19,24 @@ Technische Implementierungsdetails gehören nicht hierher!
 |===
 | Begriff / Abkürzung | Definition | Synonyme / Abgrenzungen
 
-| Belohnungssystem
-| Mechanismus, der positive Verstärkung für erledigte Gewohnheiten bietet.
-| Motivation-System, Rewards
-
 | Gewohnheit
 | Eine wiederkehrende Handlung, die der Nutzer regelmäßig im Alltag durchführen möchte (z. B. Sport, Lernen, Schlafroutine).
 | Habit
+
+| Gewohnheitsabschluss
+| Dokumentiert die erfolgreiche Durchführung einer Gewohnheit zu einem bestimmten Zeitpunkt (das „Abhaken“ im Tagesplan).
+| Ausführung, Check-in
 
 | Gewohnheitsmanagement
 | Die Erstellung, Anpassung und Verwaltung von Gewohnheiten inklusive ihrer Eigenschaften wie Häufigkeit, Zeitpunkt, Dauer und Schwierigkeit.
 | Habit-Planung
 
 | Habit-Stacking
-| Methode, bei der eine neue Gewohnheit an eine bereits bestehende Gewohnheit gekoppelt wird (als Nachfolger).
+| Methode, bei der eine neue Gewohnheit an eine bereits bestehende Gewohnheit gekoppelt wird (als Nachfolger), z. B. „nach dem Aufstehen Wasser trinken“ und in der Folgewoche „danach 5 Minuten lesen“.
 | Verknüpfung von Routinen, Gewohnheitsverknüpfung
 
-| Integration
-| Verbindung von HabitTracker mit externen Systemen wie Kalendern oder Fitness-Apps zur Unterstützung des Nutzeralltags.
-| Synchronisation, Anbindung
-
 | Recovery-Mode
-| Modus zur temporären Anpassung von Anforderungen in stressigen Phasen, um Nutzer:innen beim Wiedereinstieg zu unterstützen. Bildet sich im Domänenmodell als Recovery-Mode ab.
+| Modus zur temporären Anpassung von Anforderungen in stressigen Phasen, um Nutzer:innen beim Wiedereinstieg zu unterstützen.
 | Anpassungsmodus
 
 | Rückschlag
@@ -50,10 +46,6 @@ Technische Implementierungsdetails gehören nicht hierher!
 | Streak
 | Eine ununterbrochene Serie von Tagen, an denen eine Gewohnheit erfolgreich ausgeführt wurde.
 | Serie, Erfolgsreihe
-
-| Tagebucheintrag
-| Eine vom Nutzer verfasste Reflexion über Fortschritte, Rückschläge oder Erkenntnisse im Zusammenhang mit den eigenen Gewohnheiten.
-| Reflexion, Notiz
 |===
 
 
@@ -77,34 +69,19 @@ class Gewohnheitsabschluss
 class Planung
 class Streak
 class Meilenstein
-class Benachrichtigung
-class Statistik
-class Freundschaft
-class Skilltree
-class Skillknoten
 class Kategorie
-class Tagebucheintrag
 class RecoveryMode
+class Statistik
 
 Nutzer "1" -- "0..*" Gewohnheit : erstellt
 Gewohnheitsvorlage "1" -- "0..*" Gewohnheit : dient als Vorlage für
 Gewohnheit "1" -- "0..*" Gewohnheitsabschluss : wird dokumentiert durch
 Gewohnheit "1" -- "0..*" Planung : wird zeitlich geplant in
 Gewohnheit "0..1" -- "0..1" Gewohnheit : baut auf (Habit-Stacking)
-
-Nutzer "1" -- "1" Streak : besitzt (Gesamt-Streak)
+Gewohnheit "1" -- "1" Streak : besitzt
 Gewohnheit "1" -- "0..*" Meilenstein : definiert
-Meilenstein "1" -- "0..*" Benachrichtigung : löst aus
-Nutzer "1" -- "0..*" Benachrichtigung : erhält
-Nutzer "1" -- "0..*" Freundschaft : führt
-Nutzer "1" -- "1" Skilltree : besitzt
-Skilltree "1" -- "1..*" Skillknoten : besteht aus
 Kategorie "1" -- "0..*" Gewohnheit : gruppiert
-Kategorie "1" -- "0..*" Skillknoten : strukturiert
 Kategorie "0..1" -- "0..*" Kategorie : enthält Unterkategorien
-Skillknoten "0..*" -- "0..*" Skillknoten : setzt voraus
-
-Nutzer "1" -- "0..*" Tagebucheintrag : verfasst
 Nutzer "1" -- "0..*" RecoveryMode : legt ein
 Nutzer "1" -- "0..1" Statistik : analysiert Fortschritt mit
 
@@ -123,26 +100,20 @@ Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
 |===
 | Entität | Beschreibung
 
-| Benachrichtigung
-| Informiert Nutzer über wichtige Ereignisse innerhalb der Anwendung, beispielsweise Erinnerungen, Meilensteine oder soziale Aktivitäten.
-
-| Freundschaft
-| Beschreibt die soziale Verbindung zwischen zwei Nutzern innerhalb der Anwendung zum Teilen von Erfolgen und gegenseitiger Motivation.
-
 | Gewohnheit
-| Beschreibt eine wiederkehrende Aktivität oder Routine. Enthält Informationen wie Titel, Beschreibung, Priorität oder Schwierigkeitsgrad.
+| Beschreibt eine wiederkehrende Aktivität oder Routine. Enthält Informationen wie Titel, Icon, Farbe, Häufigkeit, Dauer oder Schwierigkeitsgrad.
 
 | Gewohnheitsabschluss
-| Dokumentiert die erfolgreiche Durchführung einer Gewohnheit zu einem bestimmten Zeitpunkt. Hinweis: Das Fehlen eines Abschlusses zum geplanten Zeitpunkt repräsentiert fachlich einen "Rückschlag".
+| Dokumentiert die erfolgreiche Durchführung einer Gewohnheit zu einem bestimmten Zeitpunkt (das „Abhaken“ im Tagesplan). Hinweis: Das Fehlen eines Abschlusses zum geplanten Zeitpunkt repräsentiert fachlich einen „Rückschlag“.
 
 | Gewohnheitsvorlage
 | Enthält vordefinierte Gewohnheiten und Routinen, die Nutzern als Orientierung oder Schnellstart dienen.
 
 | Kategorie
-| Dient zur thematischen Einordnung und Strukturierung von Gewohnheiten und Skillknoten. Kategorien können hierarchisch als Haupt- und Unterkategorien aufgebaut sein.
+| Dient zur thematischen Einordnung und Strukturierung von Gewohnheiten. Kategorien können hierarchisch als Haupt- und Unterkategorien aufgebaut sein.
 
 | Meilenstein
-| Beschreibt definierte Fortschrittsziele innerhalb einer Gewohnheit oder Streak. Beim Erreichen können Belohnungen freigeschaltet werden.
+| Beschreibt ein definiertes Fortschrittsziel einer Gewohnheit (z. B. die ersten 7 bis 31 Wiederholungen). Dient der Motivation und Fortschrittsmessung.
 
 | Nutzer
 | Repräsentiert eine registrierte Person, die Gewohnheiten erstellt, organisiert und verfolgt.
@@ -153,20 +124,11 @@ Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
 | Recovery-Mode
 | Repräsentiert einen Zeitraum (Regenerationsphase), in dem der Nutzer temporär verminderte Anforderungen hat, um in stressigen Phasen Rückschläge bei Streaks abzufedern.
 
-| Skillknoten
-| Einzelne Bestandteile des Skilltrees, die bestimmte Fähigkeiten, Fortschrittsstufen oder Belohnungen repräsentieren.
-
-| Skilltree
-| Repräsentiert das spielerische Fortschritts- und Belohnungssystem der Anwendung. Nutzer sammeln durch abgeschlossene Gewohnheiten Erfahrungspunkte.
-
 | Statistik
-| Enthält Auswertungen und Analysen zum Verhalten und Fortschritt eines Nutzers (Aktivitätstrends, Regelmäßigkeit).
+| Enthält Auswertungen und Analysen zum Verhalten und Fortschritt eines Nutzers (Aktivitätstrends, Regelmäßigkeit, Heatmap).
 
 | Streak
-| Repräsentiert die aktuelle sowie die längste ununterbrochene Erfolgsserie. Wird hier als globale Streak-Verwaltung pro Nutzer geführt.
-
-| Tagebucheintrag
-| Beschreibt eine vom Nutzer verfasste Reflexion (Text, Datum, Stimmung) über den eigenen Fortschritt oder Hürden beim Gewohnheitsaufbau.
+| Repräsentiert die aktuelle sowie die längste ununterbrochene Erfolgsserie einer Gewohnheit.
 |===
 
 === Beschreibung der Beziehungen
@@ -202,40 +164,15 @@ Beschreibung der wichtigsten Beziehungen zwischen den Entitäten, sofern diese b
 | 0..1 zu 0..1
 | Eine Gewohnheit kann an eine andere Gewohnheit gekoppelt werden (Habit-Stacking). Hierdurch wird ein Vorgänger/Nachfolger-Prinzip realisiert.
 
-| Nutzer
+| Gewohnheit
 | Streak
 | 1 zu 1
-| Jeder Nutzer besitzt genau eine globale Streak-Verwaltung, die Erfolgsserien speichert.
+| Jede Gewohnheit besitzt genau einen Streak (aktuelle und längste Serie). Aus den Streaks aller Gewohnheiten lässt sich der Gesamtfortschritt eines Nutzers ableiten.
 
 | Gewohnheit
 | Meilenstein
 | 1 zu 0..*
 | Zu einer Gewohnheit können mehrere Meilensteine (Ziele) definiert werden.
-
-| Meilenstein
-| Benachrichtigung
-| 1 zu 0..*
-| Beim Erreichen eines Meilensteins können automatisch Benachrichtigungen ausgelöst werden.
-
-| Nutzer
-| Benachrichtigung
-| 1 zu 0..*
-| Ein Nutzer kann mehrere Benachrichtigungen erhalten.
-
-| Nutzer
-| Freundschaft
-| 1 zu 0..*
-| Nutzer können Freundschaften zu anderen Nutzern aufbauen.
-
-| Nutzer
-| Skilltree
-| 1 zu 1
-| Jeder Nutzer besitzt genau einen persönlichen Skilltree.
-
-| Skilltree
-| Skillknoten
-| 1 zu 1..*
-| Ein Skilltree besteht aus mehreren Skillknoten (Fähigkeiten/Belohnungen).
 
 | Kategorie
 | Gewohnheit
@@ -243,24 +180,9 @@ Beschreibung der wichtigsten Beziehungen zwischen den Entitäten, sofern diese b
 | Eine Kategorie kann mehrere Gewohnheiten thematisch gruppieren.
 
 | Kategorie
-| Skillknoten
-| 1 zu 0..*
-| Kategorien strukturieren ebenfalls Skillknoten.
-
-| Kategorie
 | Kategorie
 | 0..1 zu 0..*
 | Eine Kategorie kann beliebig viele Unterkategorien besitzen (Hierarchie).
-
-| Skillknoten
-| Skillknoten
-| 0..* zu 0..*
-| Skillknoten können voneinander abhängig sein (Voraussetzungen).
-
-| Nutzer
-| Tagebucheintrag
-| 1 zu 0..*
-| Ein Nutzer kann beliebig viele Tagebucheinträge zur Reflexion verfassen.
 
 | Nutzer
 | Recovery-Mode
@@ -271,7 +193,7 @@ Beschreibung der wichtigsten Beziehungen zwischen den Entitäten, sofern diese b
 | Statistik
 | 1 zu 0..1
 | Ein Nutzer analysiert seinen Fortschritt durch eine Statistik-Auswertung.
-| ===
+|===
 
 _Dieses Dokument wird kontinuierlich gepflegt. Änderungen an Fachbegriffen oder Beziehungen
 müssen hier nachgezogen werden, bevor sie in User Stories oder Code einfließen._
