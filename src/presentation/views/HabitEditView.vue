@@ -130,13 +130,12 @@ function validateForm(): boolean {
 function fillFormFromHabit(habit: Habit) {
   selectedHabit.value = habit
   editTitle.value = habit.title
-
+  selectedColor.value = habit.color ?? ''
+  selectedPeriodicity.value = habit.periodicity ?? ''
+  selectedWeekdays.value = habit.weekdays ? [...habit.weekdays] : []
+  selectedTime.value = habit.scheduledTime ?? ''
+  duration.value = habit.duration ?? ''
   selectedIcon.value = ''
-  selectedColor.value = ''
-  selectedPeriodicity.value = 'daily'
-  selectedWeekdays.value = []
-  selectedTime.value = ''
-  duration.value = ''
   reason.value = ''
   difficulty.value = ''
 
@@ -159,7 +158,16 @@ function backToSelection() {
 async function handleUpdate() {
   if (!selectedHabit.value || !validateForm()) return
 
-  await habitStore.updateHabit(selectedHabit.value.id, editTitle.value.trim())
+  await habitStore.updateHabit(selectedHabit.value.id, {
+    title: editTitle.value.trim(),
+    periodicity: selectedPeriodicity.value || undefined,
+    weekdays: selectedPeriodicity.value === 'weekly' && selectedWeekdays.value.length
+      ? selectedWeekdays.value
+      : undefined,
+    scheduledTime: selectedTime.value || undefined,
+    duration: typeof duration.value === 'number' ? duration.value : undefined,
+    color: selectedColor.value || undefined
+  })
 
   if (!habitStore.error) {
     emit('changeView', 'home')

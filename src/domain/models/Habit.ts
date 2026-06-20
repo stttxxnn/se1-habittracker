@@ -1,16 +1,18 @@
-export interface Habit {
-  id: string;
-  //userId: string;
-  title: string;
-  //streakCount: number;
-  createdAt: Date;
-}
+export type Periodicity = 'daily' | 'weekly' | 'monthly'
 
-/*
-export function incrementStreak(habit: Habit): Habit {
-  return {
-    ...habit,
-    streakCount: habit.streakCount + 1
-  };
+export type Weekday =
+  | 'monday' | 'tuesday' | 'wednesday'
+  | 'thursday' | 'friday' | 'saturday' | 'sunday'
+
+export interface Habit {
+  id: string
+  title: string
+  createdAt: Date
+  // Wiederholung
+  periodicity?: Periodicity
+  weekdays?: Weekday[]      // nur relevant wenn periodicity === 'weekly'
+  // Zeitplanung
+  scheduledTime?: string    // 'HH:MM'
+  duration?: number         // Minuten
+  color?: string            // Hex
 }
-  */

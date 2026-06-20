@@ -1,72 +1,104 @@
 import { HabitRepositoryPort } from '../../domain/Ports/Out/HabitRepositoryPort'
-import { Habit } from '../../domain/models/Habit'
+import type { Habit, Periodicity, Weekday } from '../../domain/models/Habit'
 import { supabase } from '../supabase/supabaseClient'
+
+type HabitRow = {
+  id: string
+  title: string
+  created_at: string
+  periodicity?: string | null
+  weekdays?: string[] | null
+  scheduled_time?: string | null
+  duration_minutes?: number | null
+  color?: string | null
+}
+
+const SELECT_COLS =
+  'id, title, created_at, periodicity, weekdays, scheduled_time, duration_minutes, color'
 
 export class SupabaseHabitAdapter implements HabitRepositoryPort {
 
-  // Mapping: DB-Zeile → sauberes Domänen-Objekt (einmal definiert, überall genutzt)
-  private mapToHabit(data: { id: string; title: string; created_at: string }): Habit {
+  private mapToHabit(data: HabitRow): Habit {
     return {
       id: data.id,
       title: data.title,
-      createdAt: new Date(data.created_at)
+      createdAt: new Date(data.created_at),
+      periodicity: (data.periodicity as Periodicity) ?? undefined,
+      weekdays: (data.weekdays as Weekday[]) ?? undefined,
+      scheduledTime: data.scheduled_time ?? undefined,
+      duration: data.duration_minutes ?? undefined,
+      color: data.color ?? undefined
     }
   }
 
   async findById(id: string): Promise<Habit> {
     const { data, error } = await supabase
       .from('habits')
-      .select('id, title, created_at')
+      .select(SELECT_COLS)
       .eq('id', id)
       .single()
-
-    if (error || !data) {
-      throw new Error(`Habit mit der ID ${id} wurde nicht gefunden.`)
-    }
-
-    return this.mapToHabit(data)
+    if (error || !data) throw new Error(`Habit mit ID ${id} nicht gefunden.`)
+    return this.mapToHabit(data as HabitRow)
   }
 
   async findAll(): Promise<Habit[]> {
     const { data, error } = await supabase
       .from('habits')
-      .select('id, title, created_at')
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      throw new Error(`Fehler beim Laden aller Habits: ${error.message}`)
-    }
-
-    return (data ?? []).map(d => this.mapToHabit(d))
+      .select(SELECT_COLS)
+      .order('scheduled_time', { ascending: true, nullsFirst: false })
+    if (error) throw new Error(`Fehler beim Laden: ${error.message}`)
+    return (data ?? []).map(d => this.mapToHabit(d as HabitRow))
   }
 
-  async save(habitData: { title: string }): Promise<Habit> {
-    const { data: inserted, error } = await supabase
+  async save(habitData: {
+    title: string
+    periodicity?: string
+    weekdays?: string[]
+    scheduledTime?: string
+    duration?: number
+    color?: string
+  }): Promise<Habit> {
+    const { data, error } = await supabase
       .from('habits')
-      .insert({ title: habitData.title })
-      .select('id, title, created_at')
+      .insert({
+        title: habitData.title,
+        frequency: habitData.periodicity ?? null,  // legacy column — keep in sync with periodicity
+        periodicity: habitData.periodicity ?? null,
+        weekdays: habitData.weekdays ?? null,
+        scheduled_time: habitData.scheduledTime ?? null,
+        duration_minutes: habitData.duration ?? null,
+        color: habitData.color ?? null
+      })
+      .select(SELECT_COLS)
       .single()
-
-    if (error || !inserted) {
-      throw new Error(`Habit konnte nicht gespeichert werden: ${error?.message}`)
-    }
-
-    return this.mapToHabit(inserted)
+    if (error || !data) throw new Error(`Fehler beim Speichern: ${error?.message}`)
+    return this.mapToHabit(data as HabitRow)
   }
 
-  async update(id: string, habitData: { title: string }): Promise<Habit> {
-    const { data: updated, error } = await supabase
+  async update(id: string, habitData: {
+    title: string
+    periodicity?: string
+    weekdays?: string[]
+    scheduledTime?: string
+    duration?: number
+    color?: string
+  }): Promise<Habit> {
+    const { data, error } = await supabase
       .from('habits')
-      .update({ title: habitData.title })
+      .update({
+        title: habitData.title,
+        frequency: habitData.periodicity ?? null,      // legacy column — keep in sync
+        periodicity: habitData.periodicity ?? null,
+        weekdays: habitData.weekdays ?? null,
+        scheduled_time: habitData.scheduledTime ?? null,
+        duration_minutes: habitData.duration ?? null,
+        color: habitData.color ?? null
+      })
       .eq('id', id)
-      .select('id, title, created_at')
+      .select(SELECT_COLS)
       .single()
-
-    if (error || !updated) {
-      throw new Error(`Habit konnte nicht aktualisiert werden: ${error?.message}`)
-    }
-
-    return this.mapToHabit(updated)
+    if (error || !data) throw new Error(`Fehler beim Aktualisieren: ${error?.message}`)
+    return this.mapToHabit(data as HabitRow)
   }
 
   async delete(id: string): Promise<void> {
@@ -74,9 +106,6 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       .from('habits')
       .delete()
       .eq('id', id)
-
-    if (error) {
-      throw new Error(`Habit konnte nicht gelöscht werden: ${error.message}`)
-    }
+    if (error) throw new Error(`Fehler beim Löschen: ${error.message}`)
   }
 }
