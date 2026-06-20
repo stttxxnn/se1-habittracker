@@ -2,6 +2,11 @@
 // Zentrale UI-Texte für die Navigationslabels
 import labels from '@/presentation/locales/en.json'
 
+// Aktuell aktive View, um den passenden Tab hervorzuheben
+defineProps<{
+  currentView: string
+}>()
+
 // Event zum Wechseln zwischen den Views
 defineEmits<{
   changeView: [view: string]
@@ -11,17 +16,28 @@ defineEmits<{
 <template>
   <!-- Wiederverwendbare untere Navigation für die wichtigsten App-Bereiche -->
   <nav class="bottom-nav">
-    <button type="button" @click="$emit('changeView', 'analytics')">
+    <button
+      type="button"
+      :class="{ active: currentView === 'analytics' }"
+      @click="$emit('changeView', 'analytics')"
+    >
       <span class="nav-icon">⌁</span>
       <span>{{ labels.navigation.analytics }}</span>
     </button>
 
-    <button type="button" @click="$emit('changeView', 'home')">
+    <button
+      type="button"
+      :class="{ active: currentView === 'home' }"
+      @click="$emit('changeView', 'home')"
+    >
       <span class="nav-icon">⌂</span>
       <span>{{ labels.navigation.home }}</span>
     </button>
 
-    <button type="button">
+    <button
+      type="button"
+      :class="{ active: currentView === 'social' }"
+    >
       <span class="nav-icon">◎</span>
       <span>{{ labels.navigation.social }}</span>
     </button>
@@ -54,6 +70,16 @@ defineEmits<{
     flex-direction: column;
     align-items: center;
     gap: 4px;
+    cursor: pointer;
+}
+
+/* Hervorhebung des aktuell aktiven Tabs */
+.bottom-nav button.active {
+    color: #7437d8;
+}
+
+.bottom-nav button.active .nav-icon {
+    transform: scale(1.15);
 }
 
 .nav-icon {

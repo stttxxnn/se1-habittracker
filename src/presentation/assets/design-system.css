@@ -173,3 +173,8 @@ button {
     background: #f5f5f5;
     color: #555555;
 }
+
+.app-tab:disabled {
+    cursor: default;
+    opacity: 0.55;
+}

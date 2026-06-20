@@ -4,6 +4,11 @@ import labels from '@/presentation/locales/en.json'
 import { useHabitStore } from '@/presentation/stores/habitStore'
 import BottomNav from '@/presentation/components/BottomNav.vue'
 
+// Aktuell aktive View, um den passenden Tab in der Navigation hervorzuheben
+defineProps<{
+  currentView: string
+}>()
+
 // Event, mit dem diese View zu einer anderen View wechseln kann
 const emit = defineEmits<{
   changeView: [view: string]
@@ -32,6 +37,56 @@ type HomeStats = {
 // Store: enthält Habits, Loading-State und Error-State
 const habitStore = useHabitStore()
 
+// IDs der heute bereits abgehakten Habits (nur lokaler Zustand, kein Backend)
+const completedHabitIds = ref<Set<string>>(new Set())
+
+// IDs der Habits, die nach dem Abhaken aus dem Tagesplan ausgeblendet wurden
+const hiddenHabitIds = ref<Set<string>>(new Set())
+
+// Laufende Ausblende-Timer pro Habit, damit sie abgebrochen werden können
+const removalTimers = new Map<string, number>()
+
+// Wartezeit, bevor ein abgehakter Habit aus der Liste verschwindet
+const REMOVAL_DELAY_MS = 2500
+
+// Nur Habits anzeigen, die noch nicht ausgeblendet wurden
+const visibleHabits = computed(() => {
+  return habitStore.habits.filter(habit => !hiddenHabitIds.value.has(habit.id))
+})
+
+// Prüft, ob ein Habit für heute als erledigt markiert ist
+function isHabitDone(id: string): boolean {
+  return completedHabitIds.value.has(id)
+}
+
+// Habit als erledigt/nicht erledigt umschalten
+function toggleHabitDone(id: string) {
+  const updated = new Set(completedHabitIds.value)
+
+  if (updated.has(id)) {
+    // Wieder abgewählt: Ausblenden abbrechen, falls noch nicht passiert
+    updated.delete(id)
+
+    const timer = removalTimers.get(id)
+    if (timer !== undefined) {
+      clearTimeout(timer)
+      removalTimers.delete(id)
+    }
+  } else {
+    // Abgehakt: kurz durchgestrichen anzeigen, dann sanft ausblenden
+    updated.add(id)
+
+    const timer = window.setTimeout(() => {
+      hiddenHabitIds.value = new Set(hiddenHabitIds.value).add(id)
+      removalTimers.delete(id)
+    }, REMOVAL_DELAY_MS)
+
+    removalTimers.set(id, timer)
+  }
+
+  completedHabitIds.value = updated
+}
+
 // Temporäre Statistikwerte für den oberen Statistikblock
 const homeStats = ref<HomeStats>({
   streakDays: 0,
@@ -42,7 +97,7 @@ const homeStats = ref<HomeStats>({
 // Temporärer Benutzer, später durch echte User-Daten ersetzbar
 const user = ref<User>({
   id: 1,
-  name: 'Maria Lee'
+  name: 'Laura M.'
 })
 
 // Aktuelle Zeit, damit Begrüßung, Datum und Tagesfortschritt dynamisch sind
@@ -132,6 +187,12 @@ onUnmounted(() => {
   if (clockTimer !== undefined) {
     clearInterval(clockTimer)
   }
+
+  // Offene Ausblende-Timer stoppen
+  for (const timer of removalTimers.values()) {
+    clearTimeout(timer)
+  }
+  removalTimers.clear()
 })
 </script>
 
@@ -202,11 +263,12 @@ onUnmounted(() => {
         {{ habitStore.error }}
       </p>
 
-      <ul v-else class="habit-list">
+      <TransitionGroup v-else tag="ul" name="habit-fade" class="habit-list">
         <li
-          v-for="habit in habitStore.habits"
+          v-for="habit in visibleHabits"
           :key="habit.id"
           class="habit-list-item"
+          :class="{ done: isHabitDone(habit.id) }"
         >
           <span class="habit-time">
             {{ habit.createdAt.toLocaleDateString('de-DE') }}
@@ -218,25 +280,31 @@ onUnmounted(() => {
 
           <button class="habit-action-btn" type="button" @click="handleEdit(habit)" title="Bearbeiten">✎</button>
           <button class="habit-action-btn" type="button" @click="habitStore.deleteHabit(habit.id)" title="Löschen">×</button>
+
+          <input
+            type="checkbox"
+            class="habit-checkbox"
+            :checked="isHabitDone(habit.id)"
+            :aria-label="habit.title"
+            @change="toggleHabitDone(habit.id)"
+          />
         </li>
-      </ul>
+      </TransitionGroup>
     </section>
 
-    <!-- Kleiner Kalenderblock; Klick öffnet die CalendarView -->
+    <!-- Kleiner Wochenüberblick ohne Navigation zur CalendarView -->
     <section class="app-card">
       <h2 class="app-section-title">{{ labels.home.calendar }}</h2>
 
       <div class="week">
-        <button
+        <span
           v-for="day in weekDays"
           :key="day.id"
-          type="button"
           class="week-day"
           :class="{ active: day.dayIndex === todayIndex }"
-          @click="$emit('changeView', 'calendar')"
         >
           {{ day.label }}
-        </button>
+        </span>
       </div>
     </section>
 
@@ -251,10 +319,14 @@ onUnmounted(() => {
       <button class="app-action-button" type="button">
         ✎ {{ labels.home.editHabit }}
       </button>
+
+      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitDelete')">
+        🗑 {{ labels.home.deleteHabit }}
+      </button>
     </section>
 
     <!-- Wiederverwendbare untere Navigation -->
-    <BottomNav @changeView="$emit('changeView', $event)" />
+    <BottomNav :current-view="currentView" @changeView="$emit('changeView', $event)" />
   </main>
 </template>
 
@@ -387,7 +459,7 @@ onUnmounted(() => {
 
 .habit-list-item {
   display: grid;
-  grid-template-columns: 100px 1fr auto auto;
+  grid-template-columns: 100px 1fr auto auto auto;
   gap: 12px;
   align-items: center;
   padding: 10px 0;
@@ -415,6 +487,41 @@ onUnmounted(() => {
 
 .habit-name {
   color: #1f1f1f;
+}
+
+/* Checkbox zum Abhaken eines Habits */
+.habit-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #7437d8;
+  cursor: pointer;
+}
+
+/* Visuelles Feedback für erledigte Habits (weicher Übergang zu grau/durchgestrichen) */
+.habit-list-item .habit-time,
+.habit-list-item .habit-name {
+  transition: color 0.3s ease;
+}
+
+.habit-list-item.done .habit-time,
+.habit-list-item.done .habit-name {
+  color: #aaaaaa;
+  text-decoration: line-through;
+}
+
+/* Sanftes Ausblenden, wenn ein abgehakter Habit aus dem Tagesplan verschwindet */
+.habit-fade-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.habit-fade-leave-to {
+  opacity: 0;
+  transform: translateX(24px);
+}
+
+/* Nachrückende Habits gleiten weich an ihre neue Position */
+.habit-fade-move {
+  transition: transform 0.4s ease;
 }
 
 .habit-status,
