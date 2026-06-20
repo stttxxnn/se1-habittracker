@@ -265,7 +265,18 @@ function applyTemplate(template: HabitTemplate) {
 async function handleCreate() {
   if (!validateForm()) return
 
-  await habitStore.createHabit(newTitle.value.trim())
+  await habitStore.createHabit({
+    title: newTitle.value.trim(),
+    periodicity: selectedPeriodicity.value || undefined,
+    weekdays: selectedPeriodicity.value === 'weekly' && selectedWeekdays.value.length
+      ? selectedWeekdays.value
+      : undefined,
+    scheduledTime: selectedTime.value || undefined,
+    duration: typeof duration.value === 'number' ? duration.value : undefined,
+    color: selectedColor.value || undefined,
+    icon: selectedIcon.value || undefined,
+    reason: reason.value.trim() || undefined
+  })
 
   if (!habitStore.error) {
     emit('changeView', 'home')

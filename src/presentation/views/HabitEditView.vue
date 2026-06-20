@@ -131,13 +131,14 @@ function fillFormFromHabit(habit: Habit) {
   selectedHabit.value = habit
   editTitle.value = habit.title
 
-  selectedIcon.value = ''
-  selectedColor.value = ''
-  selectedPeriodicity.value = 'daily'
-  selectedWeekdays.value = []
-  selectedTime.value = ''
-  duration.value = ''
-  reason.value = ''
+  // Gespeicherte Werte vorausfüllen — falls noch nicht vorhanden: leerer Default
+  selectedIcon.value = (habit.icon as HabitIcon) ?? ''
+  selectedColor.value = habit.color ?? ''
+  selectedPeriodicity.value = habit.periodicity ?? ''
+  selectedWeekdays.value = habit.weekdays ? [...habit.weekdays] : []
+  selectedTime.value = habit.scheduledTime ?? ''
+  duration.value = habit.duration ?? ''
+  reason.value = habit.reason ?? ''
   difficulty.value = ''
 
   clearValidationErrors()
@@ -159,7 +160,18 @@ function backToSelection() {
 async function handleUpdate() {
   if (!selectedHabit.value || !validateForm()) return
 
-  await habitStore.updateHabit(selectedHabit.value.id, editTitle.value.trim())
+  await habitStore.updateHabit(selectedHabit.value.id, {
+    title: editTitle.value.trim(),
+    periodicity: selectedPeriodicity.value || undefined,
+    weekdays: selectedPeriodicity.value === 'weekly' && selectedWeekdays.value.length
+      ? selectedWeekdays.value
+      : undefined,
+    scheduledTime: selectedTime.value || undefined,
+    duration: typeof duration.value === 'number' ? duration.value : undefined,
+    color: selectedColor.value || undefined,
+    icon: selectedIcon.value || undefined,
+    reason: reason.value.trim() || undefined
+  })
 
   if (!habitStore.error) {
     emit('changeView', 'home')

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Habit } from '@/domain/models/Habit'
+import type { HabitData } from '@/domain/Ports/Out/HabitRepositoryPort'
 import { SupabaseHabitAdapter } from '@/infrastructure/Adapter/SupabaseHabitAdapter'
 import { GetHabitService } from '@/domain/Services/GetHabitService'
 import { GetAllHabitsService } from '@/domain/Services/GetAllHabitsService'
@@ -54,11 +55,11 @@ export const useHabitStore = defineStore('habit', () => {
   }
 
   // Neues Habit erstellen und direkt in die Liste einfügen
-  async function createHabit(title: string) {
+  async function createHabit(data: HabitData) {
     isLoading.value = true
     error.value = null
     try {
-      const newHabit = await createHabitService.execute(title)
+      const newHabit = await createHabitService.execute(data)
       habits.value.unshift(newHabit) // Neuestes Habit oben in der Liste
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Fehler beim Erstellen'
@@ -68,11 +69,11 @@ export const useHabitStore = defineStore('habit', () => {
   }
 
   // Bestehendes Habit aktualisieren
-  async function updateHabit(id: string, title: string) {
+  async function updateHabit(id: string, data: HabitData) {
     isLoading.value = true
     error.value = null
     try {
-      const updated = await updateHabitService.execute(id, title)
+      const updated = await updateHabitService.execute(id, data)
       const index = habits.value.findIndex(h => h.id === id)
       if (index !== -1) habits.value[index] = updated
     } catch (err) {
