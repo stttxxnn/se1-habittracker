@@ -130,13 +130,15 @@ function validateForm(): boolean {
 function fillFormFromHabit(habit: Habit) {
   selectedHabit.value = habit
   editTitle.value = habit.title
+
+  // Gespeicherte Werte vorausfüllen — falls noch nicht vorhanden: leerer Default
+  selectedIcon.value = (habit.icon as HabitIcon) ?? ''
   selectedColor.value = habit.color ?? ''
   selectedPeriodicity.value = habit.periodicity ?? ''
   selectedWeekdays.value = habit.weekdays ? [...habit.weekdays] : []
   selectedTime.value = habit.scheduledTime ?? ''
   duration.value = habit.duration ?? ''
-  selectedIcon.value = ''
-  reason.value = ''
+  reason.value = habit.reason ?? ''
   difficulty.value = ''
 
   clearValidationErrors()
@@ -166,7 +168,9 @@ async function handleUpdate() {
       : undefined,
     scheduledTime: selectedTime.value || undefined,
     duration: typeof duration.value === 'number' ? duration.value : undefined,
-    color: selectedColor.value || undefined
+    color: selectedColor.value || undefined,
+    icon: selectedIcon.value || undefined,
+    reason: reason.value.trim() || undefined
   })
 
   if (!habitStore.error) {

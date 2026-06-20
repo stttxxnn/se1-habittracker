@@ -1,29 +1,18 @@
-import { HabitRepositoryPort } from '../Ports/Out/HabitRepositoryPort'
+import { CreateHabitCommand } from '../Ports/In/CreateHabitCommand'
+import { HabitRepositoryPort, HabitData } from '../Ports/Out/HabitRepositoryPort'
 import { Habit } from '../models/Habit'
 
-export class CreateHabitService {
+export class CreateHabitService implements CreateHabitCommand {
+  // Der Service weiß nicht, dass Supabase existiert. Er kennt nur den Port!
   constructor(private habitRepository: HabitRepositoryPort) {}
 
-  async execute(
-    title: string,
-    options?: {
-      periodicity?: string
-      weekdays?: string[]
-      scheduledTime?: string
-      duration?: number
-      color?: string
-    }
-  ): Promise<Habit> {
-    if (!title || title.trim() === '') {
+  async execute(data: HabitData): Promise<Habit> {
+    if (!data.title || data.title.trim() === '') {
       throw new Error('Der Titel eines Habits darf nicht leer sein.')
     }
     return await this.habitRepository.save({
-      title: title.trim(),
-      periodicity: options?.periodicity,
-      weekdays: options?.weekdays,
-      scheduledTime: options?.scheduledTime,
-      duration: options?.duration,
-      color: options?.color
+      ...data,
+      title: data.title.trim()
     })
   }
 }
