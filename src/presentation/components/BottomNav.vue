@@ -33,14 +33,6 @@ defineEmits<{
       <span class="nav-icon">⌂</span>
       <span>{{ labels.navigation.home }}</span>
     </button>
-
-    <button
-      type="button"
-      :class="{ active: currentView === 'social' }"
-    >
-      <span class="nav-icon">◎</span>
-      <span>{{ labels.navigation.social }}</span>
-    </button>
   </nav>
 </template>
 
