@@ -182,6 +182,11 @@ function handleEdit(habit: import('@/domain/models/Habit').Habit) {
   emit('changeView', 'habitEdit')
 }
 
+function handleOpenEditSelection() {
+  habitStore.clearHabitToEdit()
+  emit('changeView', 'habitEdit')
+}
+
 // Beim Verlassen der View: Timer aufräumen
 onUnmounted(() => {
   if (clockTimer !== undefined) {
@@ -316,7 +321,7 @@ onUnmounted(() => {
         ⊞ {{ labels.home.createHabit }}
       </button>
 
-      <button class="app-action-button" type="button">
+      <button class="app-action-button" type="button" @click="handleOpenEditSelection">
         ✎ {{ labels.home.editHabit }}
       </button>
 

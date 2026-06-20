@@ -101,6 +101,10 @@ export const useHabitStore = defineStore('habit', () => {
     habitToEdit.value = habit
   }
 
+  function clearHabitToEdit() {
+    habitToEdit.value = null
+  }
+
   function setHabits(newHabits: Habit[]) {
     habits.value = newHabits
   }
@@ -121,6 +125,7 @@ export const useHabitStore = defineStore('habit', () => {
     updateHabit,
     deleteHabit,
     setHabitToEdit,
+    clearHabitToEdit,
     setHabits,
     setAdapter
   }
