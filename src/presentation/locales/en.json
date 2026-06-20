@@ -110,6 +110,8 @@
             "nameRequired": "Please enter a habit name.",
             "periodicityRequired": "Please choose a periodicity.",
             "weekdayRequired": "Please choose at least one weekday.",
+            "timeRequired": "Please enter a scheduled time.",
+            "durationRequired": "Please enter a duration in minutes.",
             "durationInvalid": "Duration must be greater than 0."
         },
         "templateLabel": "Habit template",

@@ -50,7 +50,7 @@ async function changeView(view: string) {
     :current-view="currentView"
     @changeView="changeView"
   />
-  
+
 <!--
   <CalendarView
     v-else-if="currentView === 'calendar'"

@@ -13,11 +13,12 @@ export const useHabitStore = defineStore('habit', () => {
   const habits = ref<Habit[]>([])
   const isLoading = ref<boolean>(false)
   const error = ref<string | null>(null)
-
-  // Wird gesetzt bevor zur HabitEditView navigiert wird
   const habitToEdit = ref<Habit | null>(null)
 
-  // Adapter + Services — Adapter einmal erstellt, alle Services nutzen ihn
+  // Completion state persists across navigation (store survives view unmount)
+  const completedHabitIds = ref<Set<string>>(new Set())
+  const hiddenHabitIds = ref<Set<string>>(new Set())
+
   const habitAdapter = new SupabaseHabitAdapter()
   const getHabitService = new GetHabitService(habitAdapter)
   const getAllHabitsService = new GetAllHabitsService(habitAdapter)
@@ -25,9 +26,6 @@ export const useHabitStore = defineStore('habit', () => {
   const updateHabitService = new UpdateHabitService(habitAdapter)
   const deleteHabitService = new DeleteHabitService(habitAdapter)
 
-  // --- Actions ---
-
-  // Einzelnes Habit laden (noch vorhanden für Abwärtskompatibilität)
   async function loadHabit(id: string) {
     isLoading.value = true
     error.value = null
@@ -41,7 +39,6 @@ export const useHabitStore = defineStore('habit', () => {
     }
   }
 
-  // Alle Habits aus Supabase laden
   async function loadAllHabits() {
     isLoading.value = true
     error.value = null
@@ -60,7 +57,7 @@ export const useHabitStore = defineStore('habit', () => {
     error.value = null
     try {
       const newHabit = await createHabitService.execute(data)
-      habits.value.unshift(newHabit) // Neuestes Habit oben in der Liste
+      habits.value.unshift(newHabit)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Fehler beim Erstellen'
     } finally {
@@ -83,7 +80,6 @@ export const useHabitStore = defineStore('habit', () => {
     }
   }
 
-  // Habit löschen und aus der lokalen Liste entfernen
   async function deleteHabit(id: string) {
     isLoading.value = true
     error.value = null
@@ -98,36 +94,17 @@ export const useHabitStore = defineStore('habit', () => {
   }
 
   // Setzt das Habit das bearbeitet werden soll (vor Navigation zu HabitEditView)
-  function setHabitToEdit(habit: Habit) {
-    habitToEdit.value = habit
-  }
-
-  function clearHabitToEdit() {
-    habitToEdit.value = null
-  }
-
-  function setHabits(newHabits: Habit[]) {
-    habits.value = newHabits
-  }
+  function setHabitToEdit(habit: Habit) { habitToEdit.value = habit }
+  function clearHabitToEdit() { habitToEdit.value = null }
+  function setHabits(newHabits: Habit[]) { habits.value = newHabits }
 
   // Für Tests: Adapter austauschen (Testbarkeit der hexagonalen Architektur)
-  function setAdapter(_customAdapter: any) {
-    // Hinweis: Bei Bedarf Services hier neu instanziieren
-  }
+  function setAdapter(_customAdapter: any) {}
 
   return {
-    habits,
-    isLoading,
-    error,
-    habitToEdit,
-    loadHabit,
-    loadAllHabits,
-    createHabit,
-    updateHabit,
-    deleteHabit,
-    setHabitToEdit,
-    clearHabitToEdit,
-    setHabits,
-    setAdapter
+    habits, isLoading, error, habitToEdit,
+    completedHabitIds, hiddenHabitIds,
+    loadHabit, loadAllHabits, createHabit,
+    updateHabit, deleteHabit, setHabitToEdit, clearHabitToEdit, setHabits, setAdapter
   }
 })

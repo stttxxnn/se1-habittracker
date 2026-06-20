@@ -56,7 +56,7 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
     const { data, error } = await supabase
       .from('habits')
       .select(SELECT_COLS)
-      .order('created_at', { ascending: false })
+      .order('scheduled_time', { ascending: true, nullsFirst: false })
 
     if (error) {
       throw new Error(`Fehler beim Laden aller Habits: ${error.message}`)
