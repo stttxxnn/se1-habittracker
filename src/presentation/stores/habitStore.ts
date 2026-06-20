@@ -14,6 +14,10 @@ export const useHabitStore = defineStore('habit', () => {
   const error = ref<string | null>(null)
   const habitToEdit = ref<Habit | null>(null)
 
+  // Completion state persists across navigation (store survives view unmount)
+  const completedHabitIds = ref<Set<string>>(new Set())
+  const hiddenHabitIds = ref<Set<string>>(new Set())
+
   const habitAdapter = new SupabaseHabitAdapter()
   const getHabitService = new GetHabitService(habitAdapter)
   const getAllHabitsService = new GetAllHabitsService(habitAdapter)
@@ -96,12 +100,14 @@ export const useHabitStore = defineStore('habit', () => {
   }
 
   function setHabitToEdit(habit: Habit) { habitToEdit.value = habit }
+  function clearHabitToEdit() { habitToEdit.value = null }
   function setHabits(newHabits: Habit[]) { habits.value = newHabits }
   function setAdapter(_customAdapter: any) {}
 
   return {
     habits, isLoading, error, habitToEdit,
+    completedHabitIds, hiddenHabitIds,
     loadHabit, loadAllHabits, createHabit,
-    updateHabit, deleteHabit, setHabitToEdit, setHabits, setAdapter
+    updateHabit, deleteHabit, setHabitToEdit, clearHabitToEdit, setHabits, setAdapter
   }
 })

@@ -5,6 +5,8 @@ export interface HabitRepositoryPort {
   findAll(): Promise<Habit[]>
   save(habitData: {
     title: string
+    periodicity?: string
+    weekdays?: string[]
     scheduledTime?: string
     duration?: number
     color?: string

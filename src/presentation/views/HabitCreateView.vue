@@ -56,7 +56,7 @@ type HabitTemplate = {
 }
 
 const habitTemplates: HabitTemplate[] = [
-  { title: 'Read in the morning', icon: 'reading', color: '#4363d8', periodicity: 'daily', weekdays: [], time: '07:00', duration: 20, reason: 'Start the day calmly', difficulty: 2 },
+  { title: 'Read', icon: 'reading', color: '#4363d8', periodicity: 'daily', weekdays: [], time: '07:00', duration: 20, reason: 'Start the day calmly', difficulty: 2 },
   { title: 'Drink enough water', icon: 'water', color: '#00a6d6', periodicity: 'daily', weekdays: [], time: '09:00', duration: 5, reason: 'Stay hydrated', difficulty: 1 },
   { title: 'Exercise', icon: 'sport', color: '#3cb44b', periodicity: 'weekly', weekdays: ['monday', 'wednesday', 'friday'], time: '18:00', duration: 60, reason: 'Improve my fitness', difficulty: 4 },
   { title: 'Meditate', icon: 'meditation', color: '#911eb4', periodicity: 'daily', weekdays: [], time: '07:30', duration: 10, reason: 'Reduce stress', difficulty: 2 },
@@ -88,10 +88,10 @@ const selectedIconOption = computed(() =>
   iconOptions.find(icon => icon.value === selectedIcon.value)
 )
 
-const validationErrors = ref({ name: '', periodicity: '', weekdays: '', duration: '' })
+const validationErrors = ref({ name: '', periodicity: '', weekdays: '', time: '', duration: '' })
 
 function clearValidationErrors() {
-  validationErrors.value = { name: '', periodicity: '', weekdays: '', duration: '' }
+  validationErrors.value = { name: '', periodicity: '', weekdays: '', time: '', duration: '' }
 }
 
 function validateForm(): boolean {
@@ -100,7 +100,9 @@ function validateForm(): boolean {
   if (!selectedPeriodicity.value) validationErrors.value.periodicity = labels.habitCreate.validation.periodicityRequired
   if (selectedPeriodicity.value === 'weekly' && selectedWeekdays.value.length === 0)
     validationErrors.value.weekdays = labels.habitCreate.validation.weekdayRequired
-  if (duration.value !== '' && (!Number.isFinite(duration.value) || duration.value <= 0))
+  if (!selectedTime.value) validationErrors.value.time = labels.habitCreate.validation.timeRequired
+  if (duration.value === '') validationErrors.value.duration = labels.habitCreate.validation.durationRequired
+  else if (!Number.isFinite(duration.value) || (duration.value as number) <= 0)
     validationErrors.value.duration = labels.habitCreate.validation.durationInvalid
   return Object.values(validationErrors.value).every(e => e === '')
 }
@@ -214,7 +216,8 @@ async function handleCreate() {
 
         <label class="app-label">
           {{ labels.habitCreate.timeLabel }}
-          <input v-model="selectedTime" class="app-input" type="time" />
+          <input v-model="selectedTime" class="app-input" :class="{ 'input-error': validationErrors.time }" type="time" />
+          <span v-if="validationErrors.time" class="field-error">{{ validationErrors.time }}</span>
         </label>
 
         <label class="app-label">

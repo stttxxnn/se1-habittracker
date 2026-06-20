@@ -12,8 +12,9 @@ type User = { id: number; name: string }
 type HomeStats = { streakDays: number; habitsCount: number; vicesCount: number }
 
 const habitStore = useHabitStore()
-const completedHabitIds = ref<Set<string>>(new Set())
-const hiddenHabitIds = ref<Set<string>>(new Set())
+// completedHabitIds and hiddenHabitIds live in the store so they survive navigation
+const completedHabitIds = habitStore.completedHabitIds
+const hiddenHabitIds = habitStore.hiddenHabitIds
 const removalTimers = new Map<string, number>()
 const REMOVAL_DELAY_MS = 2500
 
@@ -77,7 +78,7 @@ const selectedDayIndex = ref<number>(now.value.getDay())
 
 function selectDay(dayIndex: number) {
   selectedDayIndex.value = dayIndex
-  emit('changeView', 'calendar')
+  // CalendarView is not yet implemented — selection only highlights the chosen day
 }
 
 // ─── Habit-Filter: nur Habits für den heutigen Wochentag ────────────────────
@@ -181,13 +182,22 @@ const weekDays: WeekDay[] = [
 let clockTimer: number | undefined
 
 onMounted(async () => {
-  await habitStore.loadAllHabits()
+  // Only load from backend if no habits are cached yet — preserves completedHabitIds
+  // across navigation (e.g. after creating a new habit and returning to HomeView)
+  if (habitStore.habits.length === 0) {
+    await habitStore.loadAllHabits()
+  }
   homeStats.value = { streakDays: 0, habitsCount: habitStore.habits.length, vicesCount: 0 }
   clockTimer = window.setInterval(() => { now.value = new Date() }, 60_000)
 })
 
 function handleEdit(habit: import('@/domain/models/Habit').Habit) {
   habitStore.setHabitToEdit(habit)
+  emit('changeView', 'habitEdit')
+}
+
+function handleOpenEditSelection() {
+  habitStore.clearHabitToEdit()
   emit('changeView', 'habitEdit')
 }
 
@@ -294,7 +304,7 @@ onUnmounted(() => {
     <section class="app-card">
       <h2 class="app-section-title">{{ labels.home.habitManagement }}</h2>
       <button class="app-action-button" type="button" @click="$emit('changeView', 'habitCreate')">⊞ {{ labels.home.createHabit }}</button>
-      <button class="app-action-button" type="button">✎ {{ labels.home.editHabit }}</button>
+      <button class="app-action-button" type="button" @click="handleOpenEditSelection">✎ {{ labels.home.editHabit }}</button>
       <button class="app-action-button" type="button" @click="$emit('changeView', 'habitDelete')">🗑 {{ labels.home.deleteHabit }}</button>
     </section>
 

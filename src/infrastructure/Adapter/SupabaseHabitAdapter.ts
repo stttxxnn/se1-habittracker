@@ -62,6 +62,7 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       .from('habits')
       .insert({
         title: habitData.title,
+        frequency: habitData.periodicity ?? null,  // legacy column — keep in sync with periodicity
         periodicity: habitData.periodicity ?? null,
         weekdays: habitData.weekdays ?? null,
         scheduled_time: habitData.scheduledTime ?? null,
