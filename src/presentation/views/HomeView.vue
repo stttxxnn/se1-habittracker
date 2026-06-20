@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import labels from '@/presentation/locales/en.json'
 import { useHabitStore } from '@/presentation/stores/habitStore'
+import { storeToRefs } from 'pinia'
 import BottomNav from '@/presentation/components/BottomNav.vue'
 
 defineProps<{ currentView: string }>()
@@ -12,9 +13,9 @@ type User = { id: number; name: string }
 type HomeStats = { streakDays: number; habitsCount: number; vicesCount: number }
 
 const habitStore = useHabitStore()
-// completedHabitIds and hiddenHabitIds live in the store so they survive navigation
-const completedHabitIds = habitStore.completedHabitIds
-const hiddenHabitIds = habitStore.hiddenHabitIds
+// storeToRefs preserves the Ref wrapper — without it, Pinia/reactive() auto-unwraps
+// refs to their raw value, making .value undefined and breaking .has() calls
+const { completedHabitIds, hiddenHabitIds } = storeToRefs(habitStore)
 const removalTimers = new Map<string, number>()
 const REMOVAL_DELAY_MS = 2500
 
