@@ -99,9 +99,12 @@ export const useHabitStore = defineStore('habit', () => {
     }
   }
 
+  // Setzt das Habit das bearbeitet werden soll (vor Navigation zu HabitEditView)
   function setHabitToEdit(habit: Habit) { habitToEdit.value = habit }
   function clearHabitToEdit() { habitToEdit.value = null }
   function setHabits(newHabits: Habit[]) { habits.value = newHabits }
+
+  // Für Tests: Adapter austauschen (Testbarkeit der hexagonalen Architektur)
   function setAdapter(_customAdapter: any) {}
 
   return {
