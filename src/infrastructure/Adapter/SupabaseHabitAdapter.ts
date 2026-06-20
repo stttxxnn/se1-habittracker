@@ -75,10 +75,25 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
     return this.mapToHabit(data as HabitRow)
   }
 
-  async update(id: string, habitData: { title: string }): Promise<Habit> {
+  async update(id: string, habitData: {
+    title: string
+    periodicity?: string
+    weekdays?: string[]
+    scheduledTime?: string
+    duration?: number
+    color?: string
+  }): Promise<Habit> {
     const { data, error } = await supabase
       .from('habits')
-      .update({ title: habitData.title })
+      .update({
+        title: habitData.title,
+        frequency: habitData.periodicity ?? null,      // legacy column — keep in sync
+        periodicity: habitData.periodicity ?? null,
+        weekdays: habitData.weekdays ?? null,
+        scheduled_time: habitData.scheduledTime ?? null,
+        duration_minutes: habitData.duration ?? null,
+        color: habitData.color ?? null
+      })
       .eq('id', id)
       .select(SELECT_COLS)
       .single()

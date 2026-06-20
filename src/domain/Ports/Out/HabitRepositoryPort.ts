@@ -11,6 +11,13 @@ export interface HabitRepositoryPort {
     duration?: number
     color?: string
   }): Promise<Habit>
-  update(id: string, habitData: { title: string }): Promise<Habit>
+  update(id: string, habitData: {
+    title: string
+    periodicity?: string
+    weekdays?: string[]
+    scheduledTime?: string
+    duration?: number
+    color?: string
+  }): Promise<Habit>
   delete(id: string): Promise<void>
 }

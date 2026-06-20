@@ -72,11 +72,21 @@ export const useHabitStore = defineStore('habit', () => {
     }
   }
 
-  async function updateHabit(id: string, title: string) {
+  async function updateHabit(
+    id: string,
+    data: {
+      title: string
+      periodicity?: string
+      weekdays?: string[]
+      scheduledTime?: string
+      duration?: number
+      color?: string
+    }
+  ) {
     isLoading.value = true
     error.value = null
     try {
-      const updated = await updateHabitService.execute(id, title)
+      const updated = await updateHabitService.execute(id, data)
       const index = habits.value.findIndex(h => h.id === id)
       if (index !== -1) habits.value[index] = updated
     } catch (err) {
