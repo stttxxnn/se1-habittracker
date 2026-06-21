@@ -46,7 +46,7 @@ Unsere Vision ist es, eine benutzerfreundliche HabitTracker-App zu entwickeln, d
 | Weekly Meeting
 | wöchentlich dienstags ab 13:00 Uhr
 | ca. 2 h
-| Scrum Master
+| Gesamtes Team
 
 | Sprint Planning
 | dienstags zu Sprintbeginn ab 13:00 Uhr
