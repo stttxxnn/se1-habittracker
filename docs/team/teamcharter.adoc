@@ -1,4 +1,4 @@
-= Teamcharta: {project-name}
+= Teamcharta: Habit Tracker
 Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Ben Frank Loritz <s88887@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne Mathis Tesch <s88618@htw-dresden.de>
 {localdatetime}
 include::../_includes/default-attributes.inc.adoc[]
@@ -43,25 +43,20 @@ Unsere Vision ist es, eine benutzerfreundliche HabitTracker-App zu entwickeln, d
 |===
 | Ereignis | Wann | Dauer | Moderation
 
-| Standup (Daily / Weekly)
+| Weekly Meeting
 | wöchentlich dienstags ab 13:00 Uhr
 | ca. 10–15 min (integriert ins Meeting)
 | Scrum Master
 
 | Sprint Planning
 | dienstags zu Sprintbeginn ab 13:00 Uhr
-| ca. 1,5–2 h
+| ca. 1,5 h
 | Product Owner & Scrum Master
 
 | Sprint Review
-| dienstags zum Sprintende ab 13:00 Uhr
+| zum Sprintende ab 13:00 Uhr oder spontan im Discord
 | ca. 45–60 min
-| gesamtes Team
-
-| Retrospektive
-| im Anschluss an das Review (dienstags)
-| ca. 30–45 min
-| Scrum Master
+| gesamtes Team bzw. Scrum Master
 
 | Backlog Refinement
 | bei Bedarf im wöchentlichen Termin integriert
@@ -76,10 +71,10 @@ Unsere Vision ist es, eine benutzerfreundliche HabitTracker-App zu entwickeln, d
 | Thema | Vereinbarung
 
 | Primärer Kanal
-| Discord – Server für das Projekt „habit-tracker“
+| Discord-Server / WhatsApp-Gruppe
 
 | Entscheidungsprotokoll
-| Wichtige Entscheidungen werden in GitHub Issues oder kurz im Repository dokumentiert
+| Wichtige Entscheidungen werden in Meetings geklärt oder per Frage im Discord bzw. in WhatsApp abgestimmt
 
 | Erwartete Reaktionszeit
 | in der Regel innerhalb von 24 Stunden, bei wichtigen Themen schneller
@@ -91,7 +86,7 @@ Unsere Vision ist es, eine benutzerfreundliche HabitTracker-App zu entwickeln, d
 | Discord
 
 | Asynchrone Abstimmung
-| Kommunikation über GitHub Issues und Discord-Nachrichten (Updates, Fragen, Abstimmungen)
+| Kommunikation über Discord oder WhatsApp sowie in den Meetings (Updates, Fragen, Abstimmungen)
 |===
 
 == Arbeitsweise
@@ -142,4 +137,4 @@ _Diese Vereinbarungen haben wir gemeinsam getroffen:_
 . Wir halten uns an Absprachen und geben Bescheid, wenn etwas nicht klappt.
 . Wir sorgen dafür, dass alle im Team eingebunden sind und mitkommen.
 
-_Nächste Überprüfung: nach sprint 2 — Diese Charta wird regelmäßig in der Retrospektive aktualisiert._
+_Nächste Überprüfung: nach Sprint 2 — Diese Charta wird bei Bedarf gemeinsam aktualisiert._
