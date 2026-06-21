@@ -1,5 +1,5 @@
 = UX-Konzept: {project-name}
-Vorname Nachname <email@domain.org>; Vorname2 Nachname2 <email2@domain.org>; Vorname3 Nachname3 <email3@domain.org>
+Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Ben Frank Loritz <s88887@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne Mathis Tesch <s88618@htw-dresden.de>
 {localdatetime}
 include::../_includes/default-attributes.inc.adoc[]
 // Platzhalter für weitere Dokumenten-Attribute
@@ -58,20 +58,20 @@ _Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur be
 | 34
 
 | *Zitat*
-| _„Meine Grenzen von privat Leben und Arbeit verschwimmen. Mir fällt es schwer meine privaten Interessen zu prioritieren."_
+| _„Meine Grenzen von Privatleben und Arbeit verschwimmen. Mir fällt es schwer, meine privaten Interessen zu priorisieren."_
 
 | *Ziele*
-| Etablierung von "Boundary-Habits"(z.B Spaziergang als simulierter arbeitsweg) um die Trennung von Arbeit und   Privatleben zu unterstützen. Sie möchte ihre Freizeitaktivitäten regelmäßig wahrnehmen, um einen Ausgleich zum Homeoffice zu schaffen.
+| Etablierung von "Boundary-Habits" (z. B. Spaziergang als simulierter Arbeitsweg), um die Trennung von Arbeit und Privatleben zu unterstützen. Sie möchte ihre Freizeitaktivitäten regelmäßig wahrnehmen, um einen Ausgleich zum Homeoffice zu schaffen.
 
 | *Frustrationen*
-| Rückenschmerzen durch bewegungsmangel und das Gefühl nie richtig fertig mit ihrer Arbeit zu sein.
+| Rückenschmerzen durch Bewegungsmangel und das Gefühl, nie richtig fertig mit ihrer Arbeit zu sein.
 
 | *Verhalten & Kontext*
 | Elena sitzt den ganzen Tag am Schreibtisch und arbeitet an ihrem Laptop. Sie nutzt ihr Smartphone hauptsächlich für soziale Medien und zum Musik hören. Sie hat Schwierigkeiten, sich von der Arbeit zu lösen, da sie keinen klaren Arbeitsbeginn oder -ende hat. Sie möchte gerne mehr Bewegung in ihren Alltag integrieren, aber es fällt ihr schwer, sich dazu zu motivieren.
 
 
 | *Bezug zum Produkt*
-|Für Elena ist es wichtig notification zu erhalten um sich an ihre Boundary-Habits zu erinnern. Sie brauch klare Grenzen zwischen Arbeit und Freizeit, um ihre mentalen und physischen Gesundheit zu verbessern. Der HabitTracker könnte ihr helfen, regelmäßige Pausen einzulegen und Aktivitäten zu planen, die ihr helfen, sich von der Arbeit zu lösen.
+| Für Elena ist es wichtig, Benachrichtigungen zu erhalten, um sich an ihre Boundary-Habits zu erinnern. Sie braucht klare Grenzen zwischen Arbeit und Freizeit, um ihre mentale und physische Gesundheit zu verbessern. Der HabitTracker könnte ihr helfen, regelmäßige Pausen einzulegen und Aktivitäten zu planen, die ihr helfen, sich von der Arbeit zu lösen.
 |===
 
 
@@ -89,7 +89,7 @@ _Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur be
 | _„Ich habe viel Zeit, aber es fällt mir schwer, sie sinnvoll zu nutzen und mich zu motivieren."_
 
 | *Ziele*
-| Möchte mehr Strukur in seinem Leben mit fokus auf seine Gesunheit und kognitiven Fähigkeiten. Außerdem hat er einige schlechte Gewohnheiten, die er gerne loswerden würde (z.B. Rauchen).
+| Möchte mehr Struktur in seinem Leben mit Fokus auf seine Gesundheit und kognitiven Fähigkeiten. Außerdem hat er einige schlechte Gewohnheiten, die er gerne loswerden würde (z. B. Rauchen).
 
 | *Frustrationen*
 | Überforderung von zu komplexen Apps und das Gefühl, dass er zu alt ist, um neue Gewohnheiten zu etablieren und schlechte Gewohnheiten zu brechen.
@@ -98,7 +98,7 @@ _Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur be
 | Gerhard nutzt sein Smartphone hauptsächlich für Telefonate und gelegentlich für Nachrichten. Er hat wenig Erfahrung mit Apps und digitalen Tools, fühlt sich aber verpflichtet, etwas zu ändern. Er bevorzugt einfache, klare Anweisungen und visuelle Hilfen. Gerhard bewegt sich nicht viel und ernährt sich ungesund. Er möchte dennoch sein Verhalten verbessern, um noch lange für seine Kinder und Enkel da zu sein.
 
 | *Bezug zum Produkt*
-|Gerhard hat viele schlechte Gewohnheiten, die er gerne loswerden würde, aber er weiß nicht, wo er anfangen soll. Er brauch ein weg um sich selber zur rechenschaft zu ziehen und motiviert zu bleiben. Der HabitTracker könnte ihm helfen, kleine Schritte zu machen und Fortschritte zu sehen, um ihn zu motivieren, weiterzumachen.
+| Gerhard hat viele schlechte Gewohnheiten, die er gerne loswerden würde, aber er weiß nicht, wo er anfangen soll. Er braucht einen Weg, um sich selbst zur Rechenschaft zu ziehen und motiviert zu bleiben. Der HabitTracker könnte ihm helfen, kleine Schritte zu machen und Fortschritte zu sehen, um ihn zu motivieren, weiterzumachen.
 |===
 
 === Persona 4: Franz K.
@@ -145,7 +145,7 @@ _Der Nutzungskontext gemäß DIN EN ISO 9241-11 beschreibt die Lebenswirklichkei
 | Hauptziel ist der Aufbau langfristiger, positiver Routinen (Gewohnheitsbildung > 66 Tage).
 Konkrete Aufgaben:
 1. Schnelles Protokollieren ("Check-in") von Gewohnheiten unmittelbar nach einem Trigger (Habit-Stacking).
-2. Reflexion über Rückschläge im Tagebuch.
+2. Fortschritt verfolgen (Streak und Statistik), um Muster und Verbesserungen zu erkennen.
 3. Anpassung von Zielen in Stressphasen (Aktivierung Recovery-Mode).
 
 | Ressourcen
@@ -185,7 +185,7 @@ _Was könnte die Akzeptanz oder Nutzung des Produkts beeinträchtigen?_
 | **Offline-First-Ansatz**: Alle Einträge können offline vorgenommen werden. Unterstützung von **Habit Stacking** durch Vorschläge für Trigger (z. B. "Nach der Vorlesung").
 
 | **Mangelnde Langzeitmotivation** nach der ersten Euphorie (bevor die 66 Tage erreicht sind).
-| **Gamification & Belohnungssystem**: Visuelles Feedback durch Fortschrittsbalken, kleine Meilenstein-Feiern und wissenschaftlich fundierte Fakten zur Gewohnheitsbildung als Motivations-Push.
+| **Sichtbarer Fortschritt**: Visuelles Feedback durch Streak-Anzeige, Heatmap und das Erreichen von Meilensteinen, ergänzt um wissenschaftlich fundierte Fakten zur Gewohnheitsbildung als Motivations-Push.
 |===
 == Systemweite Interaktionsflüsse
 
@@ -209,8 +209,8 @@ start
 :UI aktualisiert sich sofort visuell (Häkchen gesetzt);
 
 if (Internetverbindung aktiv?) then (ja)
-  :syncService sendet POST-Request an /api/v1/executions;
-  :Backend persistiert Ausführung in PostgreSQL;
+  :Adapter schreibt die Ausführung nach Supabase (PostgREST);
+  :Supabase (PostgreSQL) persistiert die Ausführung;
   :Lokaler Sync-Status wird auf 'synced' gesetzt;
 else (nein)
   :Client wartet im Hintergrund auf 'online'-Event;
@@ -272,16 +272,16 @@ Wireframes und UI-Implementierungen._
 | Aspekt | Entscheidung & Begründung
 
 | Farbpalette
-| *Primärfarbe:* Tiefblau (#1A365D) für Ruhe und Struktur. +
-*Akzentfarbe:* Vitales Grün (#2ECC71) für erfolgreiche Ausführungen. +
-*Recovery-Farbe:* Warmes Amber (#F39C12) zur Signalisierung des aktiven RecoveryModus.
+| *Primär-/Akzentfarbe:* Violett (#7437D8) für Aktionen, aktive Zustände und Fortschritt. +
+*Flächen:* Helles Lavendel (#EDE7FA) und Weiß für Karten und Hintergründe. +
+*Recovery-Signal:* Warmes Amber (#F39C12) zur Kennzeichnung des aktiven Recovery-Mode.
 
 | Typografie
 | *Fließtext:* Inter (16px) für optimale digitale Lesbarkeit. +
 *Überschriften:* Inter Bold. Kontraststarke Darstellung auf mobilen Displays.
 
 | Ikonografie
-| Minimalistisches, konsistentes Set aus *Lucide-React / Material Icons*. Klare Metaphern (z. B. Haken für Ausführung, Buch für Tagebucheintrag).
+| Minimalistisches, konsistentes Set (z. B. *Lucide* oder *Material Icons*), ergänzt durch Emoji-Symbole zur schnellen Wiedererkennung einzelner Gewohnheiten. Klare Metaphern (z. B. Haken für eine erledigte Ausführung, Flamme für den Streak).
 
 | Bildsprache
 | Vollständiger Verzicht auf ablenkende Stockfotos. Verwendung von funktionalen, flachen Vektorgrafiken zur visuellen Unterstützung von Leerzuständen.
@@ -330,4 +330,4 @@ _Dieses Dokument wird kontinuierlich weiterentwickelt — insbesondere nach Nutz
 Usability-Tests oder wesentlichen Designentscheidungen. Individuelle Feature-Wireframes
 werden nicht hier, sondern direkt in den User Stories im Product Backlog gepflegt._
 
-_Der Zweck dieses Dokuments ist es, die wesentlichen Bedarfe und Funktionalitäten des Systems {project-system-name} überblicksartig zu beschreiben. Der Fokus liegt auf den Fähigkeiten, die von Stakeholdern und adressierten Nutzern benötigt werden, und der Begründung dieser Bedarfe. Die Details, wie das System {project-system-name} diese Bedarfe erfüllt, werden durch User Stories im Product Backlog sowie dem UX-Konzept beschrieben._
+_Der Zweck dieses Dokuments ist es, die wesentlichen Bedarfe und Funktionalitäten des Systems {project-system-name} überblicksartig zu beschreiben. Der Fokus liegt auf den Fähigkeiten, die von Stakeholdern und adressierten Nutzern benötigt werden, und der Begründung dieser Bedarfe. Die Details, wie das System {project-system-name} diese Bedarfe erfüllt, werden durch User Stories im Product Backlog sowie im Produktkonzept beschrieben._
