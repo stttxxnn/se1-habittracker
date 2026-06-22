@@ -153,7 +153,7 @@ const user = ref<User>({ id: 1, name: 'Laura M.' })
 
 const currentGreeting = computed<string>(() => {
   const h = now.value.getHours()
-  if (h >= 5  && h < 12) return labels.home.morningGreeting
+  if (h >= 5 && h < 12) return labels.home.morningGreeting
   if (h >= 12 && h < 18) return labels.home.afternoonGreeting
   if (h >= 18 && h < 22) return labels.home.eveningGreeting
   return labels.home.nightGreeting
@@ -235,24 +235,16 @@ onUnmounted(() => {
 
       <div class="timeline-box">
         <div class="timeline-labels">
-          <span
-            v-for="lbl in timelineLabels"
-            :key="lbl.text"
-            class="timeline-label"
-            :style="{ left: lbl.percent + '%' }"
-          >{{ lbl.text }}</span>
+          <span v-for="lbl in timelineLabels" :key="lbl.text" class="timeline-label"
+            :style="{ left: lbl.percent + '%' }">{{ lbl.text }}</span>
         </div>
         <div class="timeline-main">
           <div class="timeline-progress" :style="{ width: currentDayProgress + '%' }"></div>
         </div>
         <div class="timeline-events">
-          <div
-            v-for="block in timelineBlocks"
-            :key="block.id"
-            class="timeline-habit-block"
+          <div v-for="block in timelineBlocks" :key="block.id" class="timeline-habit-block"
             :style="{ left: block.left + '%', width: block.width + '%', backgroundColor: block.color }"
-            :title="block.label"
-          ></div>
+            :title="block.label"></div>
         </div>
       </div>
 
@@ -260,28 +252,20 @@ onUnmounted(() => {
       <p v-else-if="habitStore.error" class="habit-error">{{ habitStore.error }}</p>
 
       <TransitionGroup v-else tag="ul" name="habit-fade" class="habit-list">
-        <li
-          v-for="habit in visibleHabits"
-          :key="habit.id"
-          class="habit-list-item"
-          :class="{ done: isHabitDone(habit.id) }"
-        >
+        <li v-for="habit in visibleHabits" :key="habit.id" class="habit-list-item"
+          :class="{ done: isHabitDone(habit.id) }">
           <span class="habit-color-dot" :style="{ backgroundColor: habit.color ?? '#7437d8' }"></span>
           <span class="habit-time">
             {{ (habit.scheduledTime && habit.duration != null)
-                ? formatTimeRange(habit.scheduledTime, habit.duration)
-                : (habit.scheduledTime ? normalizeTime(habit.scheduledTime) : '–') }}
+              ? formatTimeRange(habit.scheduledTime, habit.duration)
+              : (habit.scheduledTime ? normalizeTime(habit.scheduledTime) : '–') }}
           </span>
           <span class="habit-name">{{ habit.title }}</span>
           <button class="habit-action-btn" type="button" @click="handleEdit(habit)" title="Bearbeiten">✎</button>
-          <button class="habit-action-btn" type="button" @click="habitStore.deleteHabit(habit.id)" title="Löschen">×</button>
-          <input
-            type="checkbox"
-            class="habit-checkbox"
-            :checked="isHabitDone(habit.id)"
-            :aria-label="habit.title"
-            @change="toggleHabitDone(habit.id)"
-          />
+          <button class="habit-action-btn" type="button" @click="habitStore.deleteHabit(habit.id)"
+            title="Löschen">×</button>
+          <input type="checkbox" class="habit-checkbox" :checked="isHabitDone(habit.id)" :aria-label="habit.title"
+            @change="toggleHabitDone(habit.id)" />
         </li>
       </TransitionGroup>
     </section>
@@ -289,15 +273,9 @@ onUnmounted(() => {
     <section class="app-card">
       <h2 class="app-section-title">{{ labels.home.calendar }}</h2>
       <div class="week">
-        <button
-          v-for="day in weekDays"
-          :key="day.id"
-          class="week-day"
-          :class="{ active: day.dayIndex === selectedDayIndex, today: day.dayIndex === todayIndex }"
-          type="button"
-          :aria-label="day.label"
-          @click="selectDay(day.dayIndex)"
-        >
+        <button v-for="day in weekDays" :key="day.id" class="week-day"
+          :class="{ active: day.dayIndex === selectedDayIndex, today: day.dayIndex === todayIndex }" type="button"
+          :aria-label="day.label" @click="selectDay(day.dayIndex)">
           {{ day.label }}
         </button>
       </div>
@@ -305,9 +283,12 @@ onUnmounted(() => {
 
     <section class="app-card">
       <h2 class="app-section-title">{{ labels.home.habitManagement }}</h2>
-      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitCreate')">⊞ {{ labels.home.createHabit }}</button>
-      <button class="app-action-button" type="button" @click="handleOpenEditSelection">✎ {{ labels.home.editHabit }}</button>
-      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitDelete')">🗑 {{ labels.home.deleteHabit }}</button>
+      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitCreate')">⊞ {{
+        labels.home.createHabit }}</button>
+      <button class="app-action-button" type="button" @click="handleOpenEditSelection">✎ {{ labels.home.editHabit
+      }}</button>
+      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitDelete')">🗑 {{
+        labels.home.deleteHabit }}</button>
     </section>
 
     <BottomNav :current-view="currentView" @changeView="$emit('changeView', $event)" />
@@ -315,44 +296,266 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.home-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; }
-.home-profile { display:flex; align-items:center; gap:14px; }
-.home-avatar { width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#9aa7ff,#222); }
-.home-greeting { margin:0; font-size:22px; font-weight:700; }
-.home-user-name { margin:0; color:#1f1f1f; font-size:16px; }
-.home-settings-button { width:48px; height:48px; border:none; border-radius:50%; background:#f1f1f1; font-size:22px; cursor:pointer; }
-.home-stats { display:flex; justify-content:space-around; background:#e7e7e7; border-radius:12px; padding:14px; margin-bottom:20px; }
-.home-stats div { text-align:center; }
-.home-stats b { display:block; margin-top:6px; color:#555; }
-.date { margin:0; color:#777; font-size:12px; font-weight:bold; }
-.timeline-box { background:white; border-radius:14px; padding:12px 14px 16px; margin-bottom:18px; }
-.timeline-labels { position:relative; height:18px; margin-bottom:4px; }
-.timeline-label { position:absolute; transform:translateX(-50%); font-size:11px; font-weight:700; color:#666; white-space:nowrap; }
-.timeline-label:first-child { transform:translateX(0); }
-.timeline-label:last-child  { transform:translateX(-100%); }
-.timeline-main { height:5px; background:#e7ddff; position:relative; margin-bottom:8px; border-radius:3px; }
-.timeline-progress { position:absolute; left:0; top:0; height:5px; background:#7437d8; border-radius:3px; }
-.timeline-events { position:relative; height:10px; background:#ebebeb; border-radius:5px; overflow:hidden; }
-.timeline-habit-block { position:absolute; top:0; height:100%; border-radius:3px; opacity:0.85; min-width:4px; }
-.habit-list { list-style:none; margin:0; padding:0; }
-.habit-list-item { display:grid; grid-template-columns:10px 1fr auto auto auto auto; gap:8px; align-items:center; padding:10px 0; border-bottom:1px solid #f0f0f0; }
-.habit-list-item:last-child { border-bottom:none; }
-.habit-color-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.habit-time { font-weight:700; font-size:13px; white-space:nowrap; color:#5a3ec8; letter-spacing:0.02em; }
-.habit-name { color:#1f1f1f; font-size:14px; }
-.habit-action-btn { background:none; border:none; cursor:pointer; font-size:16px; color:#888; padding:2px 4px; border-radius:4px; }
-.habit-action-btn:hover { background:#f1f1f1; color:#333; }
-.habit-checkbox { width:20px; height:20px; accent-color:#7437d8; cursor:pointer; }
-.habit-list-item .habit-time, .habit-list-item .habit-name { transition:color 0.3s ease; }
-.habit-list-item.done .habit-time, .habit-list-item.done .habit-name { color:#aaaaaa; text-decoration:line-through; }
-.habit-fade-leave-active { transition:opacity 0.4s ease, transform 0.4s ease; }
-.habit-fade-leave-to { opacity:0; transform:translateX(24px); }
-.habit-fade-move { transition:transform 0.4s ease; }
-.habit-status, .habit-error { margin:0; font-size:13px; }
-.habit-error { color:#b00020; }
-.week { display:flex; justify-content:space-between; }
-.week-day { width:38px; height:38px; border:none; border-radius:50%; background:white; display:grid; place-items:center; font-size:13px; color:#1f1f1f; cursor:pointer; transition:background 0.2s ease, color 0.2s ease; }
-.week-day:hover { background:#ede8ff; color:#7437d8; }
-.week-day.active { background:#7b4dff; color:white; }
-.week-day.today:not(.active) { outline:2px solid #7437d8; outline-offset:-2px; }
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.home-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.home-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9aa7ff, #222);
+}
+
+.home-greeting {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.home-user-name {
+  margin: 0;
+  color: #1f1f1f;
+  font-size: 16px;
+}
+
+.home-settings-button {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: #f1f1f1;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.home-stats {
+  display: flex;
+  justify-content: space-around;
+  background: #e7e7e7;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.home-stats div {
+  text-align: center;
+}
+
+.home-stats b {
+  display: block;
+  margin-top: 6px;
+  color: #555;
+}
+
+.date {
+  margin: 0;
+  color: #777;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.timeline-box {
+  background: white;
+  border-radius: 14px;
+  padding: 12px 14px 16px;
+  margin-bottom: 18px;
+}
+
+.timeline-labels {
+  position: relative;
+  height: 18px;
+  margin-bottom: 4px;
+}
+
+.timeline-label {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 700;
+  color: #666;
+  white-space: nowrap;
+}
+
+.timeline-label:first-child {
+  transform: translateX(0);
+}
+
+.timeline-label:last-child {
+  transform: translateX(-100%);
+}
+
+.timeline-main {
+  height: 5px;
+  background: #e7ddff;
+  position: relative;
+  margin-bottom: 8px;
+  border-radius: 3px;
+}
+
+.timeline-progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 5px;
+  background: #7437d8;
+  border-radius: 3px;
+}
+
+.timeline-events {
+  position: relative;
+  height: 10px;
+  background: #ebebeb;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.timeline-habit-block {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 3px;
+  opacity: 0.85;
+  min-width: 4px;
+}
+
+.habit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.habit-list-item {
+  display: grid;
+  grid-template-columns: 10px auto minmax(0, 1fr) auto auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.habit-list-item:last-child {
+  border-bottom: none;
+}
+
+.habit-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.habit-time {
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  color: #5a3ec8;
+  letter-spacing: 0.02em;
+}
+
+.habit-name {
+  color: #1f1f1f;
+  font-size: 14px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.habit-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #888;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.habit-action-btn:hover {
+  background: #f1f1f1;
+  color: #333;
+}
+
+.habit-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #7437d8;
+  cursor: pointer;
+}
+
+.habit-list-item .habit-time,
+.habit-list-item .habit-name {
+  transition: color 0.3s ease;
+}
+
+.habit-list-item.done .habit-time,
+.habit-list-item.done .habit-name {
+  color: #aaaaaa;
+  text-decoration: line-through;
+}
+
+.habit-fade-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.habit-fade-leave-to {
+  opacity: 0;
+  transform: translateX(24px);
+}
+
+.habit-fade-move {
+  transition: transform 0.4s ease;
+}
+
+.habit-status,
+.habit-error {
+  margin: 0;
+  font-size: 13px;
+}
+
+.habit-error {
+  color: #b00020;
+}
+
+.week {
+  display: flex;
+  justify-content: space-between;
+}
+
+.week-day {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: white;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  color: #1f1f1f;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.week-day:hover {
+  background: #ede8ff;
+  color: #7437d8;
+}
+
+.week-day.active {
+  background: #7b4dff;
+  color: white;
+}
+
+.week-day.today:not(.active) {
+  outline: 2px solid #7437d8;
+  outline-offset: -2px;
+}
 </style>
