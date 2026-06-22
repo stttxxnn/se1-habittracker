@@ -39,7 +39,11 @@
     "settings": {
         "title": "Settings",
         "account": "Account",
-        "notifications": "Notifications"
+        "notifications": "Notifications",
+        "dataPrivacy": "Data & Privacy",
+        "terms": "Terms",
+        "feedback": "Feedback",
+        "faq": "Frequently asked questions"
     },
     "habitCreate": {
         "title": "Create a new Habit",

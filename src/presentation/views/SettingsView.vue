@@ -30,17 +30,12 @@ defineEmits<{
 
     <!-- Einstellungen als einfache Liste im Wireframe-Stil -->
     <section class="app-card settings-list">
-      <button type="button">
-        {{ labels.settings.account }}
-      </button>
-
-      <button
-        v-for="item in 7"
-        :key="item"
-        type="button"
-      >
-        {{ labels.settings.notifications }}
-      </button>
+      <button type="button">{{ labels.settings.account }}</button>
+      <button type="button">{{ labels.settings.notifications }}</button>
+      <button type="button">{{ labels.settings.dataPrivacy }}</button>
+      <button type="button">{{ labels.settings.terms }}</button>
+      <button type="button">{{ labels.settings.feedback }}</button>
+      <button type="button">{{ labels.settings.faq }}</button>
     </section>
 
      <!-- Untere Navigation -->
@@ -57,6 +52,7 @@ defineEmits<{
   border-bottom: 1px solid #aaa;
   background: transparent;
   text-align: left;
+  cursor: default;
 }
 
 /* Bei der letzten Zeile wird keine Trennlinie angezeigt */
