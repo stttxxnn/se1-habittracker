@@ -1,5 +1,5 @@
 = Deployment & Betrieb: {project-name}
-Vorname Nachname <email@domain.org>; Vorname2 Nachname2 <email2@domain.org>; Vorname3 Nachname3 <email3@domain.org>
+Hannes Lutz Ullmann <s88836@htw-dresden.de>; Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Ben Frank Loritz <s88887@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne Mathis Tesch <s88618@htw-dresden.de>
 {localdatetime}
 include::../_includes/default-attributes.inc.adoc[]
 // Platzhalter für weitere Dokumenten-Attribute
@@ -31,10 +31,10 @@ keine andere.
 | Umgebung | URL | Zweck | Branch | Deployment
 
 | Lokal
-| http://localhost:8080
+| http://localhost:5173
 | Entwicklung und manuelle Tests auf dem eigenen Rechner
 | Beliebig
-| Manuell (Docker Compose)
+| Manuell (npm)
 
 | CI
 | —
@@ -69,21 +69,13 @@ Mal lokal zum Laufen bringen wollen.
 |===
 | Werkzeug | Version | Installationshinweis
 
-| Docker
-| ≥ 24.0
-| https://docs.docker.com/get-docker/
+| Node.js
+| ≥ 25.9.0
+| https://nodejs.org — oder via `nvm`
 
-| Docker Compose
-| ≥ 2.0
-| Wird mit Docker Desktop mitgeliefert
-
-| [z. B. Node.js]
-| [z. B. ≥ 20 LTS]
-| [z. B. https://nodejs.org — oder via `nvm`]
-
-| [z. B. Java JDK]
-| [z. B. ≥ 21]
-| [z. B. https://adoptium.net]
+| npm
+| ≥ 11.14.1
+| Bundled with Node.js
 
 | Git
 | Aktuell
@@ -99,27 +91,33 @@ git clone [Repository-URL]
 cd [projektname]
 
 # 2. Umgebungsvariablen konfigurieren
-cp .env.example .env
+cp .env
 # .env mit einem Editor öffnen und ggf. anpassen
 
-# 3. Alle Dienste starten
-docker compose up --build
+# 3. Die weitere Abhängigkeiten herunterladen
+npm install
 
-# 4. Prüfen, ob alles läuft
-# Frontend:  http://localhost:3000
-# Backend:   http://localhost:8080
-# API-Docs:  http://localhost:8080/swagger-ui
+# 4. Alle Dienste starten
+npm run dev
+
+# 5. Prüfen, ob alles läuft
+# Frontend:  http://localhost:5173
+
 ----
 
 === System stoppen und aufräumen
 
 [source,bash]
-----
-# Dienste stoppen (Daten bleiben erhalten)
-docker compose down
 
-# Dienste stoppen und Volumes löschen (Datenbank wird geleert)
-docker compose down -v
+//# Dienste stoppen (Daten bleiben erhalten)
+//docker compose down
+
+//# Dienste stoppen und Volumes löschen (Datenbank wird //geleert)
+//docker compose down -v
+
+----
+# Dienste stoppen
+In Terminal drücken ctrl + c
 ----
 
 === Häufige Probleme beim lokalen Start
@@ -129,8 +127,8 @@ docker compose down -v
 | Problem | Lösung
 
 | Port bereits belegt (`address already in use`)
-| `docker compose down` ausführen oder belegten Port prüfen:
-  `lsof -i :8080` (macOS/Linux) bzw. `netstat -ano` (Windows)
+| Belegten Port prüfen:
+  `lsof -i :5173` (macOS/Linux) bzw. `netstat -ano` (Windows)
 
 | Datenbank-Container startet nicht
 | Volumes löschen und neu starten: `docker compose down -v && docker compose up`
@@ -142,38 +140,18 @@ docker compose down -v
 | [Lösung]
 |===
 
+//Anstatt...
+//== Docker & Container
+== Datenbank
 
-== Docker & Container
+//Dieser Abschnitt beschreibt, wie das System containerisiert ist, welche Container existieren, wie sie konfiguriert werden, und wie sie zusammenarbeiten.
+Die Anwendung verwendet eine separate PostgreSQL-Datenbank, die über Supabase gehostet wird. Die Datenbank wird unabhängig von der eigentlichen Anwendung betrieben und dient zur persistenten Speicherung aller Anwendungsdaten.
 
-Dieser Abschnitt beschreibt, wie das System containerisiert ist, welche Container
-existieren, wie sie konfiguriert werden, und wie sie zusammenarbeiten.
+=== Zugriff
 
-=== Container-Übersicht
+Der Zugriff auf das Supabase-Projekt erfolgt über die Projektverwaltung in Supabase. Berechtigte Teammitglieder können nach Einladung an die Organisation auf das Projekt zugreifen und die Datenbank über das Supabase Dashboard verwalten.
 
-[cols="1,1,2,1", options="header"]
-|===
-| Service | Image | Zweck | Port (intern → extern)
-
-| [z. B. frontend]
-| [z. B. node:20-alpine (Build-Image)]
-| React-Anwendung — wird als statische Dateien gebaut und über nginx ausgeliefert
-| 80 → 3000
-
-| [z. B. backend]
-| [z. B. eclipse-temurin:21-jre-alpine]
-| Spring Boot REST-API
-| 8080 → 8080
-
-| [z. B. db]
-| [z. B. postgres:15-alpine]
-| PostgreSQL-Datenbank
-| 5432 → 5432
-
-| [z. B. mailhog]
-| [z. B. mailhog/mailhog]
-| E-Mail-Testserver (nur lokal); fängt alle ausgehenden E-Mails ab
-| 1025 (SMTP), 8025 (UI) → 8025
-|===
+Für den direkten Datenbankzugriff werden die von Supabase bereitgestellten Verbindungsdaten verwendet. Diese können im Dashboard unter `Project Settings` → `API Keys` und `Data API` eingesehen werden.
 
 === Umgebungsvariablen
 
@@ -184,35 +162,15 @@ im Code. Eine vollständige Liste mit Beispielwerten befindet sich in `.env.exam
 |===
 | Variable | Beispielwert | Beschreibung | Pflicht
 
-| `DATABASE_URL`
-| `jdbc:postgresql://db:5432/projektname`
+| `VITE_SUPABASE_URL`
+| `https://DEIN-PROJEKT-ID.supabase.co`
 | Verbindungs-URL zur Datenbank
 | Ja
 
-| `DATABASE_USER`
-| `projektname`
-| Datenbankbenutzername
+| `VITE_SUPABASE_ANON_KEY`
+| `sb_publishable_DEIN-KEY`
+| Schlüssel für DB Zugang
 | Ja
-
-| `DATABASE_PASSWORD`
-| `[sicheres Passwort]`
-| Datenbankpasswort — nie im Repository speichern
-| Ja
-
-| `JWT_SECRET`
-| `[min. 32 Zeichen]`
-| Geheimnis für JWT-Token-Signierung
-| Ja
-
-| `SMTP_HOST`
-| `mailhog` (lokal) / `smtp.example.com` (prod)
-| E-Mail-Serveradresse
-| Ja
-
-| `LOG_LEVEL`
-| `INFO`
-| Log-Level: DEBUG / INFO / WARN / ERROR
-| Nein (Standard: INFO)
 
 | [Weitere Variable]
 | [Beispielwert]
