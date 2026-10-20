@@ -1,0 +1,24 @@
+@startuml
+actor Nutzer
+participant "HomeView" as V
+participant "habitStore" as S
+participant "GetAllHabitsService" as UC
+participant "HabitRepositoryPort" as P
+participant "SupabaseHabitAdapter" as A
+database "habits" as DB
+
+Nutzer -> V : Startseite öffnen
+alt keine Habits im Store
+  V -> S : loadAllHabits()
+  S -> UC : execute()
+  UC -> P : findAll()
+  P -> A : findAll()
+  A -> DB : SELECT ... ORDER BY scheduled_time
+  DB --> A : Zeilen
+  A --> UC : Habit[] (mapToHabit)
+  UC --> S : Habit[]
+end
+V -> V : todayHabits filtern\n(periodicity, Wochentag)
+V -> V : visibleHabits\n(ohne hiddenHabitIds)
+V --> Nutzer : Liste + Timeline
+@enduml

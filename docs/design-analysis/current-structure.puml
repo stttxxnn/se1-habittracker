@@ -1,0 +1,117 @@
+@startuml
+!pragma layout smetana
+title Klassen beim Laden und Anzeigen der Habits (Ist-Zustand)
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "presentation" {
+  class HomeView <<Vue-Komponente>> {
+    - todayWeekday: string
+    - todayHabits: Habit[]
+    - visibleHabits: Habit[]
+    - timelineBlocks: TimelineBlock[]
+    - onMounted(): void
+    - toggleHabitDone(id: string): void
+  }
+
+  class habitStore <<Pinia-Store>> {
+    + habits: Habit[]
+    + isLoading: boolean
+    + error: string | null
+    + completedHabitIds: Set<string>
+    + hiddenHabitIds: Set<string>
+    + loadAllHabits(): Promise<void>
+  }
+}
+
+package "domain" {
+  interface GetAllHabitsQuery <<Inbound Port>> {
+    + execute(): Promise<Habit[]>
+  }
+
+  class GetAllHabitsService {
+    - habitRepository: HabitRepositoryPort
+    + execute(): Promise<Habit[]>
+  }
+
+  interface HabitRepositoryPort <<Outbound Port>> {
+    + findById(id: string): Promise<Habit>
+    + findAll(): Promise<Habit[]>
+    + save(data: HabitData): Promise<Habit>
+    + update(id: string, data: HabitData): Promise<Habit>
+    + delete(id: string): Promise<void>
+  }
+
+  interface Habit {
+    + id: string
+    + title: string
+    + createdAt: Date
+    + periodicity?: Periodicity
+    + weekdays?: Weekday[]
+    + scheduledTime?: string
+    + duration?: number
+    + color?: string
+    + icon?: string
+    + reason?: string
+  }
+
+  enum Periodicity {
+    daily
+    weekly
+    monthly
+  }
+
+  enum Weekday {
+    monday
+    tuesday
+    wednesday
+    thursday
+    friday
+    saturday
+    sunday
+  }
+}
+
+package "infrastructure" {
+  class SupabaseHabitAdapter {
+    - mapToHabit(row: HabitRow): Habit
+    + findById(id: string): Promise<Habit>
+    + findAll(): Promise<Habit[]>
+    + save(data: HabitData): Promise<Habit>
+    + update(id: string, data: HabitData): Promise<Habit>
+    + delete(id: string): Promise<void>
+  }
+
+  class HabitRow <<type>> {
+    + id: string
+    + title: string
+    + created_at: string
+    + periodicity?: string
+    + weekdays?: string[]
+    + scheduled_time?: string
+    + duration_minutes?: number
+    + color?: string
+    + icon?: string
+    + reason?: string
+  }
+
+  class supabase <<SupabaseClient>>
+}
+
+HomeView ..> habitStore : nutzt
+habitStore "1" o-- "0..*" Habit : habits
+habitStore --> GetAllHabitsService : ruft auf
+habitStore ..> SupabaseHabitAdapter : <<create>>
+
+GetAllHabitsService ..|> GetAllHabitsQuery
+GetAllHabitsService --> "1" HabitRepositoryPort : habitRepository
+GetAllHabitsQuery ..> Habit
+HabitRepositoryPort ..> Habit
+
+SupabaseHabitAdapter ..|> HabitRepositoryPort
+SupabaseHabitAdapter ..> HabitRow : mappt
+SupabaseHabitAdapter ..> supabase : fragt ab
+
+Habit --> Periodicity
+Habit --> "0..*" Weekday
+@enduml
