@@ -1,24 +1,53 @@
 @startuml
+title Tagesübersicht anzeigen (Ist) – betroffene Stellen bei Änderung "Gewohnheit pausieren"
+
 actor Nutzer
-participant "HomeView" as V
+participant "HomeView" as V #FFE5E5
 participant "habitStore" as S
 participant "GetAllHabitsService" as UC
 participant "HabitRepositoryPort" as P
-participant "SupabaseHabitAdapter" as A
-database "habits" as DB
+participant "SupabaseHabitAdapter" as A #FFE5E5
+database "habits" as DB #FFE5E5
 
 Nutzer -> V : Startseite öffnen
 alt keine Habits im Store
   V -> S : loadAllHabits()
+  note left of S #FFFFFF
+    Entscheidung: es werden weiterhin
+    alle Habits geladen (auch pausierte),
+    weil HabitEditView alle braucht,
+    um pausierte wieder zu aktivieren
+  end note
   S -> UC : execute()
   UC -> P : findAll()
   P -> A : findAll()
-  A -> DB : SELECT ... ORDER BY scheduled_time
+  A -[#C00000]> DB : SELECT ... ORDER BY scheduled_time
+  note right of DB #FFE5E5
+    neue Spalte status
+    (+ Migration, CHECK-Constraint)
+  end note
   DB --> A : Zeilen
-  A --> UC : Habit[] (mapToHabit)
+  A -[#C00000]-> UC : Habit[] (mapToHabit)
+  note right of A #FFE5E5
+    SELECT_COLS, HabitRow und
+    mapToHabit um status erweitern
+  end note
   UC --> S : Habit[]
 end
-V -> V : todayHabits filtern\n(periodicity, Wochentag)
+V -[#C00000]> V : todayHabits filtern\n(periodicity, Wochentag)
+note right of V #FFE5E5
+  pausierte Habits ausblenden:
+  A1 (kurzfristig): Bedingung direkt in todayHabits
+  A2 (langfristig): Regel als Domänenfunktion,
+  z. B. isScheduledForToday(habit, date),
+  View ruft sie nur noch auf
+end note
 V -> V : visibleHabits\n(ohne hiddenHabitIds)
 V --> Nutzer : Liste + Timeline
+
+legend right
+  |= Farbe |= Bedeutung |
+  |<#FFE5E5>| betroffen |
+  | Standardfarbe | nicht betroffen |
+endlegend
 @enduml

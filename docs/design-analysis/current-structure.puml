@@ -1,26 +1,22 @@
 @startuml
 !pragma layout smetana
-title Klassen beim Laden und Anzeigen der Habits (Ist-Zustand)
+title Klassen der Tagesübersicht (Ist, Ausschnitt) – betroffene Stellen bei Änderung "Gewohnheit pausieren"
 skinparam classAttributeIconSize 0
 hide empty members
 
 package "presentation" {
-  class HomeView <<Vue-Komponente>> {
-    - todayWeekday: string
+  class HomeView <<Vue-Komponente>> #FFE5E5 {
     - todayHabits: Habit[]
     - visibleHabits: Habit[]
-    - timelineBlocks: TimelineBlock[]
-    - onMounted(): void
-    - toggleHabitDone(id: string): void
   }
 
   class habitStore <<Pinia-Store>> {
     + habits: Habit[]
-    + isLoading: boolean
-    + error: string | null
-    + completedHabitIds: Set<string>
     + hiddenHabitIds: Set<string>
     + loadAllHabits(): Promise<void>
+  }
+
+  class "HabitEditView /\nHabitDeleteView" as OtherViews <<Vue-Komponente>> {
   }
 }
 
@@ -30,88 +26,62 @@ package "domain" {
   }
 
   class GetAllHabitsService {
-    - habitRepository: HabitRepositoryPort
     + execute(): Promise<Habit[]>
   }
 
   interface HabitRepositoryPort <<Outbound Port>> {
-    + findById(id: string): Promise<Habit>
     + findAll(): Promise<Habit[]>
-    + save(data: HabitData): Promise<Habit>
-    + update(id: string, data: HabitData): Promise<Habit>
-    + delete(id: string): Promise<void>
   }
 
-  interface Habit {
+  interface Habit #FFE5E5 {
     + id: string
     + title: string
-    + createdAt: Date
     + periodicity?: Periodicity
     + weekdays?: Weekday[]
-    + scheduledTime?: string
-    + duration?: number
-    + color?: string
-    + icon?: string
-    + reason?: string
-  }
-
-  enum Periodicity {
-    daily
-    weekly
-    monthly
-  }
-
-  enum Weekday {
-    monday
-    tuesday
-    wednesday
-    thursday
-    friday
-    saturday
-    sunday
+    <color:#C00000>+ status: 'active' | 'paused' (neu)</color>
   }
 }
 
 package "infrastructure" {
-  class SupabaseHabitAdapter {
+  class SupabaseHabitAdapter #FFE5E5 {
     - mapToHabit(row: HabitRow): Habit
-    + findById(id: string): Promise<Habit>
     + findAll(): Promise<Habit[]>
-    + save(data: HabitData): Promise<Habit>
-    + update(id: string, data: HabitData): Promise<Habit>
-    + delete(id: string): Promise<void>
   }
 
-  class HabitRow <<type>> {
+  class HabitRow <<type>> #FFE5E5 {
     + id: string
     + title: string
-    + created_at: string
     + periodicity?: string
     + weekdays?: string[]
-    + scheduled_time?: string
-    + duration_minutes?: number
-    + color?: string
-    + icon?: string
-    + reason?: string
+    <color:#C00000>+ status: string (neu)</color>
   }
-
-  class supabase <<SupabaseClient>>
 }
 
 HomeView ..> habitStore : nutzt
+OtherViews ..> habitStore : nutzt
 habitStore "1" o-- "0..*" Habit : habits
 habitStore --> GetAllHabitsService : ruft auf
 habitStore ..> SupabaseHabitAdapter : <<create>>
 
 GetAllHabitsService ..|> GetAllHabitsQuery
 GetAllHabitsService --> "1" HabitRepositoryPort : habitRepository
-GetAllHabitsQuery ..> Habit
-HabitRepositoryPort ..> Habit
 
 SupabaseHabitAdapter ..|> HabitRepositoryPort
 SupabaseHabitAdapter ..> HabitRow : mappt
-SupabaseHabitAdapter ..> supabase : fragt ab
 
-Habit --> Periodicity
-Habit --> "0..*" Weekday
+note "pausierte Habits ausblenden:\nA1 (kurzfristig): Bedingung in todayHabits\nA2 (langfristig): Regel als Domänenfunktion,\nz. B. isScheduledForToday(habit, date)" as NoteView #FFE5E5
+NoteView .. HomeView
+
+note "Grund für 'alle Habits laden':\nHabitEditView braucht auch pausierte,\num sie wieder zu aktivieren\n(Schalter dort liegt außerhalb\ndes untersuchten Ablaufs)" as NoteOther #FFFFFF
+NoteOther .. OtherViews
+
+note "SELECT_COLS und mapToHabit\num status erweitern;\nTabelle habits: neue Spalte\nstatus + Migration" as NoteAdapter #FFE5E5
+NoteAdapter .. SupabaseHabitAdapter
+
+legend right
+  |= Farbe |= Bedeutung |
+  |<#FFE5E5>| betroffen |
+  | Standardfarbe | nicht betroffen |
+  | <color:#C00000>rot</color> | neues Attribut |
+endlegend
 @enduml
