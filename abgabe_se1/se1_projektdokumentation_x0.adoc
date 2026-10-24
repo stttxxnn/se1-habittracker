@@ -1,9 +1,11 @@
+//DONT FORGET TO RENDER AS PDF
 // --- 1. Projektthema -------------------------
 = SE I - Projektdokumentation: {project-name}
 // --- 2. Teammitglieder -----------------------
-Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>
+Sofiia Khaleeva <s88844@htw-dresden.de>; Stan Schwerdtfeger <s88962@htw-dresden.de>; Olha Kochui <s88429@htw-dresden.de>; Daniel_Andreas Menzel <s88988@htw-dresden.de>; Rohullah Sediqi <s89006@htw-dresden.de>; Etienne_Mathis Tesch <s88618@htw-dresden.de>; Arwa Bdarneh <s88439@htw-dresden.de>
 // --- 3. Abgabedatum --------------------------
-01. Januar 2025
+//CHANGE LATER
+01. Januar 2027
 // ---------------------------------------------
 :docs: ../docs
 include::{docs}/_includes/default-attributes.inc.adoc[]
