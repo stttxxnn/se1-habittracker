@@ -1,0 +1,28 @@
+@startuml
+!include <c4/C4_Container.puml>
+
+LAYOUT_WITH_LEGEND()
+
+title Container Diagram – HabitTracker
+
+Person(user, "Nutzer:in", "Nutzt die App auf dem Smartphone/Desktop")
+
+System_Boundary(client_pwa, "Client-Seitige PWA (Browser)") {
+    Container(ui, "Vue 3 View Layer", "Vue 3 (Composition API)", "Rendert die UI mit Soft-UI/Glassmorphism-Effekten und fängt Interaktionen ab")
+    Container(state, "Pinia State Management", "JavaScript / Pinia", "Hält den aktuellen Anwendungsstatus im Speicher für reaktive UI-Updates")
+    Container(domain, "Domain Core (Business Logic)", "Pure TypeScript", "Enthält die reine, framework-unabhängige Logik (z.B. Berechnung von Erfolgsketten)")
+    Container(adapters, "Infrastructure Adapters", "TypeScript", "Implementiert die Repository-Interfaces und isoliert den Supabase-Client")
+}
+
+System_Boundary(backend_supabase, "Supabase Cloud Plattform") {
+    ContainerDb(postgres, "PostgreSQL Datenbank", "Postgres / RLS", "Persistiert Gewohnheiten, Ausführungen und Tagebucheinträge; sichert Daten per Row Level Security")
+    Container(edge, "Supabase Edge Functions", "Deno / TypeScript", "Berechnet im Hintergrund asynchrone Korrelationen für die AI-Insights")
+}
+
+Rel(user, ui, "interagiert mit")
+Rel(ui, state, "liest / schreibt")
+Rel(state, domain, "nutzt Business Rules")
+Rel(state, adapters, "ruft Datenaktionen auf")
+Rel(adapters, postgres, "liest / schreibt Daten", "PostgREST / WebSocket")
+Rel(adapters, edge, "triggert komplexe Analysen", "HTTPS / REST")
+@enduml

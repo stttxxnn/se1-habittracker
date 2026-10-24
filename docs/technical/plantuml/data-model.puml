@@ -1,0 +1,54 @@
+@startuml
+skinparam monochrome true
+skinparam defaultFontSize 12
+
+entity "nutzer (auth.users)" as user {
+  * id : UUID <<PK>>
+  --
+  * email : VARCHAR(255) <<UNIQUE>>
+  * encrypted_password : VARCHAR(255)
+}
+
+entity "gewohnheit" as habit {
+  * id : UUID <<PK>>
+  --
+  * nutzer_id : UUID <<FK>>
+  * name : VARCHAR(100)
+  * beschreibung : TEXT
+  * haeufigkeit : INTEGER
+  * aktuelle_erfolgskette : INTEGER
+  * erstellt_am : TIMESTAMP
+}
+
+entity "ausfuehrung" as execution {
+  * id : UUID <<PK>>
+  --
+  * gewohnheit_id : UUID <<FK>>
+  * datum : TIMESTAMP
+  * status : VARCHAR(20)
+}
+
+entity "tagebucheintrag" as journal {
+  * id : UUID <<PK>>
+  --
+  * nutzer_id : UUID <<FK>>
+  * datum : TIMESTAMP
+  * text : TEXT
+  * stimmung : INTEGER
+}
+
+entity "recovery_phase" as recovery {
+  * id : UUID <<PK>>
+  --
+  * nutzer_id : UUID <<FK>>
+  * start_datum : TIMESTAMP
+  * end_datum : TIMESTAMP
+  * status : VARCHAR(20)
+}
+
+user ||--o{ habit : "definiert"
+habit ||--o{ execution : "besitzt"
+user ||--o{ journal : "verfasst"
+user ||--o{ recovery : "aktiviert"
+
+@enduml

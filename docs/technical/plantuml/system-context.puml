@@ -1,0 +1,18 @@
+@startuml
+!include <c4/C4_Context.puml>
+
+LAYOUT_WITH_LEGEND()
+
+title System Context Diagram – HabitTracker
+
+Person(user, "Nutzer:in", "Verwendet den HabitTracker über den Webbrowser (PWA)")
+Person(admin, "Administrator:in", "Überwacht das System und verwaltet globale Konfigurationen")
+
+System(system, "HabitTracker PWA", "Kernanwendung: Bietet dem Nutzer die UI, berechnet lokale Erfolgsketten und zeigt reaktive Visualisierungen")
+
+System_Ext(supabase, "Supabase (BaaS)", "Übernimmt die Nutzerauthentifizierung, die relationale Datenhaltung (PostgreSQL) und Echtzeit-Synchronisation via WebSockets")
+
+Rel(user, system, "nutzt", "HTTPS / PWA")
+Rel(admin, supabase, "verwaltet Daten über", "Supabase Dashboard")
+Rel(system, supabase, "synchronisiert Daten, Auth & Realtime State", "HTTPS / WebSocket")
+@enduml
