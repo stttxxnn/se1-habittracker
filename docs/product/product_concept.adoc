@@ -144,7 +144,7 @@ typische Aufgaben — sind im link:ux_concept.adoc[UX-Konzept] dokumentiert.
 | Mittel
 
 | Nutzer:innen wollen ihre Daten sichern und übertragen können.
-| Import- und Exportfunktionen für persönliche Daten im JSON-Format
+| Import- und Exportfunktionen für persönliche Daten
 | Niedrig
 
 | Nutzer:innen wollen ihr Gewohnheitstracking in ihren digitalen Alltag integrieren.
@@ -159,21 +159,21 @@ typische Aufgaben — sind im link:ux_concept.adoc[UX-Konzept] dokumentiert.
 | Gamification-System mit modularen Challenges abhängig vom Leistungsniveau
 | Niedrig
 
-| Nutzer:innen wollen ihr Verhalten verstehen und Muster erkennen.
-| Statistiken und fortgeschrittene Trendanalysen zur Identifikation von Verhaltensmustern
-| Niedrig
+// | Nutzer:innen wollen ihr Verhalten verstehen und Muster erkennen.
+// | Statistiken und fortgeschrittene Trendanalysen zur Identifikation von Verhaltensmustern
+// | Niedrig
 
-| Nutzer:innen wollen soziale Unterstützung nutzen.
-| Community-Features wie Accountability-Partnerschaften und thematische Gruppen
-| Niedrig
+// | Nutzer:innen wollen soziale Unterstützung nutzen.
+// | Community-Features wie Accountability-Partnerschaften und thematische Gruppen
+// | Niedrig
 
-| Nutzer:innen wollen ihre Motivation an ihren Lebensrhythmus anpassen.
-| Saisonale Challenges abgestimmt auf akademischen Kalender und Ferienzeiten
-| Niedrig
+// | Nutzer:innen wollen ihre Motivation an ihren Lebensrhythmus anpassen.
+// | Saisonale Challenges abgestimmt auf akademischen Kalender und Ferienzeiten
+// | Niedrig
 
-| Nutzer:innen wollen verstehen, wie Gewohnheiten wissenschaftlich funktionieren.
-| Wissenschaftlicher Wissensbereich mit Hintergrundinformationen zur Gewohnheitsbildung
-| Niedrig
+// | Nutzer:innen wollen verstehen, wie Gewohnheiten wissenschaftlich funktionieren.
+// | Wissenschaftlicher Wissensbereich mit Hintergrundinformationen zur Gewohnheitsbildung
+// | Niedrig
 |===
 
 NOTE: Die Reihenfolge entspricht einer ersten groben Priorisierung und wird im Rahmen
@@ -189,6 +189,7 @@ technischen Entscheidungen, die sich daraus ergeben — ohne sie hier zu wiederh
 
 [cols="1,3,2", options="header"]
 |===
+//ANPASSEN BEZÜGLICH USER STORIES
 | Qualitätsziel | Beschreibung | Messkriterium
 
 | Benutzbarkeit (Usability)
@@ -199,18 +200,28 @@ technischen Entscheidungen, die sich daraus ergeben — ohne sie hier zu wiederh
 | Das Produkt reagiert schnell auf Eingaben und Interaktionen des Nutzers.
 | Die UI-Reaktivität bei lokalen Aktionen liegt unter 100ms; API-Antwortzeiten liegen unter 2 Sekunden.
 
+//currently nowhere in user stories is mirrored
 | Zuverlässigkeit (Offline-Fähigkeit)
 | Zentrale Tracking-Funktionen sind auch ohne Internetverbindung uneingeschränkt und stabil nutzbar.
-| Die Erfassung einer Ausführung erfolgt offline in der lokalen IndexedDB fehlerfrei und synchronisiert sich transparent bei Netzwiederkehr.
+| Soll ohne Internetzugriff die Daten anzeigen und ändern lassen
 
+//in case of allowing exchaning infos with platforms, there should be a limit, which data can be transfered? or warning person beforehead if there is need to send some sensitive personal data?
 | Kompatibilität (Interoperabilität)
 | Personenbezogene Tracking-Daten können plattformunabhängig mit anderen Systemen ausgetauscht werden.
-| Erfolgreicher, fehlerfreier Import und Export der gesamten Domänendaten im standardisierten JSON-Format.
+| Wird richtig angezeigt in Drittanbieter Apps
 
-| Wartbarkeit (Maintainability)
-| Der Quellcode ist modular und klar strukturiert, um zukünftige Erweiterungen fehlerfrei zu ermöglichen.
-| Strikte Trennung von UI-Schicht, Domänenlogik und Infrastruktur; Einhaltung der Typensicherheit durch TypeScript.
+| Portabilität
+| Import und Export für persönliche Daten
+| Die exportierte Daten können richtig importiert sein.
+
+//Currently not reflected in user stories, expected to be?
+//Informationssicherheit
+//for future as we will be adding registration, See SE1 Kapitel 5 S24
+
+//some stuff *datenschutz*, avoiding data corruption, etc. is currently not mentioned in realm of user stories, meanwhile those can be expected to be in there, as they are "quality standards" (set by whom? those are ignored/neglected by some companies lmao). and some stuff that is more like part of obengennanten punkten like accessibility is part of usability
+
 |===
+
 
 === Einschränkungen
 
@@ -226,13 +237,19 @@ technischen Entscheidungen, die sich daraus ergeben — ohne sie hier zu wiederh
 | Dem Projektteam stehen keine finanziellen Mittel für kommerzielles Cloud-Hosting zur Verfügung. Das System muss vollständig in einer lokalen Docker-Umgebung lauffähig oder über kostenfreie akademische Kontingente deploybar sein.
 | Organisatorisch
 
+//Removed technical stuff, später wird entschieden
 | DSGVO-Konformität
-| Sensible Verhaltens- und Profildaten dürfen nur gemäß DSGVO verarbeitet und passworthashend (bcrypt) gespeichert werden.
+| Sensible Verhaltens- und Profildaten dürfen nur gemäß DSGVO verarbeitet.
 | Rechtlich
 
 | Browser-API-Kompatibilität
 | Da die Anwendung als PWA auf Service Workern und der `IndexedDB` basiert, ist die Ausführung auf moderne "Evergreen"-Browser (Chrome, Firefox, Safari, Edge) beschränkt. Ältere Browser ohne Support für diese APIs werden nicht unterstützt.
 | Technisch
+
+//ASK
+//there is user story #14 [freunde adden] which allows adding friends by email, technically it can be abused to see if there is user associated with this email or just overall spam.
+//Since our project isnt expected to be publicly available, does it make sense to implement anti-spam features? Like simple Anfragelimit per minute for community features, so users wouldnt be annoyed by notifications at least.
+
 |===
 
 
@@ -241,6 +258,10 @@ technischen Entscheidungen, die sich daraus ergeben — ohne sie hier zu wiederh
 [cols="1,1,2", options="header"]
 |===
 | Version | Datum | Änderung
+
+| 1.1
+| 26.10.26
+| Einige Verbessurungen sind bezüglich Qualitätszielen, Einschränkungen vorgenommen. Die nidriegste 4 Hauptfunktionen rausgeworfen.
 
 | 1.0
 | [Datum]
