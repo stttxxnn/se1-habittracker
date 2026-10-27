@@ -1,0 +1,54 @@
+@startuml
+title Gewohnheit erstellen (Ist) – betroffene Stellen bei Story #19 "Habit Stacking" (AK1)
+
+actor Nutzer
+participant "HabitCreateView" as V #FFE5E5
+participant "habitStore" as S
+participant "CreateHabitService" as UC #FFE5E5
+participant "HabitRepositoryPort" as P
+participant "SupabaseHabitAdapter" as A #FFE5E5
+database "habits" as DB #FFE5E5
+
+Nutzer -> V : Formular ausfüllen, "Erstellen" klicken
+note right of V #FFE5E5
+  AK1: neue Option "Habit Stacking"
+  + Auswahl eines Ankers (Habit oder Routine)
+  Liste der Habits kommt nur aus dem
+  Store-Cache (View lädt nicht selbst)
+end note
+V -> V : validateForm()
+alt Formular gültig
+  V -> S : createHabit(data)
+  S -> UC : execute(data)
+  UC -[#C00000]> UC : Titel prüfen (nicht leer)
+  note right of UC #FFE5E5
+    neu: Regel R4 prüfen (Anker existiert),
+    z. B. über findById()
+    R2/R3 hier nicht möglich: neue Gewohnheit
+    hat noch keine ID und keine Nachfolger
+  end note
+  UC -> P : save(data)
+  P -> A : save(data)
+  A -[#C00000]> DB : INSERT INTO habits (...)
+  note right of DB #FFE5E5
+    neue Spalte anchor_habit_id
+    (Fremdschlüssel auf habits.id)
+    + Migration
+  end note
+  DB --> A : gespeicherte Zeile
+  A -[#C00000]-> UC : Habit (mapToHabit)
+  UC --> S : Habit
+  S -> S : habits.unshift(newHabit)
+  S --> V : fertig (error = null)
+  V --> Nutzer : Startseite anzeigen
+else Formular ungültig
+  V --> Nutzer : Fehler am Feld anzeigen
+end
+
+legend right
+  |= Farbe |= Bedeutung |
+  |<#FFE5E5>| betroffen |
+  | Standardfarbe | nicht betroffen |
+  | <color:#C00000>rot</color> | Stelle ändert sich |
+endlegend
+@enduml

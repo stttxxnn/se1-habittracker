@@ -1,0 +1,50 @@
+@startuml
+title Tagesübersicht anzeigen (Ist) – betroffene Stellen bei Story #19 "Habit Stacking" (AK3)
+
+actor Nutzer
+participant "HomeView" as V #FFE5E5
+participant "habitStore" as S
+participant "GetAllHabitsService" as UC
+participant "HabitRepositoryPort" as P
+participant "SupabaseHabitAdapter" as A #FFE5E5
+database "habits" as DB #FFE5E5
+
+Nutzer -> V : Startseite öffnen
+opt keine Habits im Store
+  V -> S : loadAllHabits()
+  S -> UC : execute()
+  UC -> P : findAll()
+  P -> A : findAll()
+  A -[#C00000]> DB : SELECT ... ORDER BY scheduled_time
+  note right of DB #FFE5E5
+    Spalte anchor_habit_id
+    mitlesen (SELECT_COLS)
+  end note
+  DB --> A : Zeilen
+  A -[#C00000]-> UC : Habit[] (mapToHabit)
+  UC --> S : Habit[]
+end
+V -[#C00000]> V : todayHabits filtern\n(periodicity, Wochentag)
+note right of V #FFE5E5
+  Fachregel "heute fällig?" liegt in der View.
+  Offen: Was, wenn der Anker heute nicht
+  fällig ist, der Nachfolger aber schon?
+end note
+V -> V : visibleHabits\n(ohne hiddenHabitIds)
+V -[#C00000]> V : Liste nach Uhrzeit rendern
+note right of V #FFE5E5
+  AK3: Stack als Einheit anzeigen
+  (Linie oder Einrückung).
+  Heute: Reihenfolge nur nach scheduled_time
+  aus dem Adapter -> Anker und Nachfolger
+  müssen gruppiert werden
+end note
+V --> Nutzer : Liste + Timeline
+
+legend right
+  |= Farbe |= Bedeutung |
+  |<#FFE5E5>| betroffen |
+  | Standardfarbe | nicht betroffen |
+  | <color:#C00000>rot</color> | Stelle ändert sich |
+endlegend
+@enduml

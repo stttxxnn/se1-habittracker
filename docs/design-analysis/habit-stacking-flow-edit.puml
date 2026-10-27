@@ -1,0 +1,56 @@
+@startuml
+title Gewohnheit bearbeiten (Ist) – betroffene Stellen bei Story #19 "Habit Stacking" (AK4)
+
+actor Nutzer
+participant "HabitEditView" as V #FFE5E5
+participant "habitStore" as S
+participant "UpdateHabitService" as UC #FFE5E5
+participant "HabitRepositoryPort" as P
+participant "SupabaseHabitAdapter" as A #FFE5E5
+database "habits" as DB #FFE5E5
+
+Nutzer -> V : Bearbeiten öffnen
+V -> S : loadAllHabits()
+S --> V : habits geladen
+V -[#C00000]> V : fillFormFromHabit(habit)
+note right of V #FFE5E5
+  AK4: aktuellen Anker anzeigen
+  und "Stack auflösen" anbieten
+  (Anker entfernen, Habit bleibt)
+end note
+Nutzer -> V : Werte ändern, "Speichern" klicken
+V -> V : validateForm()
+alt Formular gültig
+  V -> S : updateHabit(id, data)
+  S -> UC : execute(id, data)
+  UC -[#C00000]> UC : ID + Titel prüfen
+  note right of UC #FFE5E5
+    neu: R2-R4 auch beim Ändern prüfen
+    (z. B. kein Kreis durch neuen Anker)
+  end note
+  UC -> P : update(id, data)
+  P -> A : update(id, data)
+  A -[#C00000]> DB : UPDATE habits SET <alle Spalten>
+  note right of A #FFE5E5
+    Risiko: update schreibt ALLE Felder,
+    fehlende Werte werden zu null.
+    Schickt ein Formular den Anker nicht mit,
+    wird der Stack still aufgelöst.
+  end note
+  DB --> A : geänderte Zeile
+  A --> UC : Habit (mapToHabit)
+  UC --> S : Habit
+  S -> S : Habit in Liste ersetzen
+  S --> V : fertig (error = null)
+  V --> Nutzer : Startseite anzeigen
+else Formular ungültig
+  V --> Nutzer : Fehler am Feld anzeigen
+end
+
+legend right
+  |= Farbe |= Bedeutung |
+  |<#FFE5E5>| betroffen |
+  | Standardfarbe | nicht betroffen |
+  | <color:#C00000>rot</color> | Stelle ändert sich |
+endlegend
+@enduml

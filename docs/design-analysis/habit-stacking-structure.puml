@@ -1,0 +1,144 @@
+@startuml
+!pragma layout smetana
+title Klassen (Ist, Ausschnitt) – betroffene Stellen bei Story #19 "Habit Stacking"
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "presentation" {
+  class HabitCreateView <<Vue-Komponente>> #FFE5E5 {
+    - habitTemplates: HabitTemplate[]
+    - validateForm(): boolean
+    - handleCreate()
+  }
+
+  class HabitEditView <<Vue-Komponente>> #FFE5E5 {
+    - fillFormFromHabit(habit: Habit)
+    - handleUpdate()
+  }
+
+  class HomeView <<Vue-Komponente>> #FFE5E5 {
+    - todayHabits: Habit[]
+    - visibleHabits: Habit[]
+    - toggleHabitDone(id: string)
+  }
+
+  class HabitDeleteView <<Vue-Komponente>> {
+    - confirmDelete()
+  }
+
+  class habitStore <<Pinia-Store>> #FFE5E5 {
+    + habits: Habit[]
+    + completedHabitIds: Set<string>
+    + hiddenHabitIds: Set<string>
+    + createHabit(data: HabitData)
+    + updateHabit(id: string, data: HabitData)
+    + deleteHabit(id: string)
+  }
+}
+
+package "domain" {
+  class CreateHabitService #FFE5E5 {
+    + execute(data: HabitData): Promise<Habit>
+  }
+
+  class UpdateHabitService #FFE5E5 {
+    + execute(id: string, data: HabitData): Promise<Habit>
+  }
+
+  class DeleteHabitService {
+    + execute(id: string): Promise<void>
+  }
+
+  interface HabitRepositoryPort <<Outbound Port>> {
+    + findAll(): Promise<Habit[]>
+    + save(data: HabitData): Promise<Habit>
+    + update(id: string, data: HabitData): Promise<Habit>
+    + delete(id: string): Promise<void>
+  }
+
+  interface Habit #FFE5E5 {
+    + id: string
+    + title: string
+    + periodicity?: Periodicity
+    + weekdays?: Weekday[]
+    + scheduledTime?: string
+    <color:#C00000>+ anchorHabitId?: string (neu)</color>
+  }
+
+  class HabitData <<type>> #FFE5E5 {
+    + title: string
+    + periodicity?: string
+    + weekdays?: string[]
+    + scheduledTime?: string
+    <color:#C00000>+ anchorHabitId?: string (neu)</color>
+  }
+
+  class "Alltagsroutine ?" as Routine <<neu, Ort offen>> #FFE5E5 {
+    <color:#C00000>+ key: string</color>
+    <color:#C00000>+ title: string</color>
+  }
+}
+
+package "infrastructure" {
+  class SupabaseHabitAdapter #FFE5E5 {
+    - mapToHabit(row: HabitRow): Habit
+    + findAll(): Promise<Habit[]>
+    + save(data: HabitData): Promise<Habit>
+    + update(id: string, data: HabitData): Promise<Habit>
+    + delete(id: string): Promise<void>
+  }
+
+  class HabitRow <<type>> #FFE5E5 {
+    + id: string
+    + title: string
+    + scheduled_time?: string
+    <color:#C00000>+ anchor_habit_id?: string (neu)</color>
+  }
+}
+
+HabitCreateView ..> habitStore : nutzt
+HabitEditView ..> habitStore : nutzt
+HomeView ..> habitStore : nutzt
+HabitDeleteView ..> habitStore : nutzt
+
+habitStore --> CreateHabitService : ruft auf
+habitStore --> UpdateHabitService : ruft auf
+habitStore --> DeleteHabitService : ruft auf
+habitStore "1" o-- "0..*" Habit : habits
+
+CreateHabitService --> HabitRepositoryPort
+UpdateHabitService --> HabitRepositoryPort
+DeleteHabitService --> HabitRepositoryPort
+
+Habit "0..*" --> "0..1" Habit : <color:#C00000>Anker (neu)</color>
+Habit ..> Routine : <color:#C00000>Anker? (offen)</color>
+
+SupabaseHabitAdapter ..|> HabitRepositoryPort
+SupabaseHabitAdapter ..> HabitRow : mappt
+
+note "AK1: Option 'Habit Stacking' + Anker-Auswahl.\nLädt selbst keine Habits (nutzt Store-Cache).\nVorlagen stehen fest im Code (Issue #69)." as N1 #FFE5E5
+N1 .. HabitCreateView
+
+note "AK4: Anker entfernen (Stack auflösen).\nSchickt beim Speichern alle Felder mit." as N2 #FFE5E5
+N2 .. HabitEditView
+
+note "AK2: Hinweis beim Abhaken des Ankers.\nAK3: Stack als Einheit anzeigen.\nAbhaken nur im Speicher, nach 2,5 s ausgeblendet." as N3 #FFE5E5
+N3 .. HomeView
+
+note "Erstellen: R4 prüfen (Anker existiert).\nÄndern: R2-R4 prüfen (nicht selbst,\nkein Kreis, Anker existiert).\nHeute nur Titel-Prüfung." as N4 #FFE5E5
+N4 .. CreateHabitService
+N4 .. UpdateHabitService
+
+note "SELECT_COLS, HabitRow, mapToHabit,\nsave und update erweitern.\nupdate setzt fehlende Felder auf null.\nTabelle habits: Spalte anchor_habit_id\n+ Fremdschlüssel + Migration" as N5 #FFE5E5
+N5 .. SupabaseHabitAdapter
+
+note "Löschen eines Ankers:\nVerknüpfung muss entfernt werden\n(z. B. ON DELETE SET NULL),\nsonst Fehler oder toter Verweis." as N6 #FFFFFF
+N6 .. HabitDeleteView
+
+legend right
+  |= Farbe |= Bedeutung |
+  |<#FFE5E5>| betroffen |
+  | Standardfarbe | nicht betroffen / nur prüfen |
+  | <color:#C00000>rot</color> | neu (Name noch offen) |
+endlegend
+@enduml
