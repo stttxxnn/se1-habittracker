@@ -1,0 +1,111 @@
+@startuml
+!pragma layout smetana
+title Klassen (Ist, Ausschnitt) – betroffene Stellen bei Story #15 "Streak aufbauen"
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "presentation" {
+  class HomeView <<Vue-Komponente>> #FFE5E5 {
+    - homeStats: HomeStats
+    - todayHabits: Habit[]
+    - toggleHabitDone(id: string)
+  }
+
+  class AnalyticsView <<Vue-Komponente>> #FFE5E5 {
+    - streakValue = 75
+  }
+
+  class habitStore <<Pinia-Store>> #FFE5E5 {
+    + habits: Habit[]
+    + completedHabitIds: Set<string>
+    + hiddenHabitIds: Set<string>
+    + loadAllHabits()
+  }
+}
+
+package "domain" {
+  class GetAllHabitsService {
+    + execute(): Promise<Habit[]>
+  }
+
+  interface HabitRepositoryPort <<Outbound Port>> {
+    + findAll(): Promise<Habit[]>
+  }
+
+  interface Habit #FFE5E5 {
+    + id: string
+    + title: string
+    + periodicity?: Periodicity
+    + weekdays?: Weekday[]
+    <color:#C00000>+ currentStreak? / maxStreak? (offen)</color>
+  }
+
+  class "HabitCompletion ?" as Completion <<neu>> #FFE5E5 {
+    <color:#C00000>+ habitId: string</color>
+    <color:#C00000>+ date: string (YYYY-MM-DD)</color>
+  }
+
+  class "Streak-Berechnung ?" as StreakCalc <<neu, Domänenfunktion>> #FFE5E5 {
+    <color:#C00000>+ calculateStreak(habit, completions, today)</color>
+    <color:#C00000>+ isDueOn(habit, date)</color>
+  }
+
+  class "Abhaken-Use-Case ?" as CompleteUC <<neu>> #FFE5E5 {
+    <color:#C00000>+ complete(habitId, date)</color>
+    <color:#C00000>+ uncomplete(habitId, date)</color>
+  }
+
+  interface "Completion-Port ?" as CompletionPort <<neu, Outbound Port>> #FFE5E5 {
+    <color:#C00000>+ save(completion)</color>
+    <color:#C00000>+ delete(habitId, date)</color>
+    <color:#C00000>+ findByHabit(habitId)</color>
+  }
+
+  class "RecoveryMode" as Recovery <<fehlt im Code>> {
+  }
+}
+
+package "infrastructure" {
+  class SupabaseHabitAdapter {
+    + findAll(): Promise<Habit[]>
+  }
+
+  class "Completion-Adapter ?" as CompletionAdapter <<neu>> #FFE5E5 {
+  }
+}
+
+HomeView ..> habitStore : nutzt
+AnalyticsView ..> habitStore : <color:#C00000>soll nutzen (neu)</color>
+habitStore --> GetAllHabitsService : ruft auf
+habitStore "1" o-- "0..*" Habit : habits
+habitStore ..> CompleteUC : <color:#C00000>soll aufrufen (neu)</color>
+
+GetAllHabitsService --> HabitRepositoryPort
+SupabaseHabitAdapter ..|> HabitRepositoryPort
+
+Habit "1" -- "0..*" Completion : <color:#C00000>neu</color>
+CompleteUC --> CompletionPort
+CompleteUC ..> StreakCalc
+StreakCalc ..> Completion
+StreakCalc ..> Recovery : <color:#C00000>AK2: Ausnahme (fehlt)</color>
+CompletionAdapter ..|> CompletionPort
+
+note "toggleHabitDone() schreibt nur in\ncompletedHabitIds (ohne Datum,\nnach Neuladen weg).\nhomeStats.streakDays ist fest 0.\nRegel 'heute fällig?' (todayHabits)\nliegt hier und wird für den Streak\nebenfalls gebraucht." as N1 #FFE5E5
+N1 .. HomeView
+
+note "Streak fest auf 75,\nText 'New Record' immer sichtbar,\nnutzt den Store heute nicht" as N2 #FFE5E5
+N2 .. AnalyticsView
+
+note "AK4: 'Rekord im Profil' -\nein Profil / Nutzer gibt es im Code nicht\n(Name 'Laura M.' fest in HomeView).\nGlossar: Streak gehört zur Gewohnheit." as N3 #FFFFFF
+N3 .. Habit
+
+note "neue Tabelle habit_completions\n(habit_id, date, UNIQUE(habit_id, date),\nON DELETE CASCADE) + Migration" as N4 #FFE5E5
+N4 .. CompletionAdapter
+
+legend right
+  |= Farbe |= Bedeutung |
+  |<#FFE5E5>| betroffen |
+  | Standardfarbe | nicht betroffen / fehlt |
+  | <color:#C00000>rot</color> | neu (Name und Ort noch offen) |
+endlegend
+@enduml

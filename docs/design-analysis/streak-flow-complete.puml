@@ -1,0 +1,48 @@
+@startuml
+title Gewohnheit abhaken (Ist) – betroffene Stellen bei Story #15 "Streak aufbauen" (AK1, AK2)
+
+actor Nutzer
+participant "HomeView" as V #FFE5E5
+participant "habitStore" as S #FFE5E5
+
+Nutzer -> V : Checkbox anklicken
+V -[#C00000]> V : toggleHabitDone(id)
+alt noch nicht erledigt
+  V -> V : Timer starten (2,5 s)
+  V -[#C00000]> S : completedHabitIds = neues Set (+ id)
+  note right of S #FFE5E5
+    nur die ID, kein Datum
+    nur im Speicher: kein Service, kein Port,
+    kein Adapter, keine Datenbank
+    -> nach Neuladen weg
+    -> kein "gestern erledigt?" möglich (AK1)
+    -> kein "Tag verpasst?" möglich (AK2)
+    -> bleibt die App über Mitternacht offen,
+       gilt der Haken auch am nächsten Tag
+  end note
+  ... 2,5 Sekunden ...
+  V -> S : hiddenHabitIds = neues Set (+ id)
+  V --> Nutzer : Habit wird ausgeblendet
+  note right of V #FFE5E5
+    kein neuer Streak-Wert,
+    keine Flammen-Animation (AK3);
+    eine Anzeige pro Habit wäre nach
+    2,5 s mit ausgeblendet
+  end note
+else schon erledigt
+  V -> V : Timer abbrechen
+  V -[#C00000]> S : completedHabitIds = neues Set (- id)
+  V --> Nutzer : Haken entfernt
+  note right of V #FFE5E5
+    Rückgängig machen muss die
+    Streak später auch wieder senken
+    (offen: was passiert mit dem Rekord?)
+  end note
+end
+
+legend right
+  |= Farbe |= Bedeutung |
+  |<#FFE5E5>| betroffen |
+  | <color:#C00000>rot</color> | Stelle ändert sich |
+endlegend
+@enduml

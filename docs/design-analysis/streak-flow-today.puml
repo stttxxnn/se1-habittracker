@@ -1,0 +1,58 @@
+@startuml
+title Startseite mit Streak anzeigen (Ist) – betroffene Stellen bei Story #15 "Streak aufbauen" (AK1-AK3)
+
+actor Nutzer
+participant "HomeView" as V #FFE5E5
+participant "habitStore" as S #FFE5E5
+participant "GetAllHabitsService" as UC
+participant "HabitRepositoryPort" as P
+participant "SupabaseHabitAdapter" as A
+database "habits" as DB
+
+Nutzer -> V : Startseite öffnen
+opt keine Habits im Store
+  V -> S : loadAllHabits()
+  S -> UC : execute()
+  UC -> P : findAll()
+  P -> A : findAll()
+  A -> DB : SELECT ... ORDER BY scheduled_time
+  DB --> A : Zeilen
+  A --> UC : Habit[]
+  UC --> S : Habit[]
+  note right of S #FFE5E5
+    Abschlüsse (mit Datum) werden
+    nicht geladen - es gibt keine.
+    Neu: Abschlüsse laden
+    (eigener Port / Adapter / Tabelle)
+  end note
+end
+V -[#C00000]> V : homeStats = { streakDays: 0, ... }
+note right of V #FFE5E5
+  Streak fest auf 0.
+  Neu: Streak aus den Abschlüssen
+  berechnen lassen (Domäne),
+  nicht in der View rechnen.
+  Offen: ein Streak pro Habit
+  oder einer für den ganzen Tag?
+end note
+V -[#C00000]> V : todayHabits filtern\n(periodicity, Wochentag)
+note right of V #FFE5E5
+  Regel "heute fällig?" liegt in der View.
+  Die Streak-Berechnung braucht dieselbe Regel
+  (bei weekly: "gestern" = letzter fälliger Tag).
+  monthly und Habits ohne periodicity gelten
+  jeden Tag als fällig -> für monthly ist
+  die Streak so nicht berechenbar
+end note
+V --> Nutzer : Flammen-Symbol "0 Days" + Liste
+note right of V #FFE5E5
+  AK3: Flammen-Animation ab 3 Tagen fehlt
+end note
+
+legend right
+  |= Farbe |= Bedeutung |
+  |<#FFE5E5>| betroffen |
+  | Standardfarbe | nicht betroffen |
+  | <color:#C00000>rot</color> | Stelle ändert sich |
+endlegend
+@enduml
