@@ -1,0 +1,101 @@
+= Design-Impact-Analyse: Gewohnheit pausieren
+Daniel Andreas Menzel <s88988@htw-dresden.de>
+{localdatetime}
+include::../_includes/default-attributes.inc.adoc[]
+
+_Ergebnis der Design-Impact-Analyse für Issue #82. Grundlage sind die Modelle `link:current-flow.puml[current-flow.puml]` (Sequenzdiagramm des aktuellen Ablaufs) und `link:current-structure.puml[current-structure.puml]` (Klassendiagramm der statischen Sicht) sowie der Quellcode im Branch `docs/design-impact-analysis`._
+
+== Gewählte Änderung
+
+Habits sollen in die Zustände *aktiv* und *pausiert* unterteilt werden. Pausierte Habits erscheinen nicht mehr in der Tagesübersicht, bleiben aber gespeichert und können wieder aktiviert werden.
+
+Untersucht wird der Ablauf *Tagesübersicht anzeigen*: `HomeView` lädt die Habits über `habitStore` und `GetAllHabitsService` aus der Datenbank und filtert sie für den heutigen Tag.
+
+*Entscheidung aus der Analyse:* Es werden weiterhin *alle* Habits geladen, auch pausierte. `HabitEditView` und `HabitDeleteView` nutzen dieselbe Liste aus dem `habitStore`, und in der Bearbeiten-Ansicht müssen pausierte Habits sichtbar bleiben, damit man sie wieder aktivieren kann. Offen ist nur, wo die Filterregel für die Tagesübersicht steht (siehe Beobachtung 1).
+
+== Analyse der Gestaltungsaspekte
+
+.Design Impact der Änderung „Gewohnheit pausieren“
+[cols="1,3,3", options="header"]
+|===
+| Gestaltungsaspekt | Beobachtung im aktuellen System | Auswirkung der Änderung
+
+| Zustand & Invarianten
+| Das Modell `Habit` (`src/domain/models/Habit.ts`) kennt keinen Status. Die Services prüfen nur, ob der Titel leer ist. Welche Habits heute sichtbar sind, entscheidet allein `todayHabits` in `HomeView.vue` anhand von `periodicity` und `weekdays`.
+| Es entsteht ein neuer Zustand `status` mit den Werten `'active'` und `'paused'`. Er muss in `Habit`, `HabitRow`, `SELECT_COLS` und `mapToHabit` ergänzt werden. In der Tabelle `habits` braucht es eine neue Spalte mit Migration (`supabase/`) und einen CHECK-Constraint. Für bestehende Zeilen muss ein Standardwert `'active'` gelten.
+
+| Verhalten & Verantwortlichkeit
+| Das Laden übernehmen `habitStore`, `GetAllHabitsService` und `SupabaseHabitAdapter`. Die fachliche Auswahl für die Tagesübersicht steht dagegen in der View (`todayHabits`). Dort liegt auch die Übersetzung von JS-Wochentag zu Habit-Wochentag (`JS_DAY_TO_WEEKDAY`).
+| Die Regel „pausierte Habits ausblenden“ käme in `todayHabits` dazu (A1) oder in eine Domänenfunktion wie `isScheduledForToday(habit, date)` (A2). Bei A1 wächst die fachliche Logik in der View. Das Umschalten des Status (Pausieren und Aktivieren) liegt außerhalb des untersuchten Ablaufs und würde `HabitEditView`, `UpdateHabitService` und `HabitData` betreffen.
+
+| Abhängigkeiten & Kopplung
+| `HomeView` hängt nur vom `habitStore` ab. Der Store erzeugt den `SupabaseHabitAdapter` und die Services selbst (`new SupabaseHabitAdapter()`). Die Services kennen nur den Port `HabitRepositoryPort`.
+| Das neue Attribut läuft durch die vorhandenen Abhängigkeiten, es entstehen keine neuen Bausteine. Bei A2 würde `HomeView` zusätzlich eine Funktion aus `src/domain/` aufrufen. Das zeigt nach innen und ist damit die bestehende Abhängigkeitsrichtung.
+
+| Grenzen & Kohäsion
+| Der Ablauf geht durch vier Schichten: `HomeView` (Präsentation), `habitStore`, Service und Port (Domäne), Adapter und Tabelle (Infrastruktur). Die Auswahl der anzuzeigenden Habits ist mit Darstellungscode (Timeline, Begrüßung, Fortschritt) in einer Datei gemischt.
+| Wegen der Entscheidung „alle Habits laden“ bleiben `habitStore`, `GetAllHabitsQuery`, `GetAllHabitsService` und `HabitRepositoryPort.findAll()` unverändert. Angepasst werden `Habit`, der Adapter, die Datenbank und die Filterstelle. Die Änderung berührt damit mehrere Schichten, folgt aber einem durchgehenden Datenfluss.
+
+| Änderung & Variabilität
+| Die Regeln für die Sichtbarkeit (`periodicity`, `weekdays`, Sonderfälle für alte Habits ohne `periodicity` und für `monthly`) stehen an einer Stelle in `todayHabits`. Andere Ansichten greifen heute nicht auf diese Regel zu.
+| Der Status ist die nächste Bedingung in derselben Stelle. Ähnliche Änderungen sind absehbar, z. B. Recovery-Modus oder monatliche Habits mit genauem Datum. Sie würden dieselbe Stelle erweitern. Auch `homeStats.habitsCount` (`habits.length`) müsste klären, ob pausierte Habits mitzählen.
+
+| Repräsentation & Verarbeitungsform
+| `periodicity` und `weekdays` sind in der Datenbank Textwerte. `mapToHabit` wandelt sie mit einem Cast (`as Periodicity`) in Domänentypen um, ohne die Werte zu prüfen. `HabitData` im Port nutzt `string` statt `Periodicity` und `Weekday`.
+| Eine String-Union `'active' \| 'paused'` passt zu dieser Darstellung und lässt sich später um weitere Zustände erweitern. Der gleiche Cast im Adapter würde ungültige Werte aus der Datenbank nicht erkennen. Ein CHECK-Constraint in der Datenbank sichert das ab.
+|===
+
+== Wichtigste Beobachtungen
+
+=== Beobachtung 1: Die Filterregel liegt in der View
+
+Welche Habits heute erscheinen, entscheidet `todayHabits` in `src/presentation/views/HomeView.vue`. Die Stelle ist in beiden Modellen markiert: im Sequenzdiagramm als Schritt „todayHabits filtern“ und im Klassendiagramm als Attribut `HomeView.todayHabits`. Die Regel hängt an `HomeView` (nicht exportierte `computed`-Property), am `habitStore` und an der Systemzeit (`now = ref(new Date())`). Ohne Vue, Store-Mock und gefälschte Systemzeit lässt sie sich nicht prüfen. Im Repo gibt es keine Testdateien.
+
+Für die Änderung gibt es zwei Möglichkeiten:
+
+* *A1 (kurzfristig):* Bedingung `status !== 'paused'` direkt in `todayHabits` ergänzen. Wenig Aufwand, aber die fachliche Regel bleibt in der Vue-Komponente.
+* *A2 (langfristig):* Regel als Domänenfunktion `isScheduledForToday(habit, date)` in `src/domain/`. Der vorhandene Filter-Block kann fast unverändert dorthin wandern. Die Funktion ist mit einfachen Unit-Tests prüfbar, weil das Datum ein Parameter ist.
+
+=== Beobachtung 2: Das neue Attribut zieht sich durch drei Schichten
+
+Der Status muss an vier Stellen ergänzt werden, die im Klassendiagramm markiert sind:
+
+* `Habit` (Domäne): neues Attribut `status`
+* `HabitRow` und `SELECT_COLS` im `SupabaseHabitAdapter` (Infrastruktur)
+* `mapToHabit` im selben Adapter, mit Standardwert `'active'`
+* Tabelle `habits`: neue Spalte mit Migration und CHECK-Constraint
+
+Alle vier Stellen liegen auf dem vorhandenen Datenfluss von der Datenbank zur View. Das Mapping ist im Adapter zentral, die Anpassung ist deshalb überschaubar.
+
+=== Beobachtung 3: Die Entscheidung „alle Habits laden“ hält den mittleren Teil stabil
+
+Weil weiterhin alle Habits geladen werden, bleiben `habitStore`, `GetAllHabitsQuery`, `GetAllHabitsService` und `HabitRepositoryPort.findAll()` unverändert. Ein Filter in Use Case oder Datenbankabfrage hätte dagegen `HabitEditView` und `HabitDeleteView` beeinflusst, die dieselbe Liste nutzen.
+
+== Bewertung
+
+=== Design-Auswirkung
+
+Anzupassen sind:
+
+* `src/domain/models/Habit.ts` (neues Attribut `status`)
+* `src/infrastructure/Adapter/SupabaseHabitAdapter.ts` (`HabitRow`, `SELECT_COLS`, `mapToHabit`)
+* die Datenbank (Migration in `supabase/`)
+* die Filterstelle in `src/presentation/views/HomeView.vue` bzw. bei A2 eine neue Funktion in `src/domain/` samt Aufruf aus der View
+
+Nicht angepasst werden müssen `habitStore`, `GetAllHabitsQuery`, `GetAllHabitsService` und `HabitRepositoryPort.findAll()`.
+
+Die Änderungen reichen über drei Schichten (Präsentation, Domäne, Infrastruktur) und die Datenbank. Sie folgen dabei dem bestehenden Datenfluss, und es entstehen keine neuen Abhängigkeiten zwischen Bausteinen. Zusätzlich nötig wäre das Umschalten des Status. Es liegt außerhalb des untersuchten Ablaufs und würde `HabitEditView`, `HabitData` und `UpdateHabitService` betreffen.
+
+=== Bewertung der vorhandenen Struktur
+
+Die vorhandene Struktur unterstützt die Änderung weitgehend gut. Die hexagonale Aufteilung sorgt dafür, dass der Status über Port und Adapter durchgereicht wird und das Mapping an einer Stelle liegt. Die Entscheidung, weiterhin alle Habits zu laden, hält den mittleren Teil des Ablaufs unverändert.
+
+*Nachgewiesene Schwäche:* Die fachliche Regel für die Tagesübersicht liegt in der View (`todayHabits`, Beobachtung 1). Sie ist nur über die Komponente erreichbar, und es gibt keine Tests dafür. Mit dem Status kommt eine weitere Regel in diese Stelle, wenn man A1 wählt. Ausschlaggebend sind die Gestaltungsaspekte *Verhalten & Verantwortlichkeit* und *Grenzen & Kohäsion*.
+
+*Vermutungen, die noch geprüft werden müssen:*
+
+* Weitere geplante Regeln (z. B. Recovery-Modus) würden `todayHabits` weiter wachsen lassen. Das ist plausibel, aber noch nicht belegt, weil diese Regeln noch nicht umgesetzt sind.
+* Bestehende Zeilen in `habits` bekommen beim Migrieren den Wert `'active'`. Ob `HabitEditView` ohne weitere Anpassung auskommt, wenn der Status dort umschaltbar sein soll, ist noch nicht untersucht.
+* Ob pausierte Habits in `homeStats.habitsCount` mitzählen sollen, ist fachlich noch nicht entschieden.
+
+*Fazit:* Die Änderung lässt sich ohne größere Umbauten umsetzen. A1 ist für den Anfang vertretbar. Wegen der Regel in der View sollte A2 danach geprüft werden, damit die Regel auch ohne UI testbar ist und andere Ansichten sie mitnutzen können.
