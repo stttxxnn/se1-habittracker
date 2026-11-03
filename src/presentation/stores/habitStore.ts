@@ -1,13 +1,8 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import type { Habit } from '@/domain/models/Habit'
 import type { HabitData } from '@/domain/Ports/Out/HabitRepositoryPort'
-import { SupabaseHabitAdapter } from '@/infrastructure/Adapter/SupabaseHabitAdapter'
-import { GetHabitService } from '@/domain/Services/GetHabitService'
-import { GetAllHabitsService } from '@/domain/Services/GetAllHabitsService'
-import { CreateHabitService } from '@/domain/Services/CreateHabitService'
-import { UpdateHabitService } from '@/domain/Services/UpdateHabitService'
-import { DeleteHabitService } from '@/domain/Services/DeleteHabitService'
+import { HABIT_USE_CASES } from '@/compositionRoot'
 
 export const useHabitStore = defineStore('habit', () => {
   const habits = ref<Habit[]>([])
@@ -19,18 +14,16 @@ export const useHabitStore = defineStore('habit', () => {
   const completedHabitIds = ref<Set<string>>(new Set())
   const hiddenHabitIds = ref<Set<string>>(new Set())
 
-  const habitAdapter = new SupabaseHabitAdapter()
-  const getHabitService = new GetHabitService(habitAdapter)
-  const getAllHabitsService = new GetAllHabitsService(habitAdapter)
-  const createHabitService = new CreateHabitService(habitAdapter)
-  const updateHabitService = new UpdateHabitService(habitAdapter)
-  const deleteHabitService = new DeleteHabitService(habitAdapter)
+  // Use Cases kommen aus der Composition Root (main.ts), der Store kennt nur die Ports
+  const injectedUseCases = inject(HABIT_USE_CASES)
+  if (!injectedUseCases) throw new Error('HabitUseCases wurden nicht bereitgestellt')
+  const useCases = injectedUseCases
 
   async function loadHabit(id: string) {
     isLoading.value = true
     error.value = null
     try {
-      const habit = await getHabitService.execute(id)
+      const habit = await useCases.getHabit.execute(id)
       habits.value = [habit]
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unbekannter Fehler'
@@ -43,7 +36,7 @@ export const useHabitStore = defineStore('habit', () => {
     isLoading.value = true
     error.value = null
     try {
-      habits.value = await getAllHabitsService.execute()
+      habits.value = await useCases.getAllHabits.execute()
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Fehler beim Laden'
     } finally {
@@ -56,7 +49,7 @@ export const useHabitStore = defineStore('habit', () => {
     isLoading.value = true
     error.value = null
     try {
-      const newHabit = await createHabitService.execute(data)
+      const newHabit = await useCases.createHabit.execute(data)
       habits.value.unshift(newHabit)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Fehler beim Erstellen'
@@ -70,7 +63,7 @@ export const useHabitStore = defineStore('habit', () => {
     isLoading.value = true
     error.value = null
     try {
-      const updated = await updateHabitService.execute(id, data)
+      const updated = await useCases.updateHabit.execute(id, data)
       const index = habits.value.findIndex(h => h.id === id)
       if (index !== -1) habits.value[index] = updated
     } catch (err) {
@@ -84,7 +77,7 @@ export const useHabitStore = defineStore('habit', () => {
     isLoading.value = true
     error.value = null
     try {
-      await deleteHabitService.execute(id)
+      await useCases.deleteHabit.execute(id)
       habits.value = habits.value.filter(h => h.id !== id)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Fehler beim Löschen'
@@ -98,13 +91,10 @@ export const useHabitStore = defineStore('habit', () => {
   function clearHabitToEdit() { habitToEdit.value = null }
   function setHabits(newHabits: Habit[]) { habits.value = newHabits }
 
-  // Für Tests: Adapter austauschen (Testbarkeit der hexagonalen Architektur)
-  function setAdapter(_customAdapter: any) {}
-
   return {
     habits, isLoading, error, habitToEdit,
     completedHabitIds, hiddenHabitIds,
     loadHabit, loadAllHabits, createHabit,
-    updateHabit, deleteHabit, setHabitToEdit, clearHabitToEdit, setHabits, setAdapter
+    updateHabit, deleteHabit, setHabitToEdit, clearHabitToEdit, setHabits
   }
 })
