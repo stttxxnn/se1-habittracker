@@ -4,6 +4,7 @@ import labels from '@/presentation/locales/en.json'
 import { useHabitStore } from '@/presentation/stores/habitStore'
 import { storeToRefs } from 'pinia'
 import BottomNav from '@/presentation/components/BottomNav.vue'
+import { isScheduledFor } from '@/domain/rules/habitSchedule'
 
 defineProps<{ currentView: string }>()
 const emit = defineEmits<{ changeView: [view: string] }>()
@@ -61,18 +62,6 @@ const timelineLabels = [
   { text: '24:00', percent: 100 },
 ]
 
-// ─── Wochentag-Mapping (JS getDay() → Habit-Weekday-String) ──────────────────
-// JS: 0=Sonntag, 1=Mo, ..., 6=Sa
-const JS_DAY_TO_WEEKDAY: Record<number, string> = {
-  0: 'sunday',
-  1: 'monday',
-  2: 'tuesday',
-  3: 'wednesday',
-  4: 'thursday',
-  5: 'friday',
-  6: 'saturday'
-}
-
 // ─── Wochenleiste ─────────────────────────────────────────────────────────
 const now = ref<Date>(new Date())
 const selectedDayIndex = ref<number>(now.value.getDay())
@@ -82,26 +71,10 @@ function selectDay(dayIndex: number) {
   // CalendarView is not yet implemented — selection only highlights the chosen day
 }
 
-// ─── Habit-Filter: nur Habits für den heutigen Wochentag ────────────────────
-const todayWeekday = computed<string>(() => JS_DAY_TO_WEEKDAY[now.value.getDay()])
-
+// ─── Habit-Filter: nur Habits für den heutigen Tag ──────────────────────────
+// Die fachliche Regel liegt in der Domäne (isScheduledFor), die View ruft sie nur auf
 const todayHabits = computed(() =>
-  habitStore.habits.filter(habit => {
-    const p = habit.periodicity
-
-    // Kein periodicity-Feld (alte Habits ohne Migration): immer anzeigen
-    if (!p) return true
-
-    if (p === 'daily') return true
-
-    if (p === 'weekly') {
-      // Nur anzeigen wenn heute in den gespeicherten Wochentagen ist
-      return (habit.weekdays ?? []).includes(todayWeekday.value)
-    }
-
-    // monthly: immer anzeigen (genaues Datum-Matching wäre ein eigenes Feature)
-    return true
-  })
+  habitStore.habits.filter(habit => isScheduledFor(habit, now.value))
 )
 
 const visibleHabits = computed(() =>
