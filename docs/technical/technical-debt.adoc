@@ -1,0 +1,96 @@
+= Technische Schulden: {project-name}
+Etienne Mathis Tesch <s88618@htw-dresden.de>
+{localdatetime}
+include::../_includes/default-attributes.inc.adoc[]
+
+Dieses Dokument hält die technischen Schulden fest, die im Rahmen der
+Design-Impact-Analysen in Sprint 4 identifiziert wurden.
+Es ergänzt den Risiko-Abschnitt im link:architecture.adoc[Architekturdokument].
+
+Eine technische Schuld ist eine bewusste Entscheidung, eine suboptimale Lösung zu
+akzeptieren, um kurzfristig Fortschritt zu erzielen — mit dem Wissen, dass der
+Code oder das Design später nachgebessert werden muss.
+
+---
+
+== Identifizierte Schulden (Sprint 4)
+
+[cols="1,2,2,2,2", options="header"]
+|===
+| ID
+| Beschreibung
+| Betroffene Stelle
+| Problem
+| Status / Geplante Behandlung
+
+| TD-S4-01
+| `update()` überschreibt alle Spalten
+| `src/infrastructure/Adapter/SupabaseHabitAdapter.ts`
+| Das Update-Statement schreibt immer alle Felder zurück, auch nicht geänderte.
+  Wird ein Habit bearbeitet, während neue Felder (z. B. `status`) noch nicht im
+  Formular vorhanden sind, setzt der UPDATE sie auf `null`.
+| Offen. Kein aktiver Bug im aktuellen Sprint-Scope.
+  Behandlung: gezielte UPDATE-Statements pro Feld (Partial Update) in einem
+  separaten PR, sobald das Formular alle Felder abdeckt.
+
+| TD-S4-02
+| Store erzeugt Adapter selbst
+| `src/presentation/stores/habitStore.ts`
+| `habitStore` instanziiert `new SupabaseHabitAdapter()` direkt.
+  Präsentationsschicht kennt die Infrastruktur — Widerspruch zur hexagonalen
+  Architektur. Neuer Port erfordert manuelle Änderung im Store.
+| *In Bearbeitung* — PR #91 (Composition Root, Autor: fenzeldino).
+  Lösung: `src/compositionRoot.ts` + `app.provide/inject` in `main.ts`.
+  Store importiert danach ausschließlich gegen Ports.
+
+| TD-S4-03
+| Keine automatisierte Test-Umgebung
+| `package.json`
+| Kein Test-Runner konfiguriert (Vitest fehlt).
+  Domain-Regeln, Streak-Berechnung und Port-Implementierungen sind nicht
+  automatisch prüfbar. Regressionen werden erst manuell oder im Browser erkannt.
+| Partiell adressiert in Sprint 4 mit Issue #81 (Streak-Algorithmus als erster
+  Unit-Test-Kandidat). Vollständige Testumgebung: eigenes Issue als Sprint-5-Scope.
+
+| TD-S4-04
+| Filterregel "heute fällig?" lag in der View
+| `src/presentation/views/HomeView.vue` — computed `todayHabits`
+| Die Bedingung, welche Habits heute relevant sind (periodicity, weekdays),
+  ist in einer Vue-Computed-Property verankert. Fachlogik in der
+  Präsentationsschicht: nicht isoliert testbar, wird beim Streak-Algorithmus
+  dupliziert.
+| *In Bearbeitung* — P2-Entwurfsarbeit (Woche 4/5).
+  Lösungsrichtung: Domänenfunktion `isScheduledForToday(habit, date)` in
+  `src/domain/models/HabitSchedule.ts` (Variante 2 aus der Entwurfsanalyse).
+  Deliverable: `docs/design-analysis/design-decision.adoc`.
+
+|===
+
+---
+
+== Abgrenzung zu den Architektur-Schulden
+
+Das Architekturdokument (`architecture.adoc`) führt unter _Technische Schulden_
+die Einträge T-01 bis T-04 (manuelle Typ-Definitionen, Offline-Sync,
+Mapper-Vereinheitlichung, Doku-Sprache). Diese sind architektureller Natur und
+entstanden bereits in Sprint 1/2.
+
+Die vorliegenden Schulden TD-S4-01 bis TD-S4-04 wurden erst durch die
+detaillierte Design-Impact-Analyse in Sprint 4 explizit als Schulden
+identifiziert und dokumentiert. Sie betreffen konkrete Implementierungsstellen,
+nicht die übergeordnete Architektur.
+
+---
+
+== Umgang mit Schulden im Projekt
+
+Schulden werden nicht pauschal abgebaut — jede Behandlung braucht einen
+klaren Anlass:
+
+* TD-S4-01 (Partial Update): erst wenn das Habit-Formular alle Felder abdeckt
+* TD-S4-02 (Composition Root): Sprint 4, PR #91
+* TD-S4-03 (Test-Umgebung): Sprint 4 partiell (#81), vollständig Sprint 5
+* TD-S4-04 (Filterregel): Sprint 4, P2-Entwurfsarbeit
+
+Schulden die keinen aktiven Bug verursachen und keinen Sprint-4-Blocker
+darstellen, werden dokumentiert und bewusst zurückgestellt.
