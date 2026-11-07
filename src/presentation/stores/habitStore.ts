@@ -3,9 +3,15 @@ import { inject, ref } from 'vue'
 import type { Habit } from '@/domain/models/Habit'
 import type { HabitData } from '@/domain/Ports/Out/HabitRepositoryPort'
 import { HABIT_USE_CASES } from '@/compositionRoot'
+import { SupabaseHabitCompletionAdapter } from '@/infrastructure/Adapter/SupabaseHabitCompletionAdapter'
+import { GetCompletionsForDayService } from '@/domain/Services/GetCompletionsForDayHabitService'
+import { CompleteHabitService } from '@/domain/Services/CompleteHabitService'
+import { UncompleteHabitService } from '@/domain/Services/UncompleteHabitService'
+import { HabitCompletion, Status } from '@/domain/models/HabitCompletion'
 
 export const useHabitStore = defineStore('habit', () => {
   const habits = ref<Habit[]>([])
+  const habitsCompletionsToday = ref<HabitCompletion[]>([])
   const isLoading = ref<boolean>(false)
   const error = ref<string | null>(null)
   const habitToEdit = ref<Habit | null>(null)
@@ -19,6 +25,11 @@ export const useHabitStore = defineStore('habit', () => {
   if (!injectedUseCases) throw new Error('HabitUseCases wurden nicht bereitgestellt')
   const useCases = injectedUseCases
 
+  const habitCompletionAdapter = new SupabaseHabitCompletionAdapter()
+  const getCompletionsForDayService = new GetCompletionsForDayService(habitCompletionAdapter)
+  const completeHabitService = new CompleteHabitService(habitCompletionAdapter)
+  const uncompleteHabitService = new UncompleteHabitService(habitCompletionAdapter)
+  //
   async function loadHabit(id: string) {
     isLoading.value = true
     error.value = null
@@ -60,7 +71,7 @@ export const useHabitStore = defineStore('habit', () => {
 
   // Bestehendes Habit aktualisieren
   async function updateHabit(id: string, data: HabitData) {
-    isLoading.value = true
+    isLoading.value = true 
     error.value = null
     try {
       const updated = await useCases.updateHabit.execute(id, data)
@@ -86,6 +97,44 @@ export const useHabitStore = defineStore('habit', () => {
     }
   }
 
+  //writting to db
+  async function toggleCompletion(habitId: string, date: string, status: Status){
+    isLoading.value = true 
+    error.value = null
+    var curService;
+    //merge complete and uncomplete Services to one to set a status?
+    if (status === 'erledigt'){
+      curService = completeHabitService
+    } else if(status === 'nicht_erledigt'){
+      curService = uncompleteHabitService
+    } else {
+      throw new Error("uncorrect status in toggleCompletion")
+      return
+    }
+    
+    try {
+      await curService.execute(habitId, date)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Fehler beim Bearbeiten'
+    } finally {
+      isLoading.value = false
+    }
+    
+  }
+
+  //loading on app-start
+  async function loadCompletionsForToday(date: string){
+    isLoading.value = true
+    error.value = null
+    try {
+      habitsCompletionsToday.value = await getCompletionsForDayService.execute(date)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Fehler beim Laden'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   // Setzt das Habit das bearbeitet werden soll (vor Navigation zu HabitEditView)
   function setHabitToEdit(habit: Habit) { habitToEdit.value = habit }
   function clearHabitToEdit() { habitToEdit.value = null }
@@ -95,6 +144,8 @@ export const useHabitStore = defineStore('habit', () => {
     habits, isLoading, error, habitToEdit,
     completedHabitIds, hiddenHabitIds,
     loadHabit, loadAllHabits, createHabit,
-    updateHabit, deleteHabit, setHabitToEdit, clearHabitToEdit, setHabits
+    updateHabit, deleteHabit,
+    toggleCompletion, loadCompletionsForToday,
+    setHabitToEdit, clearHabitToEdit, setHabits
   }
 })

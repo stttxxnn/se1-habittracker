@@ -132,12 +132,15 @@ function isHabitDone(id: string) { return completedHabitIds.value.has(id) }
 
 function toggleHabitDone(id: string) {
   const updated = new Set(completedHabitIds.value)
+  const today = new Date().toISOString().split('T')[0]
   if (updated.has(id)) {
     updated.delete(id)
+    habitStore.toggleCompletion(id, today, 'nicht_erledigt')
     const t = removalTimers.get(id)
     if (t !== undefined) { clearTimeout(t); removalTimers.delete(id) }
   } else {
     updated.add(id)
+    habitStore.toggleCompletion(id, today, 'erledigt')
     const t = window.setTimeout(() => {
       hiddenHabitIds.value = new Set(hiddenHabitIds.value).add(id)
       removalTimers.delete(id)
