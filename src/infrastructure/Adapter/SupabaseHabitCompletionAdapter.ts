@@ -58,14 +58,26 @@ export class SupabaseHabitCompletionAdapter implements HabitCompletionRepository
     }
     async getCompletionsForDay(date: string): Promise<HabitCompletion[]> {
         const today = new Date().toISOString().split('T')[0]
+        //since we are saving status and logging all changes inside that table,
+        //we need to get only last entry inside every id group, that was completed!
         const { data, error } = await supabase
             .from('habit_completions')
             .select(SELECT_COLS)
-            .gte("completed_date", today)
+            .eq("completed_date", today)
+            .order('created_at', { ascending: false }) //completed_date has only day
         if (error) {
             throw new Error(`Fehler beim getting Habit Completions for Day: ${error.message}`)
         }
-        return (data ?? []).map(row => this.mapToHabitCompletion(row as CompletionRow))
+        const latestByHabit = new Map<string, typeof data[number]>()
+
+        for (const entry of data) {
+            if (!latestByHabit.has(entry.habit_id)) {
+                latestByHabit.set(entry.habit_id, entry)
+            }
+        }
+
+        const latestEntries = Array.from(latestByHabit.values()).filter(completion => completion.status === 'erledigt')
+        return latestEntries.map(row => this.mapToHabitCompletion(row as CompletionRow))
     }
     
 }

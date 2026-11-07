@@ -130,6 +130,8 @@ const timelineBlocks = computed(() =>
 // ─── Checkbox & Completion ────────────────────────────────────────────────
 function isHabitDone(id: string) { return completedHabitIds.value.has(id) }
 
+// TODO:
+// move logik into toggleCompletion
 function toggleHabitDone(id: string) {
   const updated = new Set(completedHabitIds.value)
   const today = new Date().toISOString().split('T')[0]
@@ -186,10 +188,17 @@ const weekDays: WeekDay[] = [
 let clockTimer: number | undefined
 
 onMounted(async () => {
+
   // Only load from backend if no habits are cached yet — preserves completedHabitIds
   // across navigation (e.g. after creating a new habit and returning to HomeView)
   if (habitStore.habits.length === 0) {
     await habitStore.loadAllHabits()
+  }
+  if (habitStore.completedHabitIds.values.length === 0) {
+    await habitStore.loadCompletionsForToday(currentDate.value)
+    //currently completedHabitsIds is not removed *yet*
+    completedHabitIds.value = new Set(habitStore.habitsCompletionsToday.map(completion => completion.habit_id)
+)
   }
   homeStats.value = { streakDays: 0, habitsCount: habitStore.habits.length, vicesCount: 0 }
   clockTimer = window.setInterval(() => { now.value = new Date() }, 60_000)

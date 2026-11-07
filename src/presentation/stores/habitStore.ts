@@ -141,7 +141,8 @@ export const useHabitStore = defineStore('habit', () => {
   function setHabits(newHabits: Habit[]) { habits.value = newHabits }
 
   return {
-    habits, isLoading, error, habitToEdit,
+    habits, habitsCompletionsToday,
+    isLoading, error, habitToEdit,
     completedHabitIds, hiddenHabitIds,
     loadHabit, loadAllHabits, createHabit,
     updateHabit, deleteHabit,
