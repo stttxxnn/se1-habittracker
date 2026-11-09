@@ -269,17 +269,19 @@ include::{plantumlsdir}/data-model.puml[]
 |===
 | Tabelle | Spalte | Beschreibung & Besonderheiten
 
-.3+| nutzer
-| id | UUID als Primärschlüssel; wird automatisch über Supabase Auth (Schema `auth.users`) generiert.
-| email | Eindeutige E-Mail-Adresse für das Login-Verfahren.
-| encrypted_password | Mit `bcrypt` gesichertes Passwort auf der Datenbank-Ebene.
-
-.5+| gewohnheit
+.11+| habit
 | id | UUID als Primärschlüssel.
-| nutzer_id | Fremdschlüssel auf den Besitzer; RLS-Policy greift hierüber: `auth.uid() == nutzer_id`.
-| name / beschreibung | Textbezeichner der Gewohnheit sowie optionale Ausführungsdetails.
-| haeufigkeit | Speicherwert für Intervalle in Tagen (z.B. 1 entspricht 'daily', 7 - 'weekly').
-| aktuelle_erfolgskette | Zwischengespeicherter Integer-Wert zur performanten Abfrage im UI ohne Live-Neuberechnung.
+| user_id | Fremdschlüssel auf den Besitzer; RLS-Policy greift hierüber: `auth.uid() == nutzer_id`.
+| title | Titel von Gewohnheit
+| streak_count | Anzahl der aufeinanderfolgenden Tage, an denen ein Gewohnheit erfolgreich durchgeführt wurde
+| created_at | Datum und Zeit
+| scheduled_time | Die Zeit während des Tages für Gewohnheit
+| duration_minutes | Wie lang dauert die Gewohnheit
+| color, icon | UI Theme anpassungen, color wird als HEX code gespeichert, icon ist text für emoji
+| reason | zurzeit anstatt des Tagesbuches
+| periodicity | enum: `daily`, `weekly`, `monthly``
+| weekdays | if peridocity is weekly: set day from a week (`monday`, `tuesday`...)
+
 
 .6+| habit_completions
 | id | UUID als Primärschlüssel.
@@ -289,10 +291,6 @@ include::{plantumlsdir}/data-model.puml[]
 | completed_date | ein Datum
 | is_completed | boolean, zeigt ob Gewohnheit erledigt ist oder nicht
 
-.4+| tagebucheintrag
-| id | UUID als Primärschlüssel.
-| nutzer_id | Fremdschlüssel zur filterbasierten RLS-Absicherung des Tagebuchs.
-| text / stimmung | Freitext zur Reflexion; Stimmungswert (Skala 1–5) für spätere Trendanalysen.
 |===
 
 === Datenbankmigrationen
