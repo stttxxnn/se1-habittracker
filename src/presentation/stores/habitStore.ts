@@ -1,13 +1,9 @@
 import { defineStore } from 'pinia'
 import { inject, ref } from 'vue'
 import type { Habit } from '@/domain/models/Habit'
+import { HabitCompletion } from '@/domain/models/HabitCompletion'
 import type { HabitData } from '@/domain/Ports/Out/HabitRepositoryPort'
 import { HABIT_USE_CASES } from '@/compositionRoot'
-import { GetCompletionsForDayService } from '@/domain/Services/GetCompletionsForDayHabitService'
-import { CompleteHabitService } from '@/domain/Services/CompleteHabitService'
-import { UncompleteHabitService } from '@/domain/Services/UncompleteHabitService'
-import { HabitCompletion, Status } from '@/domain/models/HabitCompletion'
-import { SupabaseHabitAdapter } from '@/infrastructure/Adapter/SupabaseHabitAdapter'
 
 export const useHabitStore = defineStore('habit', () => {
   const habits = ref<Habit[]>([])
@@ -94,14 +90,14 @@ export const useHabitStore = defineStore('habit', () => {
   }
 
   //writting to db
-  async function toggleCompletion(habitId: string, date: string, status: Status){
+  //TODO: merge complete and uncomplete, move toggleCompletion logic from habitStore to Service
+  async function toggleCompletion(habitId: string, date: string, status: boolean){
     isLoading.value = true 
     error.value = null
     var currentService;
-    //merge complete and uncomplete Services to one to set a status?
-    if (status === 'erledigt'){
+    if (status === true){
       currentService = useCases.completeHabit
-    } else if(status === 'nicht_erledigt'){
+    } else if(status === false){
       currentService = useCases.uncompleteHabit
     } else {
       throw new Error("uncorrect status in toggleCompletion")

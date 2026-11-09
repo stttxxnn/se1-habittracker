@@ -1,4 +1,4 @@
-import { HabitCompletion, Status } from '@/domain/models/HabitCompletion'
+import { HabitCompletion } from '@/domain/models/HabitCompletion'
 import { Habit } from '../../models/Habit'
 
 // Daten die beim Erstellen oder Bearbeiten eines Habits übergeben werden können
@@ -18,7 +18,7 @@ export type HabitCompletionData = {
     habit_id: string;
     user_id?: string;
     completed_date: string; // 'YYYY-MM-DD'
-    status?: Status; // TEST
+    is_completed: boolean; // TEST
 }
 
 export interface HabitRepositoryPort {
