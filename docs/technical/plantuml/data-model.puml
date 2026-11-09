@@ -2,53 +2,32 @@
 skinparam monochrome true
 skinparam defaultFontSize 12
 
-entity "nutzer (auth.users)" as user {
+entity "habit" as habit {
   * id : UUID <<PK>>
   --
-  * email : VARCHAR(255) <<UNIQUE>>
-  * encrypted_password : VARCHAR(255)
+  * user_id : UUID <<FK>>
+  * title : TEXT
+  * streak_count : INTEGER
+  * created_at : TIMESTAMP
+  * scheduled_time : TIME
+  * duration_minutes : INTEGER
+  * color : TEXT
+  * periodicity : TEXT
+  * weekdays : TEXT[]
+  * icon : TEXT
+  * reason : TEXT
 }
 
-entity "gewohnheit" as habit {
+entity "habit_completions" as execution {
   * id : UUID <<PK>>
   --
-  * nutzer_id : UUID <<FK>>
-  * name : VARCHAR(100)
-  * beschreibung : TEXT
-  * haeufigkeit : INTEGER
-  * aktuelle_erfolgskette : INTEGER
-  * erstellt_am : TIMESTAMP
+  * habit_id : UUID <<FK>>
+  * user_id : UUID <<FK>>
+  * created_at : TIMESTAMP
+  * completed_date : DATE
+  * is_completed : BOOL
 }
 
-entity "ausfuehrung" as execution {
-  * id : UUID <<PK>>
-  --
-  * gewohnheit_id : UUID <<FK>>
-  * datum : TIMESTAMP
-  * status : VARCHAR(20)
-}
-
-entity "tagebucheintrag" as journal {
-  * id : UUID <<PK>>
-  --
-  * nutzer_id : UUID <<FK>>
-  * datum : TIMESTAMP
-  * text : TEXT
-  * stimmung : INTEGER
-}
-
-entity "recovery_phase" as recovery {
-  * id : UUID <<PK>>
-  --
-  * nutzer_id : UUID <<FK>>
-  * start_datum : TIMESTAMP
-  * end_datum : TIMESTAMP
-  * status : VARCHAR(20)
-}
-
-user ||--o{ habit : "definiert"
 habit ||--o{ execution : "besitzt"
-user ||--o{ journal : "verfasst"
-user ||--o{ recovery : "aktiviert"
 
 @enduml

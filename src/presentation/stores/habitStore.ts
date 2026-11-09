@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import { inject, ref } from 'vue'
 import type { Habit } from '@/domain/models/Habit'
+import { HabitCompletion } from '@/domain/models/HabitCompletion'
 import type { HabitData } from '@/domain/Ports/Out/HabitRepositoryPort'
 import { HABIT_USE_CASES } from '@/compositionRoot'
 
 export const useHabitStore = defineStore('habit', () => {
   const habits = ref<Habit[]>([])
+  const habitsCompletionsToday = ref<HabitCompletion[]>([])
   const isLoading = ref<boolean>(false)
   const error = ref<string | null>(null)
   const habitToEdit = ref<Habit | null>(null)
@@ -19,6 +21,7 @@ export const useHabitStore = defineStore('habit', () => {
   if (!injectedUseCases) throw new Error('HabitUseCases wurden nicht bereitgestellt')
   const useCases = injectedUseCases
 
+  //
   async function loadHabit(id: string) {
     isLoading.value = true
     error.value = null
@@ -60,7 +63,7 @@ export const useHabitStore = defineStore('habit', () => {
 
   // Bestehendes Habit aktualisieren
   async function updateHabit(id: string, data: HabitData) {
-    isLoading.value = true
+    isLoading.value = true 
     error.value = null
     try {
       const updated = await useCases.updateHabit.execute(id, data)
@@ -86,15 +89,56 @@ export const useHabitStore = defineStore('habit', () => {
     }
   }
 
+  //writting to db
+  //TODO: merge complete and uncomplete, move toggleCompletion logic from habitStore to Service
+  async function toggleCompletion(habitId: string, date: string, status: boolean){
+    isLoading.value = true 
+    error.value = null
+    var currentService;
+    if (status === true){
+      currentService = useCases.completeHabit
+    } else if(status === false){
+      currentService = useCases.uncompleteHabit
+    } else {
+      throw new Error("uncorrect status in toggleCompletion")
+      return
+    }
+    
+    try {
+      await currentService.execute(habitId, date)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Fehler beim Bearbeiten'
+    } finally {
+      isLoading.value = false
+    }
+    
+  }
+
+  //loading on app-start
+  async function loadCompletionsForToday(date: string){
+    isLoading.value = true
+    error.value = null
+    try {
+      habitsCompletionsToday.value = await useCases.getCompletionsForDay.execute(date)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Fehler beim Laden'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   // Setzt das Habit das bearbeitet werden soll (vor Navigation zu HabitEditView)
   function setHabitToEdit(habit: Habit) { habitToEdit.value = habit }
   function clearHabitToEdit() { habitToEdit.value = null }
   function setHabits(newHabits: Habit[]) { habits.value = newHabits }
 
   return {
-    habits, isLoading, error, habitToEdit,
+    habits, habitsCompletionsToday,
+    isLoading, error, habitToEdit,
     completedHabitIds, hiddenHabitIds,
     loadHabit, loadAllHabits, createHabit,
-    updateHabit, deleteHabit, setHabitToEdit, clearHabitToEdit, setHabits
+    updateHabit, deleteHabit,
+    toggleCompletion, loadCompletionsForToday,
+    setHabitToEdit, clearHabitToEdit, setHabits
   }
 })
