@@ -27,7 +27,7 @@ entity "habit_completions" as execution {
   * user_id : UUID <<FK>>
   * created_at : TIMESTAMP
   * completed_date : DATE
-  * status : STRING
+  * is_completed : BOOL
 }
 
 entity "tagebucheintrag" as journal {

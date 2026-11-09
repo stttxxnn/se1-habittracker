@@ -287,7 +287,7 @@ include::{plantumlsdir}/data-model.puml[]
 | user_id | Fremdschlüssel zur filterbasierten RLS-Absicherung des Tagebuchs.
 | created_at | Exakter Erfassungszeitpunkt;
 | completed_date | ein Datum
-| status | Status-Enum: `ERLEDIGT`, `NICHT_ERLEDIGT`, `VERPASST`.
+| is_completed | boolean, zeigt ob Gewohnheit erledigt ist oder nicht
 
 .4+| tagebucheintrag
 | id | UUID als Primärschlüssel.
