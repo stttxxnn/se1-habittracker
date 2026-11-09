@@ -3,11 +3,11 @@ import { inject, ref } from 'vue'
 import type { Habit } from '@/domain/models/Habit'
 import type { HabitData } from '@/domain/Ports/Out/HabitRepositoryPort'
 import { HABIT_USE_CASES } from '@/compositionRoot'
-import { SupabaseHabitCompletionAdapter } from '@/infrastructure/Adapter/SupabaseHabitCompletionAdapter'
 import { GetCompletionsForDayService } from '@/domain/Services/GetCompletionsForDayHabitService'
 import { CompleteHabitService } from '@/domain/Services/CompleteHabitService'
 import { UncompleteHabitService } from '@/domain/Services/UncompleteHabitService'
 import { HabitCompletion, Status } from '@/domain/models/HabitCompletion'
+import { SupabaseHabitAdapter } from '@/infrastructure/Adapter/SupabaseHabitAdapter'
 
 export const useHabitStore = defineStore('habit', () => {
   const habits = ref<Habit[]>([])
@@ -25,10 +25,6 @@ export const useHabitStore = defineStore('habit', () => {
   if (!injectedUseCases) throw new Error('HabitUseCases wurden nicht bereitgestellt')
   const useCases = injectedUseCases
 
-  const habitCompletionAdapter = new SupabaseHabitCompletionAdapter()
-  const getCompletionsForDayService = new GetCompletionsForDayService(habitCompletionAdapter)
-  const completeHabitService = new CompleteHabitService(habitCompletionAdapter)
-  const uncompleteHabitService = new UncompleteHabitService(habitCompletionAdapter)
   //
   async function loadHabit(id: string) {
     isLoading.value = true
@@ -101,19 +97,19 @@ export const useHabitStore = defineStore('habit', () => {
   async function toggleCompletion(habitId: string, date: string, status: Status){
     isLoading.value = true 
     error.value = null
-    var curService;
+    var currentService;
     //merge complete and uncomplete Services to one to set a status?
     if (status === 'erledigt'){
-      curService = completeHabitService
+      currentService = useCases.completeHabit
     } else if(status === 'nicht_erledigt'){
-      curService = uncompleteHabitService
+      currentService = useCases.uncompleteHabit
     } else {
       throw new Error("uncorrect status in toggleCompletion")
       return
     }
     
     try {
-      await curService.execute(habitId, date)
+      await currentService.execute(habitId, date)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Fehler beim Bearbeiten'
     } finally {
@@ -127,7 +123,7 @@ export const useHabitStore = defineStore('habit', () => {
     isLoading.value = true
     error.value = null
     try {
-      habitsCompletionsToday.value = await getCompletionsForDayService.execute(date)
+      habitsCompletionsToday.value = await useCases.getCompletionsForDay.execute(date)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Fehler beim Laden'
     } finally {
