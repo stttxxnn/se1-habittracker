@@ -274,17 +274,20 @@ include::{plantumlsdir}/data-model.puml[]
 | email | Eindeutige E-Mail-Adresse für das Login-Verfahren.
 | encrypted_password | Mit `bcrypt` gesichertes Passwort auf der Datenbank-Ebene.
 
-.6+| gewohnheit
+.5+| gewohnheit
 | id | UUID als Primärschlüssel.
 | nutzer_id | Fremdschlüssel auf den Besitzer; RLS-Policy greift hierüber: `auth.uid() == nutzer_id`.
 | name / beschreibung | Textbezeichner der Gewohnheit sowie optionale Ausführungsdetails.
 | haeufigkeit | Speicherwert für Intervalle in Tagen (z.B. 1 entspricht 'daily', 7 - 'weekly').
 | aktuelle_erfolgskette | Zwischengespeicherter Integer-Wert zur performanten Abfrage im UI ohne Live-Neuberechnung.
 
-.3+| ausfuehrung
+.6+| habit_completions
 | id | UUID als Primärschlüssel.
-| gewohnheit_id | Fremdschlüssel auf die zugehörige Gewohnheit. Kaskadierendes Löschen (`ON DELETE CASCADE`).
-| datum / status | Exakter Erfassungszeitpunkt; Status-Enum: `ERLEDIGT`, `VERPASST`.
+| habit_id | Fremdschlüssel auf die zugehörige Gewohnheit. Kaskadierendes Löschen (`ON DELETE CASCADE`).
+| user_id | Fremdschlüssel zur filterbasierten RLS-Absicherung des Tagebuchs.
+| created_at | Exakter Erfassungszeitpunkt;
+| completed_date | ein Datum
+| status | Status-Enum: `ERLEDIGT`, `NICHT_ERLEDIGT`, `VERPASST`.
 
 .4+| tagebucheintrag
 | id | UUID als Primärschlüssel.

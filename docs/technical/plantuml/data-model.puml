@@ -20,12 +20,14 @@ entity "gewohnheit" as habit {
   * erstellt_am : TIMESTAMP
 }
 
-entity "ausfuehrung" as execution {
+entity "habit_completions" as execution {
   * id : UUID <<PK>>
   --
-  * gewohnheit_id : UUID <<FK>>
-  * datum : TIMESTAMP
-  * status : VARCHAR(20)
+  * habit_id : UUID <<FK>>
+  * user_id : UUID <<FK>>
+  * created_at : TIMESTAMP
+  * completed_date : DATE
+  * status : STRING
 }
 
 entity "tagebucheintrag" as journal {
