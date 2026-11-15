@@ -41,8 +41,8 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       id: row.id,
       title: row.title,
       createdAt: new Date(row.created_at),
-      periodicity: (row.periodicity as Periodicity) ?? undefined,
-      weekdays: (row.weekdays as Weekday[]) ?? undefined,
+      periodicity: (row.periodicity as Periodicity),// ?? null,
+      weekdays: (row.weekdays as Weekday[]),// ?? undefined,
       scheduledTime: row.scheduled_time ?? undefined,
       duration: row.duration_minutes ?? undefined,
       color: row.color ?? undefined,
@@ -83,13 +83,13 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       .from('habits')
       .insert({
         title: habitData.title,
-        periodicity: habitData.periodicity ?? null,
-        weekdays: habitData.weekdays ?? null,
-        scheduled_time: habitData.scheduledTime ?? null,
-        duration_minutes: habitData.duration ?? null,
-        color: habitData.color ?? null,
-        icon: habitData.icon ?? null,
-        reason: habitData.reason ?? null
+        periodicity: habitData.periodicity,// ?? null,
+        weekdays: habitData.weekdays,// ?? null,
+        scheduled_time: habitData.scheduledTime,// ?? null,
+        duration_minutes: habitData.duration,// ?? null,
+        color: habitData.color,// ?? null,
+        icon: habitData.icon,// ?? null,
+        reason: habitData.reason,// ?? null
       })
       .select(SELECT_COLS)
       .single()
@@ -106,13 +106,13 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       .from('habits')
       .update({
         title: habitData.title,
-        periodicity: habitData.periodicity ?? null,
-        weekdays: habitData.weekdays ?? null,
-        scheduled_time: habitData.scheduledTime ?? null,
-        duration_minutes: habitData.duration ?? null,
-        color: habitData.color ?? null,
-        icon: habitData.icon ?? null,
-        reason: habitData.reason ?? null
+        periodicity: habitData.periodicity,// ?? null,
+        weekdays: habitData.weekdays,// ?? null,
+        scheduled_time: habitData.scheduledTime,// ?? null,
+        duration_minutes: habitData.duration,// ?? null,
+        color: habitData.color,// ?? null,
+        icon: habitData.icon,//?? null,
+        reason: habitData.reason ,//?? null
       })
       .eq('id', id)
       .select(SELECT_COLS)
@@ -141,7 +141,7 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
         id: row.id,
         habit_id: row.habit_id,
         completed_date: row.completed_date,
-        user_id: row.user_id ?? undefined,
+        user_id: row.user_id, //?? undefined/null ergibbt kein sinn
         is_completed: (row.is_completed as boolean)
     }
     return completion
@@ -221,13 +221,12 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
   }
 
   async getCompletionsForDay(date: string): Promise<HabitCompletion[]> {
-      const today = new Date().toISOString().split('T')[0]
       //since we are saving status and logging all changes inside that table,
       //we need to get only last entry inside every id group, that was completed!
       const { data, error } = await supabase
           .from('habit_completions')
           .select(SELECT_COLS_COMPLETIONS)
-          .eq("completed_date", today)
+          .eq("completed_date", date)
           .order('created_at', { ascending: false }) //completed_date has only day
       if (error) {
           throw new Error(`Fehler beim getting Habit Completions for Day: ${error.message}`)

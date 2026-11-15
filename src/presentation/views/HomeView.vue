@@ -194,8 +194,8 @@ onMounted(async () => {
   if (habitStore.habits.length === 0) {
     await habitStore.loadAllHabits()
   }
-  if (habitStore.completedHabitIds.values.length === 0) {
-    await habitStore.loadCompletionsForToday(currentDate.value)
+  if (completedHabitIds.value.size === 0) {
+    await habitStore.loadCompletionsForToday(now.value.toISOString().slice(0,10))
     //currently completedHabitsIds is not removed *yet*
     completedHabitIds.value = new Set(habitStore.habitsCompletionsToday.map(completion => completion.habit_id)
 )
