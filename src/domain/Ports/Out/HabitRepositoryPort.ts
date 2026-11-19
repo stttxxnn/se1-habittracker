@@ -1,3 +1,4 @@
+import { HabitCompletion } from '@/domain/models/HabitCompletion'
 import { Habit } from '../../models/Habit'
 
 // Daten die beim Erstellen oder Bearbeiten eines Habits übergeben werden können
@@ -10,6 +11,14 @@ export type HabitData = {
   color?: string
   icon?: string
   reason?: string
+}
+
+export type HabitCompletionData = {
+    //id: string;
+    habit_id: string;
+    user_id?: string;
+    completed_date: string; // 'YYYY-MM-DD'
+    is_completed: boolean; // TEST
 }
 
 export interface HabitRepositoryPort {
@@ -27,4 +36,8 @@ export interface HabitRepositoryPort {
 
   // Löscht ein Habit anhand seiner ID
   delete(id: string): Promise<void>
+
+  completeForDay(habitId: string, date: string): Promise<void>;
+  uncompleteForDay(habitId: string, date: string): Promise<void>;
+  getCompletionsForDay(date: string): Promise<HabitCompletion[]>;
 }

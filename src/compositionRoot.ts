@@ -13,6 +13,9 @@ import { GetAllHabitsService } from '@/domain/Services/GetAllHabitsService'
 import { CreateHabitService } from '@/domain/Services/CreateHabitService'
 import { UpdateHabitService } from '@/domain/Services/UpdateHabitService'
 import { DeleteHabitService } from '@/domain/Services/DeleteHabitService'
+import { CompleteHabitService } from './domain/Services/CompleteHabitService'
+import { UncompleteHabitService } from './domain/Services/UncompleteHabitService'
+import { GetCompletionsForDayService } from './domain/Services/GetCompletionsForDayHabitService'
 
 export interface HabitUseCases {
   getHabit: GetHabitQuery
@@ -20,6 +23,9 @@ export interface HabitUseCases {
   createHabit: CreateHabitCommand
   updateHabit: UpdateHabitCommand
   deleteHabit: DeleteHabitCommand
+  completeHabit: CompleteHabitService
+  uncompleteHabit: UncompleteHabitService
+  getCompletionsForDay: GetCompletionsForDayService
 }
 
 export const HABIT_USE_CASES: InjectionKey<HabitUseCases> = Symbol('HabitUseCases')
@@ -33,5 +39,8 @@ export function createHabitUseCases(repo: HabitRepositoryPort): HabitUseCases {
     createHabit: new CreateHabitService(repo),
     updateHabit: new UpdateHabitService(repo),
     deleteHabit: new DeleteHabitService(repo),
+    completeHabit: new CompleteHabitService(repo),
+    uncompleteHabit: new UncompleteHabitService(repo),
+    getCompletionsForDay: new GetCompletionsForDayService(repo),
   }
 }

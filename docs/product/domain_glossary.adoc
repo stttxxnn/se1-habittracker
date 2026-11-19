@@ -100,10 +100,10 @@ Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
 |===
 | Entität | Beschreibung
 
-| Gewohnheit
+| Habit
 | Beschreibt eine wiederkehrende Aktivität oder Routine. Enthält Informationen wie Titel, Icon, Farbe, Häufigkeit, Dauer oder Schwierigkeitsgrad.
 
-| Gewohnheitsabschluss
+| Habit Completions
 | Dokumentiert die erfolgreiche Durchführung einer Gewohnheit zu einem bestimmten Zeitpunkt (das „Abhaken“ im Tagesplan). Hinweis: Das Fehlen eines Abschlusses zum geplanten Zeitpunkt repräsentiert fachlich einen „Rückschlag“.
 
 | Gewohnheitsvorlage
@@ -111,9 +111,6 @@ Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
 
 | Kategorie
 | Dient zur thematischen Einordnung und Strukturierung von Gewohnheiten. Kategorien können hierarchisch als Haupt- und Unterkategorien aufgebaut sein.
-
-| Meilenstein
-| Beschreibt ein definiertes Fortschrittsziel einer Gewohnheit (z. B. die ersten 7 bis 31 Wiederholungen). Dient der Motivation und Fortschrittsmessung.
 
 | Nutzer
 | Repräsentiert eine registrierte Person, die Gewohnheiten erstellt, organisiert und verfolgt.
@@ -123,9 +120,6 @@ Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
 
 | Recovery-Mode
 | Repräsentiert einen Zeitraum (Regenerationsphase), in dem der Nutzer temporär verminderte Anforderungen hat, um in stressigen Phasen Rückschläge bei Streaks abzufedern.
-
-| Statistik
-| Enthält Auswertungen und Analysen zum Verhalten und Fortschritt eines Nutzers (Aktivitätstrends, Regelmäßigkeit, Heatmap).
 
 | Streak
 | Repräsentiert die aktuelle sowie die längste ununterbrochene Erfolgsserie einer Gewohnheit.
@@ -164,35 +158,10 @@ Beschreibung der wichtigsten Beziehungen zwischen den Entitäten, sofern diese b
 | 0..1 zu 0..1
 | Eine Gewohnheit kann an eine andere Gewohnheit gekoppelt werden (Habit-Stacking). Hierdurch wird ein Vorgänger/Nachfolger-Prinzip realisiert.
 
-| Gewohnheit
-| Streak
-| 1 zu 1
-| Jede Gewohnheit besitzt genau einen Streak (aktuelle und längste Serie). Aus den Streaks aller Gewohnheiten lässt sich der Gesamtfortschritt eines Nutzers ableiten.
-
-| Gewohnheit
-| Meilenstein
-| 1 zu 0..*
-| Zu einer Gewohnheit können mehrere Meilensteine (Ziele) definiert werden.
-
-| Kategorie
-| Gewohnheit
-| 1 zu 0..*
-| Eine Kategorie kann mehrere Gewohnheiten thematisch gruppieren.
-
-| Kategorie
-| Kategorie
-| 0..1 zu 0..*
-| Eine Kategorie kann beliebig viele Unterkategorien besitzen (Hierarchie).
-
 | Nutzer
 | Recovery-Mode
 | 1 zu 0..*
 | Ein Nutzer kann in Belastungsphasen Recovery-Modes einlegen, die sich auf das Tracking auswirken.
-
-| Nutzer
-| Statistik
-| 1 zu 0..1
-| Ein Nutzer analysiert seinen Fortschritt durch eine Statistik-Auswertung.
 |===
 
 _Dieses Dokument wird kontinuierlich gepflegt. Änderungen an Fachbegriffen oder Beziehungen
