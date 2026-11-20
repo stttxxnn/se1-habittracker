@@ -65,9 +65,13 @@ Stand der Einträge: nach dem Merge von `habit_completions` (PR #95).
   war in einer Vue-Computed-Property verankert. Fachlogik in der
   Präsentationsschicht: nicht isoliert testbar, würde beim
   Streak-Algorithmus dupliziert.
-| *In Bearbeitung* — PR #96 (Issue #92).
+| *In Bearbeitung* — Issue #92.
   Umsetzung als Domänenfunktion `isScheduledFor` in
   `src/domain/rules/habitSchedule.ts`, die View ruft sie nur noch auf.
+  Hinweis zur Nachvollziehbarkeit: PR #96 ist als _merged_ markiert, wurde
+  aber gegen `feature/dashboard-progress` statt gegen `main` gemergt.
+  Der Code erreicht `main` über PR #97, der die Commits von PR #96
+  mit unveränderter Autorschaft enthält.
 
 | TD-S4-05
 | Keine versionierte SQL-Migration für `habit_completions`
@@ -147,7 +151,7 @@ klaren Anlass:
 * TD-S4-01 (Partial Update): erst wenn das Habit-Formular alle Felder abdeckt
 * TD-S4-02 (Composition Root): erledigt, Sprint 4, PR #91
 * TD-S4-03 (Test-Umgebung): Domänentests erledigt mit PR #94, Komponententests offen
-* TD-S4-04 (Fachregel in der View): in Bearbeitung, PR #96
+* TD-S4-04 (Fachregel in der View): in Bearbeitung, erreicht `main` über PR #97
 * TD-S4-05 (fehlende Migration): vor der nächsten Schemaänderung nachziehen
 * TD-S4-06 (Port mit zwei Aggregaten): bei Streak- und Dashboard-Abfragen neu bewerten
 * TD-S4-07 (Platzhalter im Datentyp): beim nächsten Anfassen der Completion-Logik
