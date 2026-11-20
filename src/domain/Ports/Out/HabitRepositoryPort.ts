@@ -40,4 +40,7 @@ export interface HabitRepositoryPort {
   completeForDay(habitId: string, date: string): Promise<void>;
   uncompleteForDay(habitId: string, date: string): Promise<void>;
   getCompletionsForDay(date: string): Promise<HabitCompletion[]>;
+
+  // Liest alle erledigten Haken aller Habits (Grundlage für die Streak-Berechnung)
+  getAllCompletions(): Promise<HabitCompletion[]>;
 }

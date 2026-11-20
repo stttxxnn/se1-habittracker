@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
-import { inject, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import type { Habit } from '@/domain/models/Habit'
 import { HabitCompletion } from '@/domain/models/HabitCompletion'
 import type { HabitData } from '@/domain/Ports/Out/HabitRepositoryPort'
 import { HABIT_USE_CASES } from '@/compositionRoot'
+import { calculateStreak, type StreakResult } from '@/domain/rules/streak'
 
 export const useHabitStore = defineStore('habit', () => {
   const habits = ref<Habit[]>([])
@@ -15,6 +16,19 @@ export const useHabitStore = defineStore('habit', () => {
   // Completion state persists across navigation (store survives view unmount)
   const completedHabitIds = ref<Set<string>>(new Set())
   const hiddenHabitIds = ref<Set<string>>(new Set())
+
+  // Alle Tage, an denen ein Habit abgehakt wurde ('YYYY-MM-DD'), je Habit-ID
+  const completedDatesByHabit = ref<Record<string, string[]>>({})
+
+  // Streak je Habit; die Regel selbst liegt in der Domäne (calculateStreak)
+  const streaks = computed<Record<string, StreakResult>>(() => {
+    const today = new Date()
+    const result: Record<string, StreakResult> = {}
+    for (const habit of habits.value) {
+      result[habit.id] = calculateStreak(habit, completedDatesByHabit.value[habit.id] ?? [], today)
+    }
+    return result
+  })
 
   // Use Cases kommen aus der Composition Root (main.ts), der Store kennt nur die Ports
   const injectedUseCases = inject(HABIT_USE_CASES)
@@ -106,6 +120,7 @@ export const useHabitStore = defineStore('habit', () => {
     
     try {
       await currentService.execute(habitId, date)
+      updateCompletedDates(habitId, date, status)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Fehler beim Bearbeiten'
     } finally {
@@ -127,6 +142,28 @@ export const useHabitStore = defineStore('habit', () => {
     }
   }
 
+  // Lädt alle Haken aller Habits, damit die Streaks berechnet werden können
+  async function loadCompletionHistory() {
+    error.value = null
+    try {
+      const completions = await useCases.getAllCompletions.execute()
+      const byHabit: Record<string, string[]> = {}
+      for (const c of completions) {
+        (byHabit[c.habit_id] ??= []).push(c.completed_date)
+      }
+      completedDatesByHabit.value = byHabit
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Fehler beim Laden'
+    }
+  }
+
+  // Hält die Historie nach dem Ab- oder Anhaken aktuell, ohne alles neu zu laden
+  function updateCompletedDates(habitId: string, date: string, completed: boolean) {
+    const dates = (completedDatesByHabit.value[habitId] ?? []).filter(d => d !== date)
+    if (completed) dates.push(date)
+    completedDatesByHabit.value = { ...completedDatesByHabit.value, [habitId]: dates }
+  }
+
   // Setzt das Habit das bearbeitet werden soll (vor Navigation zu HabitEditView)
   function setHabitToEdit(habit: Habit) { habitToEdit.value = habit }
   function clearHabitToEdit() { habitToEdit.value = null }
@@ -136,9 +173,10 @@ export const useHabitStore = defineStore('habit', () => {
     habits, habitsCompletionsToday,
     isLoading, error, habitToEdit,
     completedHabitIds, hiddenHabitIds,
+    completedDatesByHabit, streaks,
     loadHabit, loadAllHabits, createHabit,
     updateHabit, deleteHabit,
-    toggleCompletion, loadCompletionsForToday,
+    toggleCompletion, loadCompletionsForToday, loadCompletionHistory,
     setHabitToEdit, clearHabitToEdit, setHabits
   }
 })

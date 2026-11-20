@@ -242,4 +242,18 @@ export class SupabaseHabitAdapter implements HabitRepositoryPort {
       const latestEntries = Array.from(latestByHabit.values()).filter(completion => completion.is_completed === true)
       return latestEntries.map(row => this.mapToHabitCompletion(row as CompletionRow))
   }
+
+  async getAllCompletions(): Promise<HabitCompletion[]> {
+      // Pro Habit und Tag gibt es genau eine Zeile (unique index habit_id + completed_date),
+      // abgehakt sind die Zeilen mit is_completed = true
+      const { data, error } = await supabase
+          .from('habit_completions')
+          .select(SELECT_COLS_COMPLETIONS)
+          .eq('is_completed', true)
+          .order('completed_date', { ascending: true })
+      if (error) {
+          throw new Error(`Fehler beim Laden aller Habit Completions: ${error.message}`)
+      }
+      return (data ?? []).map(row => this.mapToHabitCompletion(row as CompletionRow))
+  }
 }
