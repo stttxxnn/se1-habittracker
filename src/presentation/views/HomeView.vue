@@ -4,6 +4,8 @@ import labels from '@/presentation/locales/en.json'
 import { useHabitStore } from '@/presentation/stores/habitStore'
 import { storeToRefs } from 'pinia'
 import BottomNav from '@/presentation/components/BottomNav.vue'
+import { isScheduledFor } from '@/domain/rules/habitSchedule'
+import { toIsoDate } from '@/domain/rules/calendarDay'
 
 defineProps<{ currentView: string }>()
 const emit = defineEmits<{ changeView: [view: string] }>()
@@ -61,18 +63,6 @@ const timelineLabels = [
   { text: '24:00', percent: 100 },
 ]
 
-// ─── Wochentag-Mapping (JS getDay() → Habit-Weekday-String) ──────────────────
-// JS: 0=Sonntag, 1=Mo, ..., 6=Sa
-const JS_DAY_TO_WEEKDAY: Record<number, string> = {
-  0: 'sunday',
-  1: 'monday',
-  2: 'tuesday',
-  3: 'wednesday',
-  4: 'thursday',
-  5: 'friday',
-  6: 'saturday'
-}
-
 // ─── Wochenleiste ─────────────────────────────────────────────────────────
 const now = ref<Date>(new Date())
 const selectedDayIndex = ref<number>(now.value.getDay())
@@ -82,26 +72,10 @@ function selectDay(dayIndex: number) {
   // CalendarView is not yet implemented — selection only highlights the chosen day
 }
 
-// ─── Habit-Filter: nur Habits für den heutigen Wochentag ────────────────────
-const todayWeekday = computed<string>(() => JS_DAY_TO_WEEKDAY[now.value.getDay()])
-
+// ─── Habit-Filter: nur Habits für den heutigen Tag ──────────────────────────
+// Die fachliche Regel liegt in der Domäne (isScheduledFor), die View ruft sie nur auf
 const todayHabits = computed(() =>
-  habitStore.habits.filter(habit => {
-    const p = habit.periodicity
-
-    // Kein periodicity-Feld (alte Habits ohne Migration): immer anzeigen
-    if (!p) return true
-
-    if (p === 'daily') return true
-
-    if (p === 'weekly') {
-      // Nur anzeigen wenn heute in den gespeicherten Wochentagen ist
-      return (habit.weekdays ?? []).includes(todayWeekday.value)
-    }
-
-    // monthly: immer anzeigen (genaues Datum-Matching wäre ein eigenes Feature)
-    return true
-  })
+  habitStore.habits.filter(habit => isScheduledFor(habit, now.value))
 )
 
 const visibleHabits = computed(() =>
@@ -134,7 +108,8 @@ function isHabitDone(id: string) { return completedHabitIds.value.has(id) }
 // move logik into toggleCompletion
 function toggleHabitDone(id: string) {
   const updated = new Set(completedHabitIds.value)
-  const today = new Date().toISOString().split('T')[0]
+  // Lokaler Kalendertag; toISOString() wäre UTC und kurz nach Mitternacht der Vortag
+  const today = toIsoDate(new Date())
   if (updated.has(id)) {
     updated.delete(id)
     habitStore.toggleCompletion(id, today, false)
@@ -152,8 +127,17 @@ function toggleHabitDone(id: string) {
   completedHabitIds.value = updated
 }
 
+// ─── Streak ───────────────────────────────────────────────────────────────
+// Berechnet wird im Store über die Domänenregel calculateStreak; hier nur Anzeige
+function currentStreakOf(id: string): number { return habitStore.streaks[id]?.current ?? 0 }
+
 // ─── Sonstiges ────────────────────────────────────────────────────────────
-const homeStats = ref<HomeStats>({ streakDays: 0, habitsCount: 0, vicesCount: 0 })
+// Oben angezeigt wird die längste aktuelle Streak aller Habits
+const homeStats = computed<HomeStats>(() => ({
+  streakDays: Math.max(0, ...Object.values(habitStore.streaks).map(s => s.current)),
+  habitsCount: habitStore.habits.length,
+  vicesCount: 0
+}))
 const user = ref<User>({ id: 1, name: 'Laura M.' })
 
 const currentGreeting = computed<string>(() => {
@@ -195,12 +179,14 @@ onMounted(async () => {
     await habitStore.loadAllHabits()
   }
   if (completedHabitIds.value.size === 0) {
-    await habitStore.loadCompletionsForToday(now.value.toISOString().slice(0,10))
+    await habitStore.loadCompletionsForToday(toIsoDate(now.value))
     //currently completedHabitsIds is not removed *yet*
     completedHabitIds.value = new Set(habitStore.habitsCompletionsToday.map(completion => completion.habit_id)
 )
   }
-  homeStats.value = { streakDays: 0, habitsCount: habitStore.habits.length, vicesCount: 0 }
+  if (Object.keys(habitStore.completedDatesByHabit).length === 0) {
+    await habitStore.loadCompletionHistory()
+  }
   clockTimer = window.setInterval(() => { now.value = new Date() }, 60_000)
 })
 
@@ -272,7 +258,11 @@ onUnmounted(() => {
               ? formatTimeRange(habit.scheduledTime, habit.duration)
               : (habit.scheduledTime ? normalizeTime(habit.scheduledTime) : '–') }}
           </span>
-          <span class="habit-name">{{ habit.title }}</span>
+          <span class="habit-name">
+            {{ habit.title }}
+            <span v-if="currentStreakOf(habit.id) > 0" class="habit-streak"
+              :title="`${currentStreakOf(habit.id)} ${labels.home.streak}`">🔥 {{ currentStreakOf(habit.id) }}</span>
+          </span>
           <button class="habit-action-btn" type="button" @click="handleEdit(habit)" title="Bearbeiten">✎</button>
           <button class="habit-action-btn" type="button" @click="habitStore.deleteHabit(habit.id)"
             title="Löschen">×</button>
@@ -479,6 +469,16 @@ onUnmounted(() => {
   font-size: 14px;
   text-align: left;
   overflow-wrap: anywhere;
+}
+
+/* inline-block: das Durchstreichen erledigter Habits greift nicht auf die Streak über */
+.habit-streak {
+  display: inline-block;
+  margin-left: 6px;
+  color: #e8590c;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .habit-action-btn {

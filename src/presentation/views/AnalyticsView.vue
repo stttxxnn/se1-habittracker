@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import labels from '@/presentation/locales/en.json'
 import BottomNav from '@/presentation/components/BottomNav.vue'
+import { useHabitStore } from '@/presentation/stores/habitStore'
 
 // Aktuell aktive View, um den passenden Tab in der Navigation hervorzuheben
 defineProps<{
@@ -12,8 +14,23 @@ defineEmits<{
   changeView: [view: string]
 }>()
 
-// Temporäre Werte für das grobe Analytics-Layout
-const streakValue = 75
+const habitStore = useHabitStore()
+
+// Längste aktuelle Streak und höchster Rekord über alle Habits (Berechnung im Store/Domäne)
+const streakValue = computed(() =>
+  Math.max(0, ...Object.values(habitStore.streaks).map(s => s.current))
+)
+const bestStreak = computed(() =>
+  Math.max(0, ...Object.values(habitStore.streaks).map(s => s.best))
+)
+const isNewRecord = computed(() => streakValue.value > 0 && streakValue.value >= bestStreak.value)
+
+onMounted(async () => {
+  if (habitStore.habits.length === 0) await habitStore.loadAllHabits()
+  if (Object.keys(habitStore.completedDatesByHabit).length === 0) await habitStore.loadCompletionHistory()
+})
+
+// Temporärer Wert für das grobe Analytics-Layout
 const heatmapDays = 56
 </script>
 
@@ -29,7 +46,7 @@ const heatmapDays = 56
         </strong>
 
         <p>{{ labels.analytics.currentStreak }}</p>
-        <small>{{ labels.analytics.newRecord }}</small>
+        <small v-if="isNewRecord">{{ labels.analytics.newRecord }}</small>
       </div>
     </section>
 
