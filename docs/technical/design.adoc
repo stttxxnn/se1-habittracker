@@ -172,6 +172,111 @@ Rel(adapter_comp, edge_func, "triggert komplexe Analysen via", "HTTPS / REST")
 
 ---
 
+== Fachliche Regeln im Domain Core
+
+_Fachliche Regeln liegen als reine TypeScript-Funktionen in `src/domain/rules/`. Sie kennen weder Vue noch Supabase und sind deshalb ohne Browser und Datenbank testbar._
+
+Die Regel „Ist ein Habit an einem Tag eingeplant?“ lag bis Sprint 3 in `HomeView.vue`. Die Design-Impact-Analyse zu #15 (Issue #84) hat gezeigt, dass die Streak-Berechnung dieselbe Regel braucht. Sie wurde deshalb in Sprint 4 in die Domain verschoben (#92) und wird von View und Streak gemeinsam genutzt.
+
+[plantuml, domain-rules, svg]
+....
+@startuml
+skinparam monochrome true
+skinparam defaultFontSize 12
+hide empty members
+
+package "presentation" {
+  class HomeView <<Vue-Komponente>>
+  class AnalyticsView <<Vue-Komponente>>
+  class habitStore <<Pinia-Store>> {
+    + completedDatesByHabit
+    + streaks
+    + loadCompletionHistory()
+  }
+}
+
+package "domain/rules" {
+  class habitSchedule <<Modul>> {
+    + isScheduledFor(habit, date): boolean
+  }
+  class streak <<Modul>> {
+    + calculateStreak(habit, completedDates, today): StreakResult
+  }
+  class calendarDay <<Modul>> {
+    + toIsoDate(date): string
+  }
+}
+
+HomeView ..> habitSchedule : filtert heutige Habits
+HomeView ..> habitStore : zeigt Streak an
+AnalyticsView ..> habitStore : zeigt Streak an
+habitStore ..> streak : berechnet Streak je Habit
+streak ..> habitSchedule : prüft eingeplante Tage
+streak ..> calendarDay
+@enduml
+....
+
+[cols="1,3", options="header"]
+|===
+| Modul | Verantwortung
+
+| `habitSchedule.ts`
+| `isScheduledFor(habit, date)`: `daily` an jedem Tag, `weekly` an den gewählten `weekdays`, `monthly` vorerst an jedem Tag (#77), ohne `periodicity` an jedem Tag.
+
+| `streak.ts`
+| `calculateStreak(habit, completedDates, today)`: aktuelle Streak (`current`) und Rekord (`best`) aus den abgehakten Tagen.
+
+| `calendarDay.ts`
+| Kalendertage als `YYYY-MM-DD` in lokaler Zeit (`toIsoDate`, `parseIsoDate`, `addDays`).
+|===
+
+=== Regeln der Streak-Berechnung
+
+Die Regeln stammen aus der Design-Impact-Analyse #84. Der Recovery-Mode existiert im Code noch nicht und wird daher nicht berücksichtigt.
+
+[cols="1,3", options="header"]
+|===
+| Regel | Bedeutung
+
+| R1 | Pro Habit und Tag zählt nur ein Haken.
+| R2 | Streak = eingeplante Tage in Folge, an denen abgehakt wurde.
+| R3 | Ein eingeplanter Tag ohne Haken setzt die Streak auf 0.
+| R4 | Nicht eingeplante Tage (z. B. Dienstag bei einem Montags-Habit) unterbrechen die Streak nicht.
+| R5 | Der heutige Tag zählt erst nach Mitternacht als verpasst.
+| R6 | Der Rekord sinkt nie; er wird aus der gesamten Historie berechnet.
+|===
+
+Haken an Tagen in der Zukunft werden ignoriert. Das heutige Datum wird als Parameter übergeben, damit die Regeln mit festen Daten testbar sind.
+
+=== Datenfluss
+
+. Beim Start lädt der Store über `GetAllCompletionsService` alle abgehakten Tage (`getAllCompletions()` am `HabitRepositoryPort`, im Adapter `is_completed = true`).
+. Der Store hält sie je Habit in `completedDatesByHabit` und berechnet daraus `streaks` (je Habit `current` und `best`).
+. Beim Ab- oder Anhaken aktualisiert `toggleCompletion` die Historie direkt, die Streak wird ohne erneutes Laden neu berechnet.
+. Die Startseite zeigt die Streak je Habit und oben die längste aktuelle Streak aller Habits; Analytics zeigt die längste aktuelle Streak und „New Record“, wenn sie dem höchsten Rekord entspricht.
+
+[[streak-berechnen]]
+=== Entwurfsentscheidung: Streak berechnen statt speichern
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Beschreibung
+
+| Entscheidung
+| Die Streak wird aus den gespeicherten Haken (`habit_completions`) berechnet und nicht als Spalte (`streak_count`) in `habits` abgelegt.
+
+| Alternative
+| Spalte `streak_count` (und `max_streak`) in `habits`, die beim Abhaken hochgezählt wird.
+
+| Begründung
+| `SupabaseHabitAdapter.update()` schreibt beim Bearbeiten alle Spalten neu und würde einen gespeicherten Wert überschreiben (Befund aus #84, technische Schuld TD-S4-01). Ein berechneter Wert kann nicht veralten und muss beim Rückgängigmachen eines Hakens nicht korrigiert werden. Die Regeln liegen als reine Funktion in der Domain und sind mit Unit-Tests abgedeckt.
+
+| Konsequenz
+| Beim Start werden alle Haken geladen. Bei einem Haken pro Habit und Tag ist die Datenmenge für den Projektumfang unkritisch.
+|===
+
+---
+
 == Wichtige Interaktionsflüsse
 
 Sequenzdiagramme zeigen, wie Komponenten bei typischen Abläufen zusammenarbeiten. Dokumentiert werden hier die geschäftskritischen Abläufe unter Berücksichtigung der Offline-First-Strategie (ADR-004).
@@ -273,7 +378,7 @@ include::{plantumlsdir}/data-model.puml[]
 | id | UUID als Primärschlüssel.
 | user_id | Fremdschlüssel auf den Besitzer; RLS-Policy greift hierüber: `auth.uid() == nutzer_id`.
 | title | Titel von Gewohnheit
-| streak_count | Anzahl der aufeinanderfolgenden Tage, an denen ein Gewohnheit erfolgreich durchgeführt wurde
+| streak_count | Wird vom Code nicht gelesen oder geschrieben. Die Streak wird aus `habit_completions` berechnet (siehe <<streak-berechnen,Streak berechnen statt speichern>>).
 | created_at | Datum und Zeit
 | scheduled_time | Die Zeit während des Tages für Gewohnheit
 | duration_minutes | Wie lang dauert die Gewohnheit
@@ -366,7 +471,7 @@ _Dieser Abschnitt dokumentiert übergreifende Designmuster und Konventionen, die
 | Für Live-Visualisierungen (z. B. sofortige Synchronisation zwischen Desktop-Browser und Smartphone) wird der Supabase-Realtime-Kanal via WebSockets abonniert.
 
 | Datumsformat
-| Einheitlich im ISO-8601-Format mit Zeitzone (`YYYY-MM-DDTHH:mm:ssZ`), um fehlerfreie Berechnungen der Erfolgsketten über Zeitzorengrenzen hinweg zu garantieren.
+| Zeitpunkte im ISO-8601-Format mit Zeitzone (`YYYY-MM-DDTHH:mm:ssZ`). Kalendertage (z. B. `completed_date`) als `YYYY-MM-DD` in der lokalen Zeit des Nutzers, erzeugt mit `toIsoDate()` aus `calendarDay.ts`. `toISOString()` liefert UTC und darf dafür nicht verwendet werden, weil kurz nach Mitternacht sonst der Vortag entsteht.
 |===
 
 _Diagramme in diesem Dokument sollten den aktuellen Stand des Codes widerspiegeln. Bei größeren Refactorings oder Anpassungen des Datenmodells ist dieses Dokument im selben Pull Request zu aktualisieren._
