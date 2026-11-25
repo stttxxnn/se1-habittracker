@@ -3,6 +3,8 @@ import { computed, onMounted } from 'vue'
 import labels from '@/presentation/locales/en.json'
 import BottomNav from '@/presentation/components/BottomNav.vue'
 import { useHabitStore } from '@/presentation/stores/habitStore'
+import { addDays } from '@/domain/rules/calendarDay'
+import { buildHeatmap, type HeatmapDay } from '@/domain/rules/heatmap'
 
 // Aktuell aktive View, um den passenden Tab in der Navigation hervorzuheben
 defineProps<{
@@ -30,8 +32,47 @@ onMounted(async () => {
   if (Object.keys(habitStore.completedDatesByHabit).length === 0) await habitStore.loadCompletionHistory()
 })
 
-// Temporärer Wert für das grobe Analytics-Layout
-const heatmapDays = 56
+// Zeitraum der Heatmap bewusst klein gehalten (Aufgabe #109 / F-016). Zusätzlich
+// bewusst nur 4 statt 7 Wochentage pro Spalte, damit das Raster eher ein breites
+// Rechteck als ein Quadrat ist, ohne die einzelnen Zellen zu verkleinern — dafür
+// bleiben 3 Wochentage pro Woche unsichtbar, siehe Rückfrage mit Daniel am 2026-11-25.
+const HEATMAP_COLUMNS = 8 // Spalten, bestimmt zusammen mit der Kartenbreite die Zellengröße
+const HEATMAP_ROWS = 4 // Zeilen pro Spalte (von 7 möglichen Wochentagen)
+const HEATMAP_DAYS = HEATMAP_COLUMNS * HEATMAP_ROWS
+
+// Die letzten HEATMAP_DAYS Kalendertage, chronologisch (älteste zuerst)
+const heatmapRange = computed<Date[]>(() => {
+  const today = new Date()
+  const days: Date[] = []
+  for (let i = HEATMAP_DAYS - 1; i >= 0; i--) {
+    days.push(addDays(today, -i))
+  }
+  return days
+})
+
+// Anzahl erledigter Habits pro Kalendertag, aus completedDatesByHabit aggregiert.
+// Pro Datum zählt jedes Habit nur einmal, auch falls completedDatesByHabit (theoretisch)
+// doppelte Einträge enthält.
+const completedCountByDate = computed<Map<string, number>>(() => {
+  const counts = new Map<string, number>()
+  for (const dates of Object.values(habitStore.completedDatesByHabit)) {
+    for (const date of new Set(dates)) {
+      counts.set(date, (counts.get(date) ?? 0) + 1)
+    }
+  }
+  return counts
+})
+
+// Reine Domänenfunktion (siehe src/domain/rules/heatmap.ts) bekommt nur Daten,
+// kein Store- oder Datumszugriff darin.
+const heatmap = computed<HeatmapDay[]>(() =>
+  buildHeatmap(habitStore.habits, completedCountByDate.value, heatmapRange.value)
+)
+
+// Tooltip-Text pro Tag, z. B. "2026-11-25: 3 / 4 Habits"
+function heatmapTooltip(day: HeatmapDay): string {
+  return `${day.date}: ${day.completed} / ${day.scheduled} ${labels.analytics.habits}`
+}
 </script>
 
 <template>
@@ -69,12 +110,13 @@ const heatmapDays = 56
       </button>
     </div>
 
-    <!-- Platzhalter für die spätere Heatmap -->
+    <!-- Heatmap der letzten 8 Wochen: dunkleres Grün = höherer Anteil erledigter Habits -->
     <section class="app-card analytics-heatmap">
       <span
-        v-for="day in heatmapDays"
-        :key="day"
-        class="heatmap-cell"
+        v-for="day in heatmap"
+        :key="day.date"
+        :class="['heatmap-cell', `heatmap-level-${day.level}`]"
+        :title="heatmapTooltip(day)"
       ></span>
     </section>
 
@@ -145,10 +187,18 @@ const heatmapDays = 56
   grid-template-columns: repeat(4, 1fr);
 }
 
-/* Grobe Heatmap als Platzhalter */
+/* Heatmap: 4 Zeilen (von 7 Wochentagen), 8 Spalten. grid-auto-flow: column füllt
+   jede Spalte erst komplett von oben nach unten, bevor die nächste Spalte
+   beginnt — die Tage werden dafür chronologisch (älteste zuerst) übergeben.
+   Bewusst 4 statt 7 Zeilen, damit das Raster ein Rechteck statt eines fast
+   quadratischen Blocks ist. grid-auto-columns bleibt bei 1fr und die Spaltenzahl
+   bei 8, damit sich die Zellengröße dadurch NICHT ändert (nur weniger Zeilen
+   insgesamt, nicht kleinere Zellen). */
 .analytics-heatmap {
   display: grid;
-  grid-template-columns: repeat(14, 1fr);
+  grid-auto-flow: column;
+  grid-template-rows: repeat(4, 1fr);
+  grid-auto-columns: 1fr;
   gap: 6px;
   padding: 12px;
 }
@@ -156,7 +206,27 @@ const heatmapDays = 56
 .heatmap-cell {
   aspect-ratio: 1;
   border-radius: 3px;
-  background: #58d87b;
+}
+
+/* Fünf Intensitätsstufen nach Anteil erledigter/eingeplanter Habits (levelFor) */
+.heatmap-level-0 {
+  background: #ebedf0;
+}
+
+.heatmap-level-1 {
+  background: #9be9a8;
+}
+
+.heatmap-level-2 {
+  background: #40c463;
+}
+
+.heatmap-level-3 {
+  background: #30a14e;
+}
+
+.heatmap-level-4 {
+  background: #216e39;
 }
 
 /* Platzhalter-Zeilen für die spätere Habit-Analyse */
