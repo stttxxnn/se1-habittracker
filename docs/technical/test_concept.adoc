@@ -12,12 +12,125 @@ und wie Tests in den Entwicklungsprozess integriert sind._
 
 == Teststrategie
 
-_Beschreibe in wenigen Sätzen den grundsätzlichen Ansatz zur Qualitätssicherung im Projekt.
-Warum wurden diese Testarten gewählt? Welchen Stellenwert hat Testing im Team?_
+Die Qualität des HabitTrackers wird durch eine risikobasierte Teststrategie sichergestellt. Dazu werden Produktrisiken identifiziert, bewertet und geeignete Testschwerpunkte festgelegt. Die Verantwortung für die Qualität liegt beim gesamten Team.
 
-[Hier die übergeordnete Teststrategie beschreiben, z. B.:
-„Wir setzen auf eine Teststrategie mit einem starken Fokus auf Unit-Tests,
-ergänzt durch Integrationstests für kritische Schnittstellen und manuelle Tests für die wichtigsten Nutzerinteraktionen."]
+=== Bewertung der Produktrisiken
+
+==== PR-01: Verlust des Erledigungsstatus bei fehlender Internetverbindung
+
+* Risiko: Wenn ein Nutzer eine Gewohnheit ohne Internetverbindung abhakt, kann der Erledigungsstatus verloren gehen. Dabei kann eine irreführende Fehlermeldung angezeigt werden, die nicht auf die fehlende Internetverbindung hinweist. Dadurch kann der Nutzer seinen Fortschritt nicht korrekt nachvollziehen und die Fehlerursache nicht erkennen.
+
+* Betroffene Qualitätsanforderung: Zuverlässigkeit (Offline-Fähigkeit) laut Produktkonzept: „Zentrale Tracking-Funktionen sind auch ohne Internetverbindung uneingeschränkt und stabil nutzbar.“
+
+* Eintrittswahrscheinlichkeit: Hoch, da bei mobiler Nutzung Netzunterbrechungen auftreten können und im untersuchten Code keine dauerhafte Offline-Speicherung gefunden wurde. Zudem kann bei einem Verbindungsfehler eine irreführende Fehlermeldung angezeigt werden, die besagt, dass die Gewohnheit nicht gefunden wurde.
+
+* Auswirkung: Hoch, da erfasste Fortschrittsdaten verloren gehen können und der Nutzer die Ursache des Fehlers möglicherweise nicht erkennt.
+
+* Risikostufe: Hoch.
+
+* Testschwerpunkt: Erledigungen sollen auch ohne Internetverbindung erhalten bleiben und bei Netzwiederkehr synchronisiert werden. Falls die Offline-Speicherung noch nicht umgesetzt ist, muss ein Speicherfehler verständlich angezeigt werden. Diese Fehlerbehandlung ersetzt jedoch nicht die geforderte Offline-Fähigkeit. Nachweis im Sprint Review.
+
+* Teststufe: Manueller Systemtest (Browser offline schalten und Verhalten bei erneuter Internetverbindung überprüfen).
+
+* Offene Frage: Wird die Offline-Speicherung in diesem Sprint umgesetzt oder bewusst zurückgestellt?
+
+
+==== PR-02: Falsche Datumszuordnung von Erledigungen
+
+* Risiko: Wenn ein Nutzer eine Gewohnheit kurz nach Mitternacht abhakt (in Deutschland während der Winterzeit zwischen 00:00 und 00:59 Uhr, während der Sommerzeit zwischen 00:00 und 01:59 Uhr), kann die Erledigung aufgrund der Verwendung der UTC-Zeit dem Vortag zugeordnet werden. Dadurch können fehlerhafte Fortschrittsdaten entstehen.
+
+* Betroffene Anforderung: Hauptfunktion „Ausführung erfassen“ (Produktkonzept, Priorität Hoch).
+
+* Eintrittswahrscheinlichkeit: Mittel, da in Deutschland nur ein bis zwei Stunden pro Nacht betroffen sind. Annahme: Ein Teil der Nutzung fällt in diesen Zeitraum.
+
+* Auswirkung: Hoch, da Fortschrittsdaten und darauf basierende Statistiken fehlerhaft sein können.
+
+* Risikostufe: Hoch.
+
+* Testschwerpunkt: Korrekte Datumszuordnung von Erledigungen vor und nach Mitternacht. Prüfung der Grenzwerte in der Zeitzone Europe/Berlin während der Sommer- und Winterzeit: 23:59 / 00:00 / 00:59 / 01:00 / 01:59 / 02:00 Uhr. Nachweis im Sprint Review.
+
+* Teststufe: Unit-Test (Datumsermittlung in eine separat testbare Funktion auslagern) und manueller Systemtest (Anwendung bleibt über Mitternacht geöffnet).
+
+* Offene Frage: Soll für die Datumszuordnung immer die lokale Zeitzone des Nutzers verwendet werden?
+
+
+==== PR-03: Fehlerhafte Anzeige monatlicher Gewohnheiten
+
+* Risiko: Wenn ein Nutzer eine monatlich wiederkehrende Gewohnheit erstellt, kann diese auch an nicht vorgesehenen Tagen angezeigt werden. Dadurch erhält der Nutzer eine fehlerhafte Tagesübersicht.
+
+* Betroffene Anforderung: Hauptfunktion „Zeitpläne mit täglichen, wöchentlichen oder selbstdefinierten Intervallen“ (Produktkonzept, Priorität Hoch).
+
+* Eintrittswahrscheinlichkeit: Mittel. Annahme: Monatliche Gewohnheiten werden seltener angelegt als tägliche oder wöchentliche Gewohnheiten. Wenn eine monatliche Gewohnheit angelegt wird, erscheint sie aufgrund der bisherigen Filterlogik täglich.
+
+* Auswirkung: Mittel, da die Tagesplanung des Nutzers beeinträchtigt werden kann.
+
+* Risikostufe: Mittel, unter der Annahme, dass monatliche Gewohnheiten nur an bestimmten Tagen angezeigt werden sollen.
+
+* Testschwerpunkt: Korrekte Filterung und Anzeige monatlich wiederkehrender Gewohnheiten. Das Risiko wird nach Klärung der fachlichen Regel durch reguläre Unit-Tests der Fälligkeitsregel abgedeckt.
+
+* Teststufe: Unit-Test. Voraussetzung: Die Fälligkeitsregel wird aus der HomeView in eine separat testbare Domänenfunktion ausgelagert.
+
+* Offene Frage: An welchem Tag des Monats soll eine monatliche Gewohnheit angezeigt werden?
+
+
+==== PR-04: Ungültige Verbindung nach dem Löschen eines Ankers
+
+* Risiko: Wenn ein Nutzer eine Anker-Gewohnheit löscht, kann eine andere Gewohnheit weiterhin auf den gelöschten Anker verweisen. Dadurch können ungültige Verbindungen und fehlerhafte Darstellungen entstehen.
+
+* Betroffene Anforderung: Story #19 Habit Stacking. Akzeptanzkriterium: Stack auflösen, ohne die verbundenen Gewohnheiten zu löschen.
+
+* Voraussetzung: Habit Stacking (#19) wird in diesem Sprint umgesetzt. Im untersuchten Code gibt es noch keine entsprechende Anker-Verbindung.
+
+* Eintrittswahrscheinlichkeit: Mittel, da Nutzer bestehende Anker löschen können und die Verbindungen dabei korrekt behandelt werden müssen.
+
+* Auswirkung: Mittel, da ungültige Verbindungen die Anzeige und Funktion verbundener Gewohnheiten beeinträchtigen können.
+
+* Risikostufe: Mittel.
+
+* Testschwerpunkt: Korrekte Behandlung bestehender Verbindungen beim Löschen einer Anker-Gewohnheit. Es dürfen keine ungültigen Verweise zurückbleiben. Die verbundenen Gewohnheiten sollen erhalten bleiben.
+
+* Teststufe: Integrationstest (Zusammenspiel zwischen Fachlogik, Datenbank-Adapter und Datenbank).
+
+* Offene Frage: Wird die Verbindung beim Löschen eines Ankers automatisch entfernt oder muss dies durch die Anwendungslogik erfolgen?
+
+
+==== PR-05: Erstellung einer Gewohnheit ohne gültigen Titel
+
+* Risiko: Wenn die Titelvalidierung durch zukünftige Änderungen beeinträchtigt wird, können Gewohnheiten ohne gültigen Titel gespeichert werden. Dadurch können unverständliche Einträge in der Gewohnheitsliste entstehen.
+
+* Betroffene Anforderung: Erstellung von Gewohnheiten mit gültigen Eingabedaten.
+
+* Eintrittswahrscheinlichkeit: Niedrig, da sowohl das Formular als auch der CreateHabitService leere Titel und Titel aus ausschließlich Leerzeichen durch trim() überprüfen und ablehnen.
+
+* Auswirkung: Mittel, da Nutzer die gespeicherten Gewohnheiten möglicherweise nicht eindeutig identifizieren können.
+
+* Risikostufe: Niedrig.
+
+* Testschwerpunkt: Sicherstellung, dass die bestehende Titelvalidierung auch nach zukünftigen Änderungen weiterhin korrekt funktioniert. Aufgrund der bereits vorhandenen Validierung genügt ein einfacher Regressionstest mit leeren Titeln, Titeln aus Leerzeichen und gültigen Titeln.
+
+* Teststufe: Unit-Test des CreateHabitService.
+
+* Offene Frage: Keine fachlichen Fragen offen.
+
+
+==== PR-06: Versehentliche doppelte Erstellung einer Gewohnheit
+
+* Risiko: Wenn ein Nutzer aufgrund einer verzögerten Reaktion der Anwendung mehrmals auf den Speichern-Button klickt, kann dieselbe Gewohnheit mehrfach erstellt werden. Dadurch können unbeabsichtigte Doppeleinträge in der Gewohnheitsliste entstehen.
+
+* Betroffene Anforderung: Zuverlässiges Erstellen und Speichern von Gewohnheiten.
+
+* Auswirkung: Mittel, da unbeabsichtigte Doppeleinträge die Übersicht und Verwaltung der Gewohnheiten beeinträchtigen können.
+
+* Eintrittswahrscheinlichkeit: Niedrig, da der Speichern-Button während eines laufenden Speichervorgangs bereits deaktiviert wird.
+
+* Risikostufe: Niedrig.
+
+* Testschwerpunkt: Sicherstellung, dass der bestehende Schutz vor einer doppelten Erstellung auch nach zukünftigen Änderungen weiterhin funktioniert.
+
+* Teststufe: Manueller Systemtest (Regressionstest).
+
+* Offene Frage: Keine fachlichen Fragen offen.
+
 
 == Testarten
 
