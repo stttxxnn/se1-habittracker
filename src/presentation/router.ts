@@ -23,7 +23,7 @@ const routes = [
     component: HabitCreateView
   },
   {
-    path: '/habit/edit/:id',
+    path: '/habit/edit/:id?',
     name: 'habit_edit',
     component: HabitEditView,
   },
@@ -39,6 +39,6 @@ export const router = createRouter({
   routes,
 })
 
-export function habit_edit_route(id: string) {
+export function habit_edit_route(id?: string) {
   router.push({name:"habit_edit", params: {id: id}})
 }

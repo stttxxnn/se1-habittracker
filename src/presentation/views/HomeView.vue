@@ -213,9 +213,10 @@ function handleEdit(habit: import('@/domain/models/Habit').Habit) {
   emit('changeView', 'habitEdit')
 }
 
-  //??? why null
+  //
 function handleOpenEditSelection() {
   habitStore.clearHabitToEdit()
+  habit_edit_route();
   emit('changeView', 'habitEdit')
 }
 
