@@ -4,6 +4,7 @@ import labels from '@/presentation/locales/en.json'
 import { useHabitStore } from '@/presentation/stores/habitStore'
 import { storeToRefs } from 'pinia'
 import BottomNav from '@/presentation/components/BottomNav.vue'
+import { Weekday } from '@/domain/models/Habit'
 
 defineProps<{ currentView: string }>()
 const emit = defineEmits<{ changeView: [view: string] }>()
@@ -63,7 +64,7 @@ const timelineLabels = [
 
 // ─── Wochentag-Mapping (JS getDay() → Habit-Weekday-String) ──────────────────
 // JS: 0=Sonntag, 1=Mo, ..., 6=Sa
-const JS_DAY_TO_WEEKDAY: Record<number, string> = {
+const JS_DAY_TO_WEEKDAY: Record<number, Weekday> = {
   0: 'sunday',
   1: 'monday',
   2: 'tuesday',
@@ -83,7 +84,7 @@ function selectDay(dayIndex: number) {
 }
 
 // ─── Habit-Filter: nur Habits für den heutigen Wochentag ────────────────────
-const todayWeekday = computed<string>(() => JS_DAY_TO_WEEKDAY[now.value.getDay()])
+const todayWeekday = computed<Weekday>(() => JS_DAY_TO_WEEKDAY[now.value.getDay()])
 
 const todayHabits = computed(() =>
   habitStore.habits.filter(habit => {
