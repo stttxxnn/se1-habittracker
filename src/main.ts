@@ -4,6 +4,7 @@ import App from '@/presentation/App.vue'
 import '@/presentation/assets/design-system.css'
 import { SupabaseHabitAdapter } from '@/infrastructure/Adapter/SupabaseHabitAdapter'
 import { createHabitUseCases, HABIT_USE_CASES } from '@/compositionRoot'
+import { router } from '@/presentation/router'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -12,4 +13,5 @@ const pinia = createPinia()
 app.provide(HABIT_USE_CASES, createHabitUseCases(new SupabaseHabitAdapter()))
 
 app.use(pinia)
+app.use(router)
 app.mount('#app')

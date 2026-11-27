@@ -13,13 +13,14 @@ defineEmits<{
 }>()
 </script>
 
+<!--https://router.vuejs.org/guide/essentials/active-links.html-->
 <template>
   <!-- Wiederverwendbare untere Navigation für die wichtigsten App-Bereiche -->
   <nav class="bottom-nav">
     <button
       type="button"
       :class="{ active: currentView === 'analytics' }"
-      @click="$emit('changeView', 'analytics')"
+      @click="$router.push('/analytics')"
     >
       <span class="nav-icon">⌁</span>
       <span>{{ labels.navigation.analytics }}</span>
@@ -28,7 +29,7 @@ defineEmits<{
     <button
       type="button"
       :class="{ active: currentView === 'home' }"
-      @click="$emit('changeView', 'home')"
+      @click="$router.push('/')"
     >
       <span class="nav-icon">⌂</span>
       <span>{{ labels.navigation.home }}</span>

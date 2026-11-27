@@ -4,6 +4,7 @@ import labels from '@/presentation/locales/en.json'
 import { useHabitStore } from '@/presentation/stores/habitStore'
 import { storeToRefs } from 'pinia'
 import BottomNav from '@/presentation/components/BottomNav.vue'
+import { router, habit_edit_route } from '../router'
 
 defineProps<{ currentView: string }>()
 const emit = defineEmits<{ changeView: [view: string] }>()
@@ -206,9 +207,13 @@ onMounted(async () => {
 
 function handleEdit(habit: import('@/domain/models/Habit').Habit) {
   habitStore.setHabitToEdit(habit)
+  //do not set here habit to edit,
+  //in change view get habit id and set THERE
+  habit_edit_route(habit.id);
   emit('changeView', 'habitEdit')
 }
 
+  //??? why null
 function handleOpenEditSelection() {
   habitStore.clearHabitToEdit()
   emit('changeView', 'habitEdit')
@@ -232,7 +237,7 @@ onUnmounted(() => {
           <p class="home-user-name">{{ user.name }}</p>
         </div>
       </div>
-      <button class="home-settings-button" type="button" @click="$emit('changeView', 'settings')">⚙</button>
+      <button class="home-settings-button" type="button" @click="$router.push('/settings')">⚙</button>
     </header>
 
     <section class="home-stats">
@@ -295,11 +300,11 @@ onUnmounted(() => {
 
     <section class="app-card">
       <h2 class="app-section-title">{{ labels.home.habitManagement }}</h2>
-      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitCreate')">⊞ {{
+      <button class="app-action-button" type="button" @click="$router.push({name: 'habit_create'})">⊞ {{
         labels.home.createHabit }}</button>
       <button class="app-action-button" type="button" @click="handleOpenEditSelection">✎ {{ labels.home.editHabit
       }}</button>
-      <button class="app-action-button" type="button" @click="$emit('changeView', 'habitDelete')">🗑 {{
+      <button class="app-action-button" type="button" @click="$router.push({name: 'habit_delete'})">🗑 {{
         labels.home.deleteHabit }}</button>
     </section>
 
